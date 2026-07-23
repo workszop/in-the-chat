@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How AI Chat Really Works — An Interactive Explainer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root {
+    /* ---- edulab foundation tokens ---- */
+    --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+    --font-sans:    'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+    --font-mono:    'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --paper:    #FBF7F0;
+    --paper-2:  #F4EDDF;
+    --paper-3:  #ECE1CF;
+    --surface:  #FFFFFF;
+
+    --ink:      #211E1A;
+    --ink-2:    #5B554D;
+    --ink-3:    #938A7C;
+    --line:     #E7DCCB;
+    --line-2:   #D6C8B2;
+
+    --marigold:      #E8920C;
+    --marigold-600:  #CE800A;
+    --marigold-soft: #FBE7C2;
+    --marigold-ink:  #8A4F00;
+
+    --teal:      #0E8C7F;
+    --teal-600:  #0B7468;
+    --teal-soft: #D2EBE6;
+    --teal-ink:  #0A5A52;
+
+    --coral:      #EF5B3F;
+    --coral-600:  #D44A30;
+    --coral-soft: #FBDDD4;
+    --coral-ink:  #9A2E1B;
+
+    --sky:      #2E78C9;
+    --sky-soft: #D9E7F6;
+    --sky-ink:  #1B4E88;
+
+    --success-ink: #1C6A3E;
+    --danger-ink:  #97271A;
+
+    --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+    --shadow-sm: 0 1px 2px rgba(33,30,26,.06), 0 1px 1px rgba(33,30,26,.04);
+    --shadow-md: 0 4px 16px rgba(33,30,26,.08), 0 1px 3px rgba(33,30,26,.05);
+    --shadow-lg: 0 16px 40px rgba(33,30,26,.12), 0 3px 8px rgba(33,30,26,.06);
+    --shadow-marigold: 0 8px 22px rgba(232,146,12,.28);
+    --on-primary: #FFFFFF;
+
+    /* ---- app aliases (used throughout this file's existing CSS) ---- */
+    --bg-main: var(--surface);
+    --bg-section: var(--paper-2);
+    --accent: var(--marigold);
+    --text-heading: var(--ink);
+    --text-body: var(--ink-2);
+    --border: var(--line);
+    --border-hover: var(--line-2);
+    --radius-sm: var(--r-xs);
+    --radius-md: var(--r-md);
+    --radius-lg: var(--r-lg);
+    --transition: 150ms ease;
+    /* token chip palette, edulab soft tints */
+    --tok-1: var(--teal-soft); --tok-2: var(--marigold-soft); --tok-3: var(--sky-soft); --tok-4: var(--coral-soft); --tok-5: var(--paper-3); --tok-6: var(--paper-2);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: var(--font-sans);
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--text-body);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent); color: var(--on-primary); }
+h1, h2, h3, h4 { font-family: var(--font-display); color: var(--text-heading); font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+h1 { font-size: 2.5rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1rem; }
+.label { font-family: var(--font-mono); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-body); }
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 64px 0; }
+.section-alt { background: var(--bg-section); }
+.grid { display: grid; gap: 24px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.card { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-sm); }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; font-size: 16px; font-weight: 600; font-family: var(--font-display); border-radius: var(--r-pill); border: none; cursor: pointer; transition: background var(--transition), transform .12s cubic-bezier(.32,.72,.32,1); }
+.btn-primary { background: var(--accent); color: var(--on-primary); box-shadow: var(--shadow-marigold); }
+.btn-primary:hover { background: var(--marigold-600); }
+.btn-primary:active { transform: scale(.96); }
+.btn-primary:disabled { opacity: 0.4; cursor: default; box-shadow: none; }
+.btn-secondary { background: transparent; border: 1px solid var(--border-hover); color: var(--text-heading); font-family: var(--font-sans); }
+.btn-secondary:hover { background: var(--bg-section); }
+.btn-secondary.active { background: var(--accent); color: var(--on-primary); border-color: var(--accent); }
+.btn-sm { padding: 8px 14px; font-size: 15px; }
+.badge { display: inline-block; padding: 4px 12px; font-family: var(--font-mono); font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; border-radius: var(--r-pill); }
+.badge-neutral { background: var(--paper-3); color: var(--text-body); }
+.badge-accent { background: var(--teal-soft); color: var(--teal-ink); }
+.mono { font-family: var(--font-mono); }
+.edu-overline { font-family: var(--font-mono); font-weight: 500; font-size: 14px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--marigold-ink); }
+.lang-toggle { display: inline-flex; border: 1px solid var(--border-hover); border-radius: var(--r-pill); overflow: hidden; flex-shrink: 0; }
+.lang-toggle button { border: none; background: transparent; padding: 6px 12px; font-size: 12.5px; font-weight: 700; font-family: var(--font-mono); letter-spacing: 0.04em; cursor: pointer; color: var(--ink-3); }
+.lang-toggle button.active { background: var(--accent); color: var(--on-primary); }
+
+/* Nav */
+nav.topnav { position: sticky; top: 0; background: rgba(251,247,240,0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); z-index: 50; }
+.topnav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 14px; }
+.topnav a.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.topnav a.brand img.edu-logo { width: 52px; height: 52px; display: block; flex-shrink: 0; }
+.topnav a.brand .edu-wordmark { font-family: var(--font-display); font-weight: 700; color: var(--text-heading); font-size: 17.5px; letter-spacing: -0.01em; white-space: nowrap; }
+.topnav .links { display: flex; gap: 2px; overflow-x: auto; max-width: 100%; }
+.topnav .links a { color: var(--ink-3); text-decoration: none; font-size: 14.5px; font-weight: 500; padding: 8px 10px; border-radius: var(--radius-md); border-bottom: 2.5px solid transparent; transition: background var(--transition), color var(--transition); white-space: nowrap; }
+.topnav .links a:hover { background: var(--bg-section); color: var(--text-heading); }
+
+/* Hero */
+.hero { padding: 88px 0 72px; }
+.hero-head { text-align: center; }
+.hero p.lede { max-width: 36rem; font-size: 18.5px; margin: 20px auto 0; text-align: center; }
+.pipeline-strip { display: flex; align-items: stretch; gap: 0; margin-top: 44px; flex-wrap: wrap; text-align: left; }
+.pipe-step { flex: 1 1 150px; border: 1px solid var(--border); background: var(--bg-main); padding: 16px 14px; position: relative; }
+.pipe-step:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+.pipe-step:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+.pipe-step + .pipe-step { border-left: none; }
+.pipe-step .num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--on-primary); font-size: 13.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+.pipe-step h4 { font-size: 15px; margin-bottom: 4px; }
+.pipe-step p { font-size: 14px; line-height: 1.45; }
+.pipe-step a { color: var(--accent); text-decoration: none; font-weight: 600; }
+
+.section-head { margin-bottom: 32px; max-width: 720px; }
+.section-head .badge { margin-bottom: 12px; }
+.section-head h2 { margin-bottom: 12px; }
+
+/* Chat vs app */
+.stack-diagram { display: grid; grid-template-columns: 1fr auto 1.4fr auto 1fr; gap: 0; align-items: stretch; margin-bottom: 40px; }
+.stack-box { border: 1px solid var(--border-hover); border-radius: var(--radius-md); padding: 20px; background: var(--bg-main); }
+.stack-box h4 { margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.stack-box ul { list-style: none; font-size: 15px; }
+.stack-box ul li { padding: 5px 0; border-bottom: 1px dashed var(--border); }
+.stack-box ul li:last-child { border-bottom: none; }
+.stack-box.model-box { border-color: var(--accent); background: var(--marigold-soft); }
+.stack-arrow { display: flex; align-items: center; padding: 0 12px; color: var(--accent); }
+
+.chat-sim { display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; align-items: start; }
+.chat-window { border: 1px solid var(--border-hover); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg-main); display: flex; flex-direction: column; }
+.chat-window .chat-titlebar { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg-section); }
+.chat-titlebar span { font-size: 15px; font-weight: 600; color: var(--text-heading); }
+.chat-log { padding: 16px; min-height: 260px; max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.msg { max-width: 85%; padding: 10px 14px; border-radius: var(--radius-lg); font-size: 16px; line-height: 1.5; }
+.msg.user { align-self: flex-end; background: var(--accent); color: var(--on-primary); border-bottom-right-radius: var(--radius-sm); }
+.msg.assistant { align-self: flex-start; background: var(--bg-section); color: var(--text-heading); border-bottom-left-radius: var(--radius-sm); }
+.chat-choices { border-top: 1px solid var(--border); padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.xray { border: 1px solid var(--border-hover); border-radius: var(--radius-lg); background: var(--paper-2); }
+.xray-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.xray-body { padding: 16px; font-size: 14.5px; line-height: 1.7; max-height: 340px; overflow-y: auto; white-space: pre-wrap; word-break: break-word; }
+.xr-sys { background: var(--marigold-soft); border-radius: 3px; padding: 1px 3px; }
+.xr-user { background: var(--sky-soft); border-radius: 3px; padding: 1px 3px; }
+.xr-asst { background: var(--teal-soft); border-radius: 3px; padding: 1px 3px; }
+.xr-tag { color: var(--marigold-ink); font-weight: 700; }
+.xray-foot { padding: 10px 16px; border-top: 1px solid var(--border); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+.legend { display: flex; gap: 12px; font-size: 13.5px; flex-wrap: wrap; }
+.legend span i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+
+.callout { border-left: 3px solid var(--accent); background: var(--bg-section); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 16px 20px; margin-top: 28px; font-size: 16px; }
+.callout strong { color: var(--text-heading); }
+.simplified { margin-top: 20px; font-size: 14.5px; color: var(--ink-3); border-top: 1px dashed var(--border-hover); padding-top: 12px; }
+.simplified strong { color: var(--text-body); font-weight: 600; }
+
+/* Tokenizer */
+.tok-input-row { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.tok-input-row input { flex: 1; min-width: 240px; background: var(--bg-section); border: 1px solid transparent; border-radius: var(--radius-md); padding: 12px 16px; font-size: 16px; outline: none; color: var(--text-heading); font-family: inherit; transition: border-color var(--transition); }
+.tok-input-row input:focus { border-color: var(--border-hover); }
+.token-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 48px; align-items: flex-start; }
+.tok-chip { display: inline-flex; flex-direction: column; align-items: center; border: 1px solid var(--border-hover); border-radius: var(--radius-sm); overflow: hidden; }
+.tok-chip .t { padding: 5px 9px; font-size: 16px; color: var(--text-heading); white-space: pre; }
+.tok-chip .id { font-size: 12.5px; padding: 2px 8px; background: rgba(33,30,26,0.06); color: var(--ink-3); width: 100%; text-align: center; }
+.tok-stats { display: flex; gap: 24px; margin-top: 18px; flex-wrap: wrap; }
+.tok-stat b { display: block; font-size: 22px; color: var(--text-heading); font-weight: 700; }
+.tok-stat span { font-size: 14px; }
+
+/* Embedding map */
+.emb-wrap { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; align-items: start; }
+.emb-svg-card { border: 1px solid var(--border-hover); border-radius: var(--radius-lg); background: var(--bg-main); padding: 8px; }
+.emb-word { cursor: pointer; }
+.emb-word circle { transition: r var(--transition); }
+.emb-word:hover circle { r: 7; }
+.emb-word text { font-family: 'Hanken Grotesk', sans-serif; font-size: 13.5px; fill: var(--text-heading); }
+.emb-panel .vector-view { font-size: 14px; background: var(--bg-section); border-radius: var(--radius-md); padding: 12px 14px; margin-top: 12px; word-break: break-all; line-height: 1.8; min-height: 76px; }
+.sim-readout { margin-top: 16px; }
+.sim-bar-track { height: 8px; border-radius: 4px; background: var(--bg-section); overflow: hidden; margin-top: 6px; }
+.sim-bar-fill { height: 100%; background: var(--accent); width: 0%; transition: width 300ms ease; }
+
+/* Attention */
+.attn-tokens { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.attn-tok { padding: 6px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-hover); background: var(--bg-main); font-size: 16px; color: var(--text-heading); cursor: pointer; transition: background var(--transition), border-color var(--transition); font-family: inherit; }
+.attn-tok:hover { background: var(--bg-section); }
+.attn-tok.active { background: var(--accent); color: var(--on-primary); border-color: var(--accent); }
+.attn-grid-wrap { overflow-x: auto; }
+.attn-grid { display: flex; gap: 4px; align-items: flex-end; min-height: 90px; padding-top: 8px; }
+.attn-col { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 64px; flex-shrink: 0; }
+.attn-bar-track { width: 100%; height: 64px; display: flex; align-items: flex-end; background: var(--bg-section); border-radius: var(--radius-sm); overflow: hidden; }
+.attn-bar-fill { width: 100%; background: var(--accent); transition: height 300ms ease; }
+.attn-col .lbl { font-size: 13.5px; color: var(--text-body); white-space: pre; }
+.attn-col .pct { font-size: 13px; color: var(--text-heading); font-weight: 700; }
+
+/* Generation */
+.gen-wrap { display: grid; grid-template-columns: 1.15fr 1fr; gap: 24px; align-items: start; }
+.gen-context { border: 1px solid var(--border-hover); border-radius: var(--radius-lg); padding: 20px; background: var(--bg-main); min-height: 130px; }
+.gen-context .ctx-tokens { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.ctx-tok { padding: 4px 8px; border-radius: var(--radius-sm); font-size: 16px; color: var(--text-heading); white-space: pre; }
+.ctx-tok.new { outline: 2px solid var(--accent); }
+.gen-controls { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+.prob-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.prob-row { display: grid; grid-template-columns: 92px 1fr 52px; align-items: center; gap: 10px; font-size: 15px; }
+.prob-row .ptok { color: var(--text-heading); font-weight: 600; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.prob-track { height: 18px; background: var(--bg-section); border-radius: var(--radius-sm); overflow: hidden; }
+.prob-fill { height: 100%; background: var(--line-2); transition: width 350ms ease; border-radius: var(--radius-sm); }
+.prob-row.chosen .prob-fill { background: var(--accent); }
+.prob-row.chosen .ptok { color: var(--accent); }
+.prob-pct { text-align: right; font-size: 14px; }
+.temp-row { display: flex; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+.temp-row input[type=range] { flex: 1; min-width: 140px; accent-color: var(--accent); }
+.temp-val { font-weight: 700; color: var(--text-heading); min-width: 34px; text-align: center; }
+.mode-toggle { display: inline-flex; border: 1px solid var(--border-hover); border-radius: var(--radius-md); overflow: hidden; }
+.mode-toggle button { border: none; background: transparent; padding: 8px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; color: var(--text-body); font-family: inherit; }
+.mode-toggle button.active { background: var(--accent); color: var(--on-primary); }
+
+/* Context & Memory */
+.budget-bar-track { height: 40px; border-radius: var(--radius-md); background: var(--bg-section); overflow: hidden; display: flex; border: 1px solid var(--border-hover); }
+.budget-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 600; color: var(--on-primary); white-space: nowrap; overflow: hidden; transition: opacity 300ms ease, width 300ms ease; flex-shrink: 0; }
+.budget-seg.sys { background: var(--marigold-ink); }
+.budget-seg.user { background: var(--sky); }
+.budget-seg.asst { background: var(--teal); }
+.budget-seg.evicted { opacity: 0; width: 0 !important; }
+.budget-meta { display: flex; justify-content: space-between; font-size: 14px; margin-top: 8px; }
+.budget-overflow-note { font-size: 14.5px; color: var(--danger-ink); font-weight: 600; margin-top: 8px; min-height: 18px; }
+.mem-strategy-toggle { display: inline-flex; border: 1px solid var(--border-hover); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 16px; }
+.mem-strategy-toggle button { border: none; background: transparent; padding: 8px 14px; font-size: 14.5px; font-weight: 600; cursor: pointer; color: var(--text-body); font-family: inherit; }
+.mem-strategy-toggle button.active { background: var(--accent); color: var(--on-primary); }
+
+/* Hallucinations */
+.hall-item { border-top: 1px dashed var(--border-hover); padding: 18px 0; }
+.hall-item:first-child { border-top: none; padding-top: 0; }
+.hall-prompt { font-weight: 600; color: var(--text-heading); margin-bottom: 4px; }
+.hall-answer { font-size: 15.5px; background: var(--bg-section); border-radius: var(--radius-md); padding: 10px 14px; margin: 8px 0; }
+.hall-rate-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.hall-rate-row button.active { background: var(--accent); color: var(--on-primary); border-color: var(--accent); }
+.hall-verdict { font-size: 15px; font-weight: 600; margin-top: 8px; min-height: 20px; }
+.hall-verdict.true { color: var(--success-ink); }
+.hall-verdict.false { color: var(--danger-ink); }
+.hall-score { font-size: 15px; margin-top: 12px; }
+.claim-span { cursor: pointer; border-bottom: 2px dotted var(--border-hover); padding: 0 1px; }
+.claim-span.marked { background: var(--marigold-soft); border-bottom-color: var(--marigold-600); }
+.claim-key { margin-top: 14px; font-size: 14.5px; display: none; }
+.claim-key.show { display: block; }
+.claim-key div { padding: 4px 0; border-top: 1px dashed var(--border); }
+.refusal-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.refusal-col { border-radius: var(--radius-md); padding: 12px 14px; font-size: 15px; }
+.refusal-col.good { background: var(--teal-soft); }
+.refusal-col.bad { background: var(--coral-soft); }
+.refusal-col h4 { font-size: 14.5px; margin-bottom: 6px; }
+
+/* Prompt Engineering */
+.ab-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.ab-cols textarea { width: 100%; min-height: 90px; background: var(--bg-section); border: 1px solid transparent; border-radius: var(--radius-md); padding: 12px 14px; font-size: 15.5px; font-family: inherit; resize: vertical; color: var(--text-heading); }
+.ab-cols textarea:focus { outline: none; border-color: var(--border-hover); }
+.ab-output { font-size: 15px; background: var(--bg-section); border-radius: var(--radius-md); padding: 12px 14px; margin-top: 10px; min-height: 60px; white-space: pre-wrap; }
+.tech-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin: 16px 0; }
+.tech-card { border: 1px solid var(--border-hover); border-radius: var(--radius-md); padding: 12px 14px; background: var(--bg-main); cursor: pointer; text-align: left; font-family: inherit; }
+.tech-card.active { border-color: var(--accent); background: var(--marigold-soft); }
+.tech-card h4 { font-size: 15px; margin-bottom: 4px; }
+.tech-card p { font-size: 13.5px; }
+.before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.before-after .mono { font-size: 14.5px; background: var(--bg-section); border-radius: var(--radius-md); padding: 12px 14px; white-space: pre-wrap; min-height: 80px; }
+
+/* RAG */
+.rag-chunks { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.rag-chunk { border: 1px solid var(--border-hover); border-radius: var(--radius-md); padding: 8px 12px; font-size: 14px; background: var(--bg-section); max-width: 220px; cursor: default; }
+.rag-chunk.hit { border-color: var(--accent); background: var(--teal-soft); }
+.rag-chunk .cid { font-weight: 700; color: var(--accent); font-size: 13.5px; margin-bottom: 3px; }
+.rag-answer { font-size: 15.5px; background: var(--teal-soft); border-radius: var(--radius-md); padding: 12px 14px; margin-top: 12px; }
+.rag-cite { font-size: 13.5px; color: var(--accent); font-weight: 600; }
+.rag-scenarios { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+
+/* Training & Alignment */
+.scale-chart { display: flex; align-items: flex-end; gap: 18px; min-height: 160px; margin: 18px 0 6px; }
+.scale-col { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.scale-bar-track { width: 100%; max-width: 46px; height: 140px; display: flex; align-items: flex-end; background: var(--bg-section); border-radius: var(--radius-sm); overflow: hidden; }
+.scale-bar-fill { width: 100%; background: var(--accent); transition: height 300ms ease; }
+.scale-col .glbl { font-size: 13.5px; font-weight: 600; color: var(--text-heading); }
+.rlhf-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+.rlhf-opt { border: 1px solid var(--border-hover); border-radius: var(--radius-md); padding: 14px; font-size: 15.5px; cursor: pointer; background: var(--bg-main); }
+.rlhf-opt:hover { background: var(--bg-section); }
+.rlhf-progress { font-size: 14.5px; margin-top: 4px; }
+.rlhf-result { margin-top: 14px; }
+.rlhf-bar-row { display: grid; grid-template-columns: 90px 1fr 40px; align-items: center; gap: 8px; font-size: 14.5px; margin-top: 6px; }
+
+/* Recap */
+.recap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.recap-card h4 { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+.recap-card .num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--on-primary); font-size: 14px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.recap-card p { font-size: 15.5px; }
+
+footer { border-top: 1px solid var(--border); padding: 32px 0; font-size: 15px; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-section); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+@media (max-width: 900px) {
+    .chat-sim, .emb-wrap, .gen-wrap { grid-template-columns: 1fr; }
+    .ab-cols, .refusal-cols, .before-after, .rlhf-pair { grid-template-columns: 1fr; }
+    .stack-diagram { grid-template-columns: 1fr; }
+    .stack-arrow { transform: rotate(90deg); justify-content: center; padding: 6px 0; }
+    .recap-grid, .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    h1 { font-size: 1.85rem; }
+    .section { padding: 44px 0; }
+    .topnav .links { display: none; }
+}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <div class="container topnav-inner">
+    <a class="brand" href="#top">
+      <img class="edu-logo" alt="edulab" src="data:image/png;base64,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">
+      <span class="edu-wordmark">Inside the Chat</span>
+    </a>
+    <div class="links">
+      <a data-i18n="nav.appVsModel" href="#app-vs-model">Aplikacja a model</a>
+      <a data-i18n="nav.tokenization" href="#tokenization">Tokenizacja</a>
+      <a data-i18n="nav.embeddings" href="#embeddings">Osadzenia</a>
+      <a data-i18n="nav.attention" href="#attention">Uwaga</a>
+      <a data-i18n="nav.generation" href="#generation">Generowanie</a>
+      <a data-i18n="nav.memory" href="#context-memory">Pamięć</a>
+      <a data-i18n="nav.hallucinations" href="#hallucinations">Halucynacje</a>
+      <a data-i18n="nav.prompting" href="#prompt-engineering">Prompty</a>
+      <a data-i18n="nav.rag" href="#rag">RAG</a>
+      <a data-i18n="nav.training" href="#training">Trening</a>
+      <a data-i18n="nav.recap" href="#recap">Podsumowanie</a>
+      
+    </div>
+    <div class="lang-toggle" id="langToggle">
+      <button data-lang="pl" class="active">PL</button>
+      <button data-lang="en">EN</button>
+    </div>
+  </div>
+</nav>
+<header class="hero" id="top">
+  <div class="container hero-head">
+    <p class="edu-overline" data-i18n="hero.eyebrow">Interaktywne demo · symulacja edukacyjna</p>
+    <h1 style="margin-top:10px;" data-i18n="hero.title" data-i18n-html>Co naprawdę dzieje się, gdy<br>rozmawiasz z chatbotem AI?</h1>
+    <p class="lede" data-i18n="hero.lede" data-i18n-html>W środku nie ma małego człowieka — nie ma też bazy danych z gotowymi odpowiedziami. Czat AI to <strong style="color:var(--text-heading)">potok (pipeline)</strong>: aplikacja, która składa Twoją rozmowę w jeden długi tekst, oraz model, który robi dokładnie jedną rzecz — przewiduje kolejny mały fragment tekstu, w kółko. Przejdź przez każdy etap poniżej i wypróbuj go sam.</p>
+    <div class="pipeline-strip">
+      <div class="pipe-step"><div class="num">1</div><h4><a href="#app-vs-model" data-i18n="pipe.0.h">Aplikacja czatu</a></h4><p data-i18n="pipe.0.p">Zbiera Twoją wiadomość, historię i ukryte instrukcje w jeden prompt.</p></div>
+      <div class="pipe-step"><div class="num">2</div><h4><a href="#tokenization" data-i18n="pipe.1.h">Tokenizacja</a></h4><p data-i18n="pipe.1.p">Tekst jest dzielony na małe fragmenty zwane tokenami, każdy z numerem.</p></div>
+      <div class="pipe-step"><div class="num">3</div><h4><a href="#embeddings" data-i18n="pipe.2.h">Osadzenia</a></h4><p data-i18n="pipe.2.p">Każdy token staje się długą listą liczb — punktem w "przestrzeni znaczeń".</p></div>
+      <div class="pipe-step"><div class="num">4</div><h4><a href="#generation" data-i18n="pipe.3.h">Przewidywanie</a></h4><p data-i18n="pipe.3.p">Model zwraca prawdopodobieństwo dla każdego możliwego kolejnego tokenu.</p></div>
+      <div class="pipe-step"><div class="num">5</div><h4><a href="#generation" data-i18n="pipe.4.h">Powtórzenie</a></h4><p data-i18n="pipe.4.p">Wybierany jest jeden token, dołączany do tekstu, i pętla rusza od nowa — aż odpowiedź będzie gotowa.</p></div>
+    </div>
+  </div>
+</header>
+<!-- ===================== SECTION 1: APP VS MODEL ===================== -->
+<section class="section section-alt" id="app-vs-model">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m1.badge">Stacja 1</span>
+      <h2 data-i18n="m1.title">Aplikacja czatu to nie to samo, co model</h2>
+      <p data-i18n="m1.intro" data-i18n-html>To, co widzisz na ekranie — dymki wiadomości, historię, "pamięć" — to <strong style="color:var(--text-heading)">aplikacja</strong>. Leżący pod spodem <strong style="color:var(--text-heading)">model</strong> to bezstanowy silnik przewidywania tekstu: otrzymuje jeden długi blok tekstu i zwraca jego kontynuację. Nie zapamiętuje niczego między zapytaniami.</p>
+    </div>
+
+    <div class="stack-diagram">
+      <div class="stack-box">
+        <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <span data-i18n="m1.youTitle">Ty</span></h4>
+        <ul>
+          <li data-i18n="m1.youLi1">Piszesz wiadomość</li>
+          <li data-i18n="m1.youLi2">Widzisz czat z "pamięcią"</li>
+        </ul>
+      </div>
+      <div class="stack-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+      <div class="stack-box">
+        <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/></svg> <span data-i18n="m1.appTitle">Aplikacja czatu</span></h4>
+        <ul>
+          <li data-i18n="m1.appLi1">Przechowuje historię rozmowy</li>
+          <li data-i18n="m1.appLi2" data-i18n-html>Dodaje na początku ukryty prompt systemowy</li>
+          <li data-i18n="m1.appLi3" data-i18n-html>Formatuje wszystko za pomocą szablonu czatu</li>
+          <li data-i18n="m1.appLi4" data-i18n-html>Wysyła cały zapis rozmowy przy każdej turze</li>
+          <li data-i18n="m1.appLi5">Strumieniuje odpowiedź z powrotem na ekran</li>
+        </ul>
+      </div>
+      <div class="stack-arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+      <div class="stack-box model-box">
+        <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> <span data-i18n="m1.modelTitle">Model językowy</span></h4>
+        <ul>
+          <li data-i18n="m1.modelLi1">Bezstanowy — brak jakiejkolwiek pamięci</li>
+          <li data-i18n="m1.modelLi2">Wejście: jedna długa sekwencja tokenów</li>
+          <li data-i18n="m1.modelLi3">Wyjście: prawdopodobieństwa kolejnego tokenu</li>
+          <li data-i18n="m1.modelLi4">Miliardy stałych, wytrenowanych liczb</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-bottom:6px;" data-i18n="m1.tryTitle">Wypróbuj: czat po lewej, prześwietlenie po prawej</h3>
+    <p style="margin-bottom:20px; max-width:680px;" data-i18n="m1.tryIntro" data-i18n-html>Wyślij gotowe wiadomości i zobacz, co aplikacja <em>naprawdę</em> przesyła do modelu przy każdej turze. Zwróć uwagę, jak rośnie ładunek danych — model nie zapamiętuje Twojego imienia, tylko za każdym razem jest mu ono <strong style="color:var(--text-heading)">powtarzane</strong> na nowo.</p>
+
+    <div class="chat-sim">
+      <div class="chat-window">
+        <div class="chat-titlebar">
+          <span data-i18n="m1.chatLabel">💬 Czat (to, co widzisz)</span>
+          <button class="btn btn-secondary btn-sm" id="chatReset" data-i18n="common.reset">Resetuj</button>
+        </div>
+        <div class="chat-log" id="chatLog"></div>
+        <div class="chat-choices" id="chatChoices"></div>
+      </div>
+      <div class="xray">
+        <div class="xray-head">
+          <span style="font-size:15px; font-weight:600; color:var(--text-heading);" data-i18n="m1.xrayLabel">🩻 Prześwietlenie (to, co otrzymuje model)</span>
+          <div class="legend">
+            <span><i style="background:var(--marigold-soft)"></i><span data-i18n="m1.legendSystem">system</span></span>
+            <span><i style="background:var(--sky-soft)"></i><span data-i18n="m1.legendUser">użytkownik</span></span>
+            <span><i style="background:var(--teal-soft)"></i><span data-i18n="m1.legendAsst">asystent</span></span>
+          </div>
+        </div>
+        <div class="xray-body mono" id="xrayBody"></div>
+        <div class="xray-foot">
+          <span><span data-i18n="m1.xraySentPrefix">Wysłano do modelu w tej turze: </span><b id="xrayTokens" style="color:var(--text-heading)">0</b><span data-i18n="m1.xraySentSuffix"> tokenów (przybliżenie)</span></span>
+          <span id="xrayTurn" class="label"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout" data-i18n="m1.callout" data-i18n-html><strong>Kluczowa idea:</strong> "pamięć", osobowość i zasady bezpieczeństwa żyją głównie w <em>warstwie aplikacji</em> (przechowywanie historii, prompt systemowy, filtry, narzędzia). Sam model to zamrożona funkcja matematyczna. Podmień aplikację wokół tego samego modelu, a otrzymasz zupełnie inny produkt.</div>
+    <div class="simplified" data-i18n="m1.simplified" data-i18n-html><strong>Uproszczenia:</strong> prawdziwe szablony czatu używają specjalnych tokenów właściwych danemu modelowi (np. <span class="mono">&lt;|im_start|&gt;</span>), prawdziwe prompty systemowe są znacznie dłuższe, a aplikacje mogą przycinać lub streszczać starą historię, gdy przestaje mieścić się w oknie kontekstowym modelu — maksymalnej liczbie tokenów, jaką może on odczytać naraz.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 2: TOKENIZATION ===================== -->
+<section class="section" id="tokenization">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m2.badge">Stacja 2</span>
+      <h2 data-i18n="m2.title">Tokenizacja: tekst zamienia się w liczby</h2>
+      <p data-i18n="m2.intro" data-i18n-html>Modele nigdy nie widzą liter ani słów. Tokenizator tnie tekst na <strong style="color:var(--text-heading)">tokeny</strong> — częste słowa zostają w całości, rzadkie są dzielone na fragmenty podwyrazowe — a każdy token jest mapowany na ID w ustalonym słowniku (zwykle 30 000–200 000 pozycji, wyuczonym z danych przed treningiem).</p>
+    </div>
+
+    <div class="card">
+      <div class="tok-input-row">
+        <input id="tokInput" type="text" value="Unbelievable! The transformer is playing with tokenization." spellcheck="false" data-i18n-attr="aria-label:m2.inputAria">
+        <button class="btn btn-secondary btn-sm" id="tokPreset1" data-i18n="m2.preset1Label">Wypróbuj polski i emoji</button>
+        <button class="btn btn-secondary btn-sm" id="tokPreset2" data-i18n="m2.preset2Label">Wypróbuj rzadkie słowa</button>
+      </div>
+      <div class="label" style="margin-bottom:10px;" data-i18n="m2.chipsLabel">Tokeny (u góry) i ich ID w słowniku (na dole)</div>
+      <div class="token-chips" id="tokChips"></div>
+      <div class="tok-stats">
+        <div class="tok-stat"><b id="statChars">0</b><span data-i18n="m2.statChars">znaki</span></div>
+        <div class="tok-stat"><b id="statTokens">0</b><span data-i18n="m2.statTokens">tokeny</span></div>
+        <div class="tok-stat"><b id="statRatio">0</b><span data-i18n="m2.statRatio">znaków na token</span></div>
+      </div>
+    </div>
+
+    <div class="callout" data-i18n="m2.callout" data-i18n-html><strong>Dlaczego to ważne:</strong> model rozumuje na tych fragmentach, nie na literach — to właśnie dlatego modele słynnie mają problem z policzeniem liter "r" w słowie "strawberry": mogą nigdy nie "zobaczyć" pojedynczych liter. Liczba tokenów decyduje też o koszcie, szybkości i o tym, ile zmieści się w oknie kontekstowym.</div>
+    <div class="simplified" data-i18n="m2.simplified" data-i18n-html><strong>Uproszczenia:</strong> to demo używa maleńkiego, ręcznie zbudowanego słownika z zachłannym dopasowywaniem najdłuższego fragmentu. Prawdziwe tokenizatory (np. Byte-Pair Encoding) uczą się słownika statystycznie na terabajtach tekstu i potrafią zakodować dowolny bajt, więc nic nigdy nie jest "nieznane" — po prostu dzielone na mniejsze części. Znak ␣ pokazuje, że wiodąca spacja jest częścią tokenu, dokładnie jak w prawdziwych słownikach BPE. Domyślny przykład jest po angielsku, bo ten mini-słownik został ręcznie dopasowany właśnie do niego — wpisz polski tekst (np. przyciskiem powyżej), by zobaczyć, jak brak dopasowań zmusza tokenizator do cięcia znak po znaku: to samo w sobie pokazuje, dlaczego tokenizacja bywa niesprawiedliwa dla języków innych niż angielski.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 3: EMBEDDINGS ===================== -->
+<section class="section section-alt" id="embeddings">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m3.badge">Stacja 3</span>
+      <h2 data-i18n="m3.title">Osadzenia: znaczenie zamienia się w geometrię</h2>
+      <p data-i18n="m3.intro" data-i18n-html>ID tokenu to tylko etykieta — ID 5121 nie jest w żaden sensowny sposób "blisko" 5122. Każde ID trafia więc do wyuczonej tabeli i staje się <strong style="color:var(--text-heading)">osadzeniem (embeddingiem)</strong>: wektorem tysięcy liczb. Podczas treningu słowa używane w podobnych kontekstach zbliżają się do siebie. Znaczenie zamienia się w odległość.</p>
+    </div>
+
+    <div class="emb-wrap">
+      <div class="emb-svg-card">
+        <svg id="embSvg" viewBox="0 0 640 430" width="100%" role="img" data-i18n-attr="aria-label:m3.svgAria"></svg>
+      </div>
+      <div class="emb-panel">
+        <h4 data-i18n="m3.inspectTitle">Zbadaj przestrzeń</h4>
+        <p style="font-size:15.5px; margin-top:6px;" data-i18n="m3.inspectIntro" data-i18n-html>Najedź na słowo, by zerknąć na jego wektor. <strong style="color:var(--text-heading)">Kliknij dwa słowa</strong>, aby zmierzyć, jak bardzo model uważa je za podobne (podobieństwo kosinusowe: 100% = ten sam kierunek, 0% = brak związku).</p>
+        <div class="vector-view mono" id="vecView" data-i18n="m3.hoverPlaceholder">Najedź na słowo na mapie…</div>
+        <div class="sim-readout">
+          <div style="display:flex; justify-content:space-between; font-size:15px;">
+            <span id="simPair" style="color:var(--text-heading); font-weight:600;">— · —</span>
+            <span id="simVal" style="font-weight:700; color:var(--accent);">–</span>
+          </div>
+          <div class="sim-bar-track"><div class="sim-bar-fill" id="simBar"></div></div>
+        </div>
+        <p style="font-size:14.5px; margin-top:16px;" data-i18n="m3.tryLine" data-i18n-html>Wypróbuj: <b>kotek · kot</b> (bardzo blisko), <b>król · królowa</b> (blisko), <b>pizza · laptop</b> (daleko od siebie).</p>
+      </div>
+    </div>
+
+    <div class="callout" data-i18n="m3.callout" data-i18n-html><strong>Kluczowa idea:</strong> gdy słowa stają się wektorami, model może <em>obliczać</em> na znaczeniu — porównywać je, mieszać i przekształcać. Kierunki mogą kodować relacje: przesunięcie od <em>mężczyzny</em> do <em>kobiety</em> odpowiada mniej więcej przesunięciu od <em>króla</em> do <em>królowej</em>.</div>
+    <div class="simplified" data-i18n="m3.simplified" data-i18n-html><strong>Uproszczenia:</strong> prawdziwe osadzenia mają 1000–10000+ wymiarów; ta mapa spłaszcza tę ideę do 2D, a pozycje są poglądowe. Wewnątrz prawdziwego transformera osadzenia są następnie dalej przekształcane warstwa po warstwie przez <em>mechanizm uwagi</em>, dzięki czemu wektor każdego tokenu wchłania kontekst z całego zdania (słowo "zamek" obok "króla" trafia w inne miejsce niż "zamek" obok "błyskawicznego").</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 4: ATTENTION ===================== -->
+<section class="section" id="attention">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m4.badge">Stacja 4</span>
+      <h2 data-i18n="m4.title">Uwaga: każdy token patrzy na każdy inny token</h2>
+      <p data-i18n="m4.intro" data-i18n-html>Zanim model cokolwiek przewidzi, jego warstwy transformera pozwalają wektorowi każdego tokenu <strong style="color:var(--text-heading)">wchłonąć kontekst</strong> z reszty zdania. To właśnie rozstrzyga niejednoznaczne słowa — "ono" nie wie, do czego się odnosi, dopóki mechanizm uwagi nie wskaże właściwego rzeczownika.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:10px;" data-i18n="m4.gridLabel">Przykładowe zdanie — kliknij token, by zobaczyć, na co zwraca uwagę</div>
+      <div class="attn-tokens" id="attnTokens"></div>
+      <div class="attn-grid-wrap">
+        <div class="attn-grid mono" id="attnGrid"></div>
+      </div>
+      <p style="font-size:14.5px; margin-top:14px;" id="attnCaption" data-i18n="m4.captionDefault" data-i18n-html>Kliknij <b>"ono"</b> powyżej — zobacz, które wcześniejsze tokeny rozświetlają się najmocniej.</p>
+    </div>
+
+    <div class="callout" data-i18n="m4.callout" data-i18n-html><strong>Kluczowa idea:</strong> "Trofeum nie zmieściło się w walizce, ponieważ ono było za duże" — człowiek natychmiast wie, do czego odnosi się "ono"; model robi to samo, pozwalając wektorowi "ono" mocno skupić uwagę na "Trofeum" (nie na "walizce"), wchłaniając to znaczenie do własnej reprezentacji. Ułóż dziesiątki takich warstw uwagi, a model zbuduje bogaty, świadomy kontekstu obraz całego zdania, zanim cokolwiek przewidzi.</div>
+    <div class="simplified" data-i18n="m4.simplified" data-i18n-html><strong>Uproszczenia:</strong> te wagi uwagi są ręcznie dobrane dla tego jednego przykładu, a nie obliczone przez działający model — prawdziwy transformer ma wiele warstw i wiele "głów" uwagi na warstwę, z których każda uczy się innych zależności, a wagi pochodzą z miliardów wytrenowanych parametrów. Uruchomienie prawdziwego (nawet małego) modelu w przeglądarce, by pokazać rzeczywiste wagi uwagi, to poważniejsza funkcja zaplanowana na przyszłość.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 5: GENERATION ===================== -->
+<section class="section" id="generation">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m5.badge">Stacja 5</span>
+      <h2 data-i18n="m5.title">Generowanie: jeden token na raz</h2>
+      <p data-i18n="m5.intro" data-i18n-html>Po całym tym wewnętrznym przetwarzaniu liczb, całe wyjście modelu to <strong style="color:var(--text-heading)">prawdopodobieństwo dla każdego tokenu w jego słowniku</strong> — "co może być dalej?". Wybierany jest jeden token, doklejany do tekstu, i całe przewidywanie uruchamia się od nowa. Akapit to po prostu ta pętla, powtórzona setki razy.</p>
+    </div>
+
+    <div class="gen-wrap">
+      <div>
+        <div class="gen-context">
+          <div class="label" data-i18n="m5.contextLabel">Kontekst (model odczytuje to wszystko na nowo przy każdym kroku)</div>
+          <div class="ctx-tokens" id="ctxTokens"></div>
+        </div>
+        <div class="gen-controls">
+          <select id="genPrompt" class="btn btn-secondary btn-sm" style="cursor:pointer;">
+            <option value="cat" data-i18n="m5.promptCat">Prompt: "Kot usiadł na"</option>
+            <option value="warsaw" data-i18n="m5.promptWarsaw">Prompt: "Warszawa jest stolicą"</option>
+            <option value="story" data-i18n="m5.promptStory">Prompt: "Dawno, dawno temu"</option>
+          </select>
+          <button class="btn btn-primary btn-sm" id="genStep" data-i18n="m5.stepBtn">Przewidź kolejny token →</button>
+          <button class="btn btn-secondary btn-sm" id="genAuto" data-i18n="m5.autoplayBtn">▶ Autoodtwarzanie</button>
+          <button class="btn btn-secondary btn-sm" id="genReset" data-i18n="common.reset">Resetuj</button>
+        </div>
+        <div class="temp-row">
+          <span class="label" data-i18n="m5.temperatureLabel">Temperatura</span>
+          <input type="range" id="tempSlider" min="0.1" max="2" step="0.1" value="0.8">
+          <span class="temp-val" id="tempVal">0.8</span>
+          <div class="mode-toggle" id="modeToggle">
+            <button data-mode="sample" class="active" data-i18n="m5.sampleBtn">Próbkowanie</button>
+            <button data-mode="greedy" data-i18n="m5.greedyBtn">Zachłanne (najlepszy wybór)</button>
+          </div>
+        </div>
+        <p style="font-size:14.5px; margin-top:10px;" data-i18n="m5.tempNote" data-i18n-html>Niska temperatura wyostrza rozkład (tekst przewidywalny); wysoka spłaszcza go (kreatywny — albo niespójny). <b>Zachłanne</b> zawsze wybiera token z najwyższym wynikiem, dlatego zawsze daje tę samą odpowiedź.</p>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-bottom:4px;" data-i18n="m5.outputLabel">Wyjście modelu: prawdopodobieństwa kolejnego tokenu</div>
+        <div id="probStatus" style="font-size:15px; color:var(--text-heading); font-weight:600; min-height:20px;" data-i18n="m5.pressPrompt">Naciśnij "Przewidź kolejny token"</div>
+        <div class="prob-list" id="probList"></div>
+      </div>
+    </div>
+
+    <div class="callout" data-i18n="m5.callout" data-i18n-html><strong>Kluczowa idea:</strong> model nigdy nie planuje całego zdania z góry i nigdy nie "sprawdza" odpowiedzi. Fakty, styl, a nawet pozorne rozumowanie — wszystko to wyłania się z wielokrotnego wybierania prawdopodobnego kolejnego tokenu — dlatego właśnie modele potrafią płynnie wypowiadać nieprawdę (<em>halucynacje</em>): błędna kontynuacja może nadal wyglądać na prawdopodobną.</div>
+    <div class="simplified" data-i18n="m5.simplified" data-i18n-html><strong>Uproszczenia:</strong> te tabele prawdopodobieństw są ręcznie zapisane na potrzeby demo i pokazują tylko 6 najlepszych kandydatów. Prawdziwy model za każdym razem od nowa liczy rozkład nad <em>całym</em> słownikiem (100 tys.+ tokenów), a aplikacje łączą temperaturę z innymi mechanizmami próbkowania (top-p, top-k).</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 6: CONTEXT & MEMORY ===================== -->
+<section class="section section-alt" id="context-memory">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m6.badge">Stacja 6</span>
+      <h2 data-i18n="m6.title">Okno kontekstowe i pamięć: miejsca jest niewiele</h2>
+      <p data-i18n="m6.intro" data-i18n-html>Każdy model ma <strong style="color:var(--text-heading)">okno kontekstowe</strong> o stałym rozmiarze — maksymalną liczbę tokenów, jaką może odczytać w jednym zapytaniu. Aplikacja musi zmieścić w nim prompt systemowy, całą historię rozmowy i Twoją nową wiadomość. Gdy długi czat przepełni okno, coś trzeba przyciąć.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:10px;" data-i18n="m6.budgetLabel">Wysyłaj kolejne tury i patrz, jak wypełnia się okno</div>
+      <div class="budget-bar-track" id="budgetBar"></div>
+      <div class="budget-meta"><span id="budgetUsed">0 / 24</span><span id="budgetTurnCount">0</span></div>
+      <div class="budget-overflow-note" id="budgetNote"></div>
+      <div class="gen-controls" style="margin-top:14px;">
+        <button class="btn btn-primary btn-sm" id="budgetSend" data-i18n="m6.sendTurnBtn">Wyślij kolejną turę</button>
+        <button class="btn btn-secondary btn-sm" id="budgetReset" data-i18n="common.reset">Resetuj</button>
+      </div>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m6.strategiesTitle">Ta sama rozmowa, trzy strategie pamięci</h3>
+    <p style="margin-bottom:16px; max-width:680px;" data-i18n="m6.strategiesIntro" data-i18n-html>Gdy okno się zapełni, aplikacja musi wybrać, <em>co</em> zachować. Przełącz strategię i zobacz, co faktycznie zostaje wysłane do modelu w tej turze.</p>
+    <div class="card">
+      <div class="mem-strategy-toggle" id="memToggle">
+        <button data-strat="raw" class="active" data-i18n="m6.stratRaw">Surowa historia</button>
+        <button data-strat="summary" data-i18n="m6.stratSummary">Streszczona historia</button>
+        <button data-strat="notes" data-i18n="m6.stratNotes">Notatki zewnętrzne</button>
+      </div>
+      <div class="xray-body mono" id="memBody" style="max-height:220px;"></div>
+    </div>
+
+    <div class="callout" data-i18n="m6.callout" data-i18n-html><strong>Kluczowa idea:</strong> "pamięć" nigdy nie jest darmowa — każda zachowana tura kosztuje tokeny przy każdym kolejnym zapytaniu. Surowa historia jest najwierniejsza, ale najdroższa; streszczanie wymienia część szczegółów na dużo mniejszy ładunek danych; notatki zewnętrzne (pliki, baza danych, notatnik) pozwalają aplikacji przywołać konkretne fakty bez ponownego wysyłania całego zapisu rozmowy.</div>
+    <div class="simplified" data-i18n="m6.simplified" data-i18n-html><strong>Uproszczenia:</strong> rozmiar okna (24 "miejsca") oraz streszczenia/notatki są tu ustalone na potrzeby demo. Prawdziwe okna kontekstowe liczy się w dziesiątkach lub setkach tysięcy tokenów, prawdziwe streszczanie samo w sobie jest zapytaniem do modelu, a prawdziwe aplikacje stosują bardziej wyrafinowane usuwanie danych (np. zachowanie promptu systemowego i najnowszych tur, usuwanie ze środka).</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 7: HALLUCINATIONS & LIMITS ===================== -->
+<section class="section" id="hallucinations">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m7.badge">Stacja 7</span>
+      <h2 data-i18n="m7.title">Halucynacje i ograniczenia: płynność to nie to samo, co prawda</h2>
+      <p data-i18n="m7.intro" data-i18n-html>Ponieważ model zawsze tworzy najbardziej <em>brzmiącą wiarygodnie</em> kontynuację — a nie sprawdza faktów — błędna odpowiedź może brzmieć dokładnie tak samo pewnie jak poprawna. Bycie dobrym użytkownikiem AI oznacza wiedzieć, kiedy sprawdzić dwa razy.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:6px;" data-i18n="m7.rateLabel">Oceń każdą odpowiedź przed odsłonięciem werdyktu</div>
+      <div id="hallList"></div>
+      <div class="hall-score" id="hallScore"></div>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m7.claimsTitle">Znajdź twierdzenia, które trzeba sprawdzić</h3>
+    <div class="card">
+      <p class="mono" style="font-size:15.5px; line-height:1.9;" id="claimText"></p>
+      <button class="btn btn-secondary btn-sm" id="claimReveal" style="margin-top:10px;" data-i18n="m7.revealBtn">Odsłoń klucz odpowiedzi</button>
+      <div class="claim-key" id="claimKey"></div>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m7.cannotKnowTitle">Niektórych rzeczy model po prostu nie może wiedzieć</h3>
+    <div class="card">
+      <div class="gen-controls" id="refusalPicker" style="margin-bottom:8px;"></div>
+      <div class="refusal-cols" id="refusalCols"></div>
+    </div>
+
+    <div class="callout" data-i18n="m7.callout" data-i18n-html><strong>Kluczowa idea:</strong> pewność w tonie wypowiedzi nie jest dowodem poprawności — to efekt uboczny płynnego generowania tekstu. Poprawną odpowiedzią na "jaka będzie jutro pogoda pod moim domem" jest odmowa lub wywołanie narzędzia (rzeczywiste sprawdzenie pogody), nigdy pewne zgadywanie ubrane w fakt.</div>
+    <div class="simplified" data-i18n="m7.simplified" data-i18n-html><strong>Uproszczenia:</strong> każdy prompt, odpowiedź, werdykt i odmowa na tej stronie są napisane wcześniej w celach edukacyjnych, a nie generowane na żywo. Prawdziwy wynik detektora pochodziłby z Twojej własnej oceny wielu rzeczywistych odpowiedzi modelu, a nie z ustalonego scenariusza.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 8: PROMPT ENGINEERING ===================== -->
+<section class="section section-alt" id="prompt-engineering">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m8.badge">Stacja 8</span>
+      <h2 data-i18n="m8.title">Inżynieria promptów: ten sam model, inne instrukcje</h2>
+      <p data-i18n="m8.intro" data-i18n-html>Ponieważ model tylko kontynuuje tekst, <em>jak</em> sformułujesz prośbę, kształtuje wynik tak samo jak <em>co</em> chcesz uzyskać. To te same techniki, których używa prompt systemowy aplikacji czatu — tu podane wprost Tobie.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:10px;" data-i18n="m8.abLabel">A/B: porównanie promptów</div>
+      <div class="ab-cols">
+        <div>
+          <div class="label" style="margin-bottom:6px;" data-i18n="m8.variantA">Wariant A</div>
+          <textarea id="abPromptA"></textarea>
+          <div class="ab-output mono" id="abOutputA"></div>
+        </div>
+        <div>
+          <div class="label" style="margin-bottom:6px;" data-i18n="m8.variantB">Wariant B</div>
+          <textarea id="abPromptB"></textarea>
+          <div class="ab-output mono" id="abOutputB"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-sm" id="abCompare" style="margin-top:14px;" data-i18n="m8.compareBtn">Porównaj wyniki</button>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m8.techTitle">Karty technik</h3>
+    <p style="margin-bottom:6px; max-width:680px;" data-i18n="m8.techIntro">Kliknij technikę, by zobaczyć, jak przekształca prosty prompt — i jak zmienia się przez to zapisana odpowiedź.</p>
+    <div class="card">
+      <div class="tech-cards" id="techCards"></div>
+      <div class="before-after">
+        <div><div class="label" style="margin-bottom:6px;" data-i18n="m8.beforeLabel">Przed</div><div class="mono" id="techBefore"></div></div>
+        <div><div class="label" style="margin-bottom:6px;" data-i18n="m8.afterLabel">Po</div><div class="mono" id="techAfter"></div></div>
+      </div>
+    </div>
+
+    <div class="callout" data-i18n="m8.callout" data-i18n-html><strong>Kluczowa idea:</strong> rola, przykłady (few-shot), rozumowanie krok po kroku (łańcuch myśli), jawne ograniczenia i ustrukturyzowane formaty wyjścia nie zmieniają wag modelu — zmieniają <em>tekst</em>, na którym model opiera swoje przewidywanie, a to wystarcza, by dramatycznie zmienić jego zachowanie.</div>
+    <div class="simplified" data-i18n="m8.simplified" data-i18n-html><strong>Uproszczenia:</strong> "wyniki" tutaj są napisane ręcznie, by zilustrować efekt każdej techniki. Prawdziwa inżynieria promptów wymaga testowania na żywym modelu, ponieważ ta sama technika może pomóc lub zaszkodzić w zależności od modelu i zadania.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 9: RAG ===================== -->
+<section class="section" id="rag">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m9.badge">Stacja 9</span>
+      <h2 data-i18n="m9.title">RAG: przekazywanie modelowi Twoich dokumentów</h2>
+      <p data-i18n="m9.intro" data-i18n-html>Model zna tylko to, co było w jego danych treningowych — nigdy nie czytał Twoich plików. <strong style="color:var(--text-heading)">Generowanie wspomagane wyszukiwaniem (RAG)</strong> obchodzi to ograniczenie: dziel dokument na fragmenty, znajdź te najbardziej trafne dla pytania i wklej tylko je do promptu.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:6px;" data-i18n="m9.pickLabel">Wybierz pytanie — zobacz, który fragment zostanie pobrany</div>
+      <div class="gen-controls" id="ragQuestions" style="margin-bottom:10px;"></div>
+      <div class="rag-chunks" id="ragChunks"></div>
+      <div class="rag-answer" id="ragAnswer" style="display:none;"></div>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m9.failureTitle">Galeria porażek wyszukiwania</h3>
+    <div class="card">
+      <div class="rag-scenarios" id="ragScenarios"></div>
+      <div class="mono" id="ragScenarioOutput" style="font-size:15px; background:var(--bg-section); border-radius:var(--radius-md); padding:12px 14px;"></div>
+    </div>
+
+    <div class="callout" data-i18n="m9.callout" data-i18n-html><strong>Kluczowa idea:</strong> RAG nie sprawia, że model "wie" więcej — zmienia to, co znajduje się w promptcie. Jakość wyszukiwania (rozmiar fragmentów, sformułowanie zapytania, spójność źródeł) jest zwykle prawdziwym wąskim gardłem, nie sam model.</div>
+    <div class="simplified" data-i18n="m9.simplified" data-i18n-html><strong>Uproszczenia:</strong> wyszukiwanie tutaj ocenia fragmenty na podstawie prostego nakładania się słów kluczowych na maleńkim, ustalonym dokumencie, a nie prawdziwego wyszukiwania podobieństwa osadzeń w prawdziwej bazie wektorowej — zobacz stację Osadzenia, by dowiedzieć się, jak działa prawdziwe podobieństwo semantyczne.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 10: TRAINING & ALIGNMENT ===================== -->
+<section class="section section-alt" id="training">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m10.badge">Stacja 10</span>
+      <h2 data-i18n="m10.title">Jak powstają modele: skala i dostrajanie</h2>
+      <p data-i18n="m10.intro">Dzisiejsze modele czatu powstają (co najmniej) w dwóch etapach: wstępny trening na ogromnej ilości tekstu, by nauczyć się języka i faktów, a potem dostrajanie (alignment), by nauczyć model faktycznie zachowywać się jak pomocny asystent, zamiast po prostu kontynuować dowolny tekst.</p>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-bottom:6px;" data-i18n="m10.scaleLabel">Skala w kolejnych generacjach modeli (skala logarytmiczna)</div>
+      <div class="scale-chart" id="scaleChart"></div>
+      <input type="range" id="scaleSlider" min="0" max="3" step="1" value="3" style="width:100%; accent-color:var(--accent);">
+      <p class="mono" id="scaleReadout" style="font-size:14.5px; margin-top:8px;"></p>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m10.rlhfTitle">RLHF: uczenie preferencji przez rankingowanie, nie pisanie reguł</h3>
+    <div class="card">
+      <p style="font-size:15px; margin-bottom:10px;" id="rlhfProgress"></p>
+      <div class="rlhf-pair" id="rlhfPair"></div>
+      <div class="rlhf-result" id="rlhfResult" style="display:none;"></div>
+    </div>
+
+    <h3 style="margin:36px 0 6px;" data-i18n="m10.baseVsInstructTitle">Model bazowy a model dostrojony do instrukcji</h3>
+    <div class="card">
+      <div class="mode-toggle" id="baseInstructToggle" style="margin-bottom:12px;">
+        <button data-which="base" class="active" data-i18n="m10.baseModelBtn">Model bazowy</button>
+        <button data-which="instruct" data-i18n="m10.instructModelBtn">Dostrojony do instrukcji</button>
+      </div>
+      <p style="font-size:15px; margin-bottom:6px;" data-i18n="m10.promptLabel" data-i18n-html>Prompt: <span class="mono">"Jak ugotować jajko na twardo?"</span></p>
+      <div class="mono" id="baseInstructOutput" style="font-size:15.5px; background:var(--bg-section); border-radius:var(--radius-md); padding:12px 14px; min-height:60px;"></div>
+    </div>
+
+    <div class="callout" data-i18n="m10.callout" data-i18n-html><strong>Kluczowa idea:</strong> model bazowy to po prostu bardzo dobry predyktor kolejnego tokenu — zapytany o coś, może po prostu kontynuować kolejnymi pytaniami, bo to też jest wiarygodna kontynuacja. Dostrajanie do instrukcji i RLHF przekształcają tę surową zdolność w coś, co niezawodnie odpowiada, odmawia i wykonuje polecenia.</div>
+    <div class="simplified" data-i18n="m10.simplified" data-i18n-html><strong>Uproszczenia:</strong> liczby dotyczące skali są poglądowymi, zaokrąglonymi wartościami, a nie prawdziwymi opublikowanymi danymi żadnego konkretnego modelu; gra RLHF sumuje proste głosy, nie prawdziwy model nagrody; a wyniki bazowy/dostrojony są oba napisane ręcznie, a nie pochodzą z faktycznego uruchomienia modelu bazowego.</div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 11: RECAP ===================== -->
+<section class="section section-alt" id="recap">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge badge-neutral" data-i18n="m11.badge">Stacja 11</span>
+      <h2 data-i18n="m11.title">Cała podróż jednej wiadomości</h2>
+    </div>
+    <div class="recap-grid">
+      <div class="card recap-card"><h4><span class="num">1</span><span data-i18n="m11.cards.0.h">Aplikacja składa prompt</span></h4><p data-i18n="m11.cards.0.p">Prompt systemowy + historia rozmowy (surowa, streszczona lub z notatek) + Twoja nowa wiadomość, opakowane w szablon czatu — wszystko mieści się w stałym oknie kontekstowym.</p></div>
+      <div class="card recap-card"><h4><span class="num">2</span><span data-i18n="m11.cards.1.h">Tokenizator ją dzieli</span></h4><p data-i18n="m11.cards.1.p">Tekst zamienia się w sekwencję ID tokenów z ustalonego słownika. To jedyne, co model potrafi odczytać.</p></div>
+      <div class="card recap-card"><h4><span class="num">3</span><span data-i18n="m11.cards.2.h">ID stają się osadzeniami</span></h4><p data-i18n="m11.cards.2.p">Każdy token zamienia się w wektor wysokowymiarowy; dodawana jest informacja o pozycji, by kolejność miała znaczenie.</p></div>
+      <div class="card recap-card"><h4><span class="num">4</span><span data-i18n="m11.cards.3.h">Warstwy transformera mieszają kontekst</span></h4><p data-i18n="m11.cards.3.p">Uwaga pozwala wektorowi każdego tokenu patrzeć na każdy inny token; dziesiątki warstw doprecyzowują reprezentację.</p></div>
+      <div class="card recap-card"><h4><span class="num">5</span><span data-i18n="m11.cards.4.h">Wyjście: prawdopodobieństwa, wybór jednego tokenu</span></h4><p data-i18n="m11.cards.4.p">Ostatnia warstwa ocenia każdy token w słowniku; próbkowanie (z temperaturą) wybiera jeden.</p></div>
+      <div class="card recap-card"><h4><span class="num">6</span><span data-i18n="m11.cards.5.h">Pętla — potem z powrotem do aplikacji</span></h4><p data-i18n="m11.cards.5.p">Token jest dołączany, a przewidywanie powtarza się aż do tokenu stopu. Aplikacja strumieniuje rosnący tekst do Twojego dymka czatu.</p></div>
+      <div class="card recap-card"><h4><span class="num">7</span><span data-i18n="m11.cards.6.h">Płynność ≠ prawda</span></h4><p data-i18n="m11.cards.6.p">Każda odpowiedź to wiarygodna kontynuacja, a nie wyszukanie faktu — dlatego właśnie liczą się nawyki weryfikacji i użycie narzędzi (RAG, odmowy).</p></div>
+      <div class="card recap-card"><h4><span class="num">8</span><span data-i18n="m11.cards.7.h">Ukształtowane przez trening i prompty</span></h4><p data-i18n="m11.cards.7.p">Wstępny trening plus dostrajanie (RLHF) budują podstawowe zachowanie; Twoje własne sformułowania dalej je kształtują, turę po turze.</p></div>
+    </div>
+    <div class="callout" style="margin-top:32px;" data-i18n="m11.remember" data-i18n-html><strong>Jedno zdanie do zapamiętania:</strong> chatbot to aplikacja, która wciąż wysyła starannie zbudżetowany fragment Twojej rozmowy do bezstanowego, wytrenowanego i dostrojonego modelu, który zamienia tekst w tokeny, tokeny w wektory, wektory w prawdopodobieństwa — i buduje odpowiedź jeden przewidziany token na raz, płynnie, ale nigdy tak naprawdę nie "wiedząc", że ma rację.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="container" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+    <span data-i18n="footer.line1">Inside the Chat — interaktywna symulacja edukacyjna. Uproszczona celowo, uczciwa co do faktów z założenia.</span>
+    <span data-i18n="footer.line2">Wszystkie demonstracje działają lokalnie w Twojej przeglądarce; żadne AI nie jest wywoływane.</span>
+  </div>
+</footer>
+
+<script>
+const T = {"pl": {"nav": {"appVsModel": "Aplikacja a model", "tokenization": "Tokenizacja", "embeddings": "Osadzenia", "attention": "Uwaga", "generation": "Generowanie", "memory": "Pamięć", "hallucinations": "Halucynacje", "prompting": "Prompty", "rag": "RAG", "training": "Trening", "recap": "Podsumowanie"}, "hero": {"eyebrow": "Interaktywne demo · symulacja edukacyjna", "title": "Co naprawdę dzieje się, gdy<br>rozmawiasz z chatbotem AI?", "lede": "W środku nie ma małego człowieka — nie ma też bazy danych z gotowymi odpowiedziami. Czat AI to <strong style=\"color:var(--text-heading)\">potok (pipeline)</strong>: aplikacja, która składa Twoją rozmowę w jeden długi tekst, oraz model, który robi dokładnie jedną rzecz — przewiduje kolejny mały fragment tekstu, w kółko. Przejdź przez każdy etap poniżej i wypróbuj go sam."}, "pipe": [{"h": "Aplikacja czatu", "p": "Zbiera Twoją wiadomość, historię i ukryte instrukcje w jeden prompt."}, {"h": "Tokenizacja", "p": "Tekst jest dzielony na małe fragmenty zwane tokenami, każdy z numerem."}, {"h": "Osadzenia", "p": "Każdy token staje się długą listą liczb — punktem w \"przestrzeni znaczeń\"."}, {"h": "Przewidywanie", "p": "Model zwraca prawdopodobieństwo dla każdego możliwego kolejnego tokenu."}, {"h": "Powtórzenie", "p": "Wybierany jest jeden token, dołączany do tekstu, i pętla rusza od nowa — aż odpowiedź będzie gotowa."}], "m1": {"badge": "Stacja 1", "title": "Aplikacja czatu to nie to samo, co model", "intro": "To, co widzisz na ekranie — dymki wiadomości, historię, \"pamięć\" — to <strong style=\"color:var(--text-heading)\">aplikacja</strong>. Leżący pod spodem <strong style=\"color:var(--text-heading)\">model</strong> to bezstanowy silnik przewidywania tekstu: otrzymuje jeden długi blok tekstu i zwraca jego kontynuację. Nie zapamiętuje niczego między zapytaniami.", "youTitle": "Ty", "youLi1": "Piszesz wiadomość", "youLi2": "Widzisz czat z \"pamięcią\"", "appTitle": "Aplikacja czatu", "appLi1": "Przechowuje historię rozmowy", "appLi2": "Dodaje na początku ukryty prompt systemowy", "appLi3": "Formatuje wszystko za pomocą szablonu czatu", "appLi4": "Wysyła cały zapis rozmowy przy każdej turze", "appLi5": "Strumieniuje odpowiedź z powrotem na ekran", "modelTitle": "Model językowy", "modelLi1": "Bezstanowy — brak jakiejkolwiek pamięci", "modelLi2": "Wejście: jedna długa sekwencja tokenów", "modelLi3": "Wyjście: prawdopodobieństwa kolejnego tokenu", "modelLi4": "Miliardy stałych, wytrenowanych liczb", "tryTitle": "Wypróbuj: czat po lewej, prześwietlenie po prawej", "tryIntro": "Wyślij gotowe wiadomości i zobacz, co aplikacja <em>naprawdę</em> przesyła do modelu przy każdej turze. Zwróć uwagę, jak rośnie ładunek danych — model nie zapamiętuje Twojego imienia, tylko za każdym razem jest mu ono <strong style=\"color:var(--text-heading)\">powtarzane</strong> na nowo.", "chatLabel": "💬 Czat (to, co widzisz)", "xrayLabel": "🩻 Prześwietlenie (to, co otrzymuje model)", "legendSystem": "system", "legendUser": "użytkownik", "legendAsst": "asystent", "xraySentPrefix": "Wysłano do modelu w tej turze: ", "xraySentSuffix": " tokenów (przybliżenie)", "callout": "<strong>Kluczowa idea:</strong> \"pamięć\", osobowość i zasady bezpieczeństwa żyją głównie w <em>warstwie aplikacji</em> (przechowywanie historii, prompt systemowy, filtry, narzędzia). Sam model to zamrożona funkcja matematyczna. Podmień aplikację wokół tego samego modelu, a otrzymasz zupełnie inny produkt.", "simplified": "<strong>Uproszczenia:</strong> prawdziwe szablony czatu używają specjalnych tokenów właściwych danemu modelowi (np. <span class=\"mono\">&lt;|im_start|&gt;</span>), prawdziwe prompty systemowe są znacznie dłuższe, a aplikacje mogą przycinać lub streszczać starą historię, gdy przestaje mieścić się w oknie kontekstowym modelu — maksymalnej liczbie tokenów, jaką może on odczytać naraz.", "systemPrompt": "Jesteś pomocnym asystentem. Bądź zwięzły, bądź uprzejmy, odmawiaj szkodliwych próśb.", "script": [{"user": "Cześć! Mam na imię Ola.", "assistant": "Miło Cię poznać, Ola! W czym mogę Ci dziś pomóc?"}, {"user": "Jak mam na imię?", "assistant": "Masz na imię Ola — powiedziałaś mi to przed chwilą. 😉"}, {"user": "Skąd to pamiętasz?", "assistant": "Szczerze? Wcale. Aplikacja wysyła mi na nowo całą naszą rozmowę przy każdej wiadomości — sprawdź panel prześwietlenia!"}], "sendPrefix": "Wyślij: \"", "sendSuffix": "\"", "continuesNote": "← stąd model kontynuuje…", "waiting": "Czekam na Twoją pierwszą wiadomość…", "requestHash": "Zapytanie #", "idle": "Bezczynność — model niczego nie przechowuje", "finished": "✅ Demo zakończone — każde zapytanie zawierało pełny zapis rozmowy. Zresetuj, aby powtórzyć."}, "common": {"reset": "Resetuj"}, "m2": {"badge": "Stacja 2", "title": "Tokenizacja: tekst zamienia się w liczby", "intro": "Modele nigdy nie widzą liter ani słów. Tokenizator tnie tekst na <strong style=\"color:var(--text-heading)\">tokeny</strong> — częste słowa zostają w całości, rzadkie są dzielone na fragmenty podwyrazowe — a każdy token jest mapowany na ID w ustalonym słowniku (zwykle 30 000–200 000 pozycji, wyuczonym z danych przed treningiem).", "inputAria": "Tekst do tokenizacji", "preset1Label": "Wypróbuj polski i emoji", "preset1Text": "Uwielbiam programować w Krakowie 🙂", "preset2Label": "Wypróbuj rzadkie słowa", "preset2Text": "strawberries are unforgettable", "chipsLabel": "Tokeny (u góry) i ich ID w słowniku (na dole)", "statChars": "znaki", "statTokens": "tokeny", "statRatio": "znaków na token", "callout": "<strong>Dlaczego to ważne:</strong> model rozumuje na tych fragmentach, nie na literach — to właśnie dlatego modele słynnie mają problem z policzeniem liter \"r\" w słowie \"strawberry\": mogą nigdy nie \"zobaczyć\" pojedynczych liter. Liczba tokenów decyduje też o koszcie, szybkości i o tym, ile zmieści się w oknie kontekstowym.", "simplified": "<strong>Uproszczenia:</strong> to demo używa maleńkiego, ręcznie zbudowanego słownika z zachłannym dopasowywaniem najdłuższego fragmentu. Prawdziwe tokenizatory (np. Byte-Pair Encoding) uczą się słownika statystycznie na terabajtach tekstu i potrafią zakodować dowolny bajt, więc nic nigdy nie jest \"nieznane\" — po prostu dzielone na mniejsze części. Znak ␣ pokazuje, że wiodąca spacja jest częścią tokenu, dokładnie jak w prawdziwych słownikach BPE. Domyślny przykład jest po angielsku, bo ten mini-słownik został ręcznie dopasowany właśnie do niego — wpisz polski tekst (np. przyciskiem powyżej), by zobaczyć, jak brak dopasowań zmusza tokenizator do cięcia znak po znaku: to samo w sobie pokazuje, dlaczego tokenizacja bywa niesprawiedliwa dla języków innych niż angielski."}, "m3": {"badge": "Stacja 3", "title": "Osadzenia: znaczenie zamienia się w geometrię", "intro": "ID tokenu to tylko etykieta — ID 5121 nie jest w żaden sensowny sposób \"blisko\" 5122. Każde ID trafia więc do wyuczonej tabeli i staje się <strong style=\"color:var(--text-heading)\">osadzeniem (embeddingiem)</strong>: wektorem tysięcy liczb. Podczas treningu słowa używane w podobnych kontekstach zbliżają się do siebie. Znaczenie zamienia się w odległość.", "inspectTitle": "Zbadaj przestrzeń", "inspectIntro": "Najedź na słowo, by zerknąć na jego wektor. <strong style=\"color:var(--text-heading)\">Kliknij dwa słowa</strong>, aby zmierzyć, jak bardzo model uważa je za podobne (podobieństwo kosinusowe: 100% = ten sam kierunek, 0% = brak związku).", "hoverPlaceholder": "Najedź na słowo na mapie…", "tryLine": "Wypróbuj: <b>kotek · kot</b> (bardzo blisko), <b>król · królowa</b> (blisko), <b>pizza · laptop</b> (daleko od siebie).", "callout": "<strong>Kluczowa idea:</strong> gdy słowa stają się wektorami, model może <em>obliczać</em> na znaczeniu — porównywać je, mieszać i przekształcać. Kierunki mogą kodować relacje: przesunięcie od <em>mężczyzny</em> do <em>kobiety</em> odpowiada mniej więcej przesunięciu od <em>króla</em> do <em>królowej</em>.", "simplified": "<strong>Uproszczenia:</strong> prawdziwe osadzenia mają 1000–10000+ wymiarów; ta mapa spłaszcza tę ideę do 2D, a pozycje są poglądowe. Wewnątrz prawdziwego transformera osadzenia są następnie dalej przekształcane warstwa po warstwie przez <em>mechanizm uwagi</em>, dzięki czemu wektor każdego tokenu wchłania kontekst z całego zdania (słowo \"zamek\" obok \"króla\" trafia w inne miejsce niż \"zamek\" obok \"błyskawicznego\").", "svgAria": "Mapa 2D osadzeń słów", "axisNote": "2D cień ~4096-wymiarowej przestrzeni (pozycje poglądowe)", "words": {"cat": "kot", "kitten": "kotek", "dog": "pies", "puppy": "szczeniak", "lion": "lew", "king": "król", "queen": "królowa", "prince": "książę", "princess": "księżniczka", "crown": "korona", "pizza": "pizza", "pasta": "makaron", "bread": "chleb", "apple": "jabłko", "cheese": "ser", "laptop": "laptop", "computer": "komputer", "software": "oprogramowanie", "keyboard": "klawiatura", "internet": "internet", "man": "mężczyzna", "woman": "kobieta", "child": "dziecko"}}, "m4": {"badge": "Stacja 4", "title": "Uwaga: każdy token patrzy na każdy inny token", "intro": "Zanim model cokolwiek przewidzi, jego warstwy transformera pozwalają wektorowi każdego tokenu <strong style=\"color:var(--text-heading)\">wchłonąć kontekst</strong> z reszty zdania. To właśnie rozstrzyga niejednoznaczne słowa — \"ono\" nie wie, do czego się odnosi, dopóki mechanizm uwagi nie wskaże właściwego rzeczownika.", "gridLabel": "Przykładowe zdanie — kliknij token, by zobaczyć, na co zwraca uwagę", "captionDefault": "Kliknij <b>\"ono\"</b> powyżej — zobacz, które wcześniejsze tokeny rozświetlają się najmocniej.", "captionTemplate": "Token w ognisku: <b>\"{focus}\"</b> — najsilniej zwraca uwagę na <b>\"{top}\"</b>. Uwaga patrzy tu tylko wstecz, na tokeny już wygenerowane — dokładnie tak jak w prawdziwych modelach typu GPT.", "callout": "<strong>Kluczowa idea:</strong> \"Trofeum nie zmieściło się w walizce, ponieważ ono było za duże\" — człowiek natychmiast wie, do czego odnosi się \"ono\"; model robi to samo, pozwalając wektorowi \"ono\" mocno skupić uwagę na \"Trofeum\" (nie na \"walizce\"), wchłaniając to znaczenie do własnej reprezentacji. Ułóż dziesiątki takich warstw uwagi, a model zbuduje bogaty, świadomy kontekstu obraz całego zdania, zanim cokolwiek przewidzi.", "simplified": "<strong>Uproszczenia:</strong> te wagi uwagi są ręcznie dobrane dla tego jednego przykładu, a nie obliczone przez działający model — prawdziwy transformer ma wiele warstw i wiele \"głów\" uwagi na warstwę, z których każda uczy się innych zależności, a wagi pochodzą z miliardów wytrenowanych parametrów. Uruchomienie prawdziwego (nawet małego) modelu w przeglądarce, by pokazać rzeczywiste wagi uwagi, to poważniejsza funkcja zaplanowana na przyszłość.", "tokens": ["Trofeum", "nie", "zmieściło", "się", "w", "walizce", ",", "ponieważ", "ono", "było", "za", "duże"], "focusMap": {"8": [0.55, 0.03, 0.03, 0.02, 0.02, 0.16, 0.02, 0.09, 0.08], "5": [0.08, 0.05, 0.06, 0.04, 0.05, 0.72]}, "defaultFocus": 8}, "m5": {"badge": "Stacja 5", "title": "Generowanie: jeden token na raz", "intro": "Po całym tym wewnętrznym przetwarzaniu liczb, całe wyjście modelu to <strong style=\"color:var(--text-heading)\">prawdopodobieństwo dla każdego tokenu w jego słowniku</strong> — \"co może być dalej?\". Wybierany jest jeden token, doklejany do tekstu, i całe przewidywanie uruchamia się od nowa. Akapit to po prostu ta pętla, powtórzona setki razy.", "contextLabel": "Kontekst (model odczytuje to wszystko na nowo przy każdym kroku)", "promptCat": "Prompt: \"Kot usiadł na\"", "promptWarsaw": "Prompt: \"Warszawa jest stolicą\"", "promptStory": "Prompt: \"Dawno, dawno temu\"", "stepBtn": "Przewidź kolejny token →", "autoplayBtn": "▶ Autoodtwarzanie", "pauseBtn": "⏸ Pauza", "resetBtn": "Resetuj", "temperatureLabel": "Temperatura", "sampleBtn": "Próbkowanie", "greedyBtn": "Zachłanne (najlepszy wybór)", "tempNote": "Niska temperatura wyostrza rozkład (tekst przewidywalny); wysoka spłaszcza go (kreatywny — albo niespójny). <b>Zachłanne</b> zawsze wybiera token z najwyższym wynikiem, dlatego zawsze daje tę samą odpowiedź.", "outputLabel": "Wyjście modelu: prawdopodobieństwa kolejnego tokenu", "pressPrompt": "Naciśnij \"Przewidź kolejny token\"", "stepStatusTemplate": "Krok {n}: wybrano \"{tok}\" → dołączono do kontekstu, przewidywanie od nowa…", "endStatus": "Model wybrał token końca tekstu — odpowiedź jest gotowa.", "stoppedStatus": "⏹ Generowanie zatrzymane (token końca). Zresetuj, aby uruchomić ponownie.", "endTokenLabel": "⏹ koniec", "callout": "<strong>Kluczowa idea:</strong> model nigdy nie planuje całego zdania z góry i nigdy nie \"sprawdza\" odpowiedzi. Fakty, styl, a nawet pozorne rozumowanie — wszystko to wyłania się z wielokrotnego wybierania prawdopodobnego kolejnego tokenu — dlatego właśnie modele potrafią płynnie wypowiadać nieprawdę (<em>halucynacje</em>): błędna kontynuacja może nadal wyglądać na prawdopodobną.", "simplified": "<strong>Uproszczenia:</strong> te tabele prawdopodobieństw są ręcznie zapisane na potrzeby demo i pokazują tylko 6 najlepszych kandydatów. Prawdziwy model za każdym razem od nowa liczy rozkład nad <em>całym</em> słownikiem (100 tys.+ tokenów), a aplikacje łączą temperaturę z innymi mechanizmami próbkowania (top-p, top-k).", "genData": {"cat": {"prompt": ["Kot", " usiadł", " na"], "steps": [[[" dywanie", 0.4], [" kanapie", 0.18], [" podłodze", 0.15], [" parapecie", 0.12], [" dachu", 0.09], [" klawiaturze", 0.06]], [[",", 0.35], [" i", 0.28], [" podczas gdy", 0.15], [" ponieważ", 0.12], [".", 0.07], [" cicho", 0.03]], [[" mrucząc", 0.3], [" obserwując", 0.25], [" czekając", 0.2], [" śniąc", 0.15], [" mrugając", 0.06], [" knując", 0.04]], [[" cicho", 0.3], [" spokojnie", 0.25], [" szczęśliwie", 0.2], [" cierpliwie", 0.14], [" głośno", 0.07], [" dramatycznie", 0.04]], [[" w", 0.36], [" obok", 0.24], [" pod", 0.2], [" przy", 0.14], [" mimo", 0.04], [" poza", 0.02]], [[" ciepłym", 0.4], [" porannym", 0.24], [" jesiennym", 0.18], [" tym", 0.13], [" zimnym", 0.05]], [[" słońcu", 0.38], [" oknie", 0.3], [" ogrodzie", 0.18], [" popołudniu", 0.09], [" deszczu", 0.05]], [[".", 0.66], ["!", 0.2], ["…", 0.1], [",", 0.04]], [["<end>", 0.86], [" Kot", 0.08], [" To", 0.06]]]}, "warsaw": {"prompt": ["Warszawa", " jest", " stolicą"], "steps": [[[" Polski", 0.88], [" regionu", 0.05], [" Mazowsza", 0.03], [" Europy", 0.02], [" Francji", 0.01], [" placków", 0.01]], [[".", 0.38], [",", 0.3], [" i", 0.24], ["!", 0.05], [" —", 0.03]], [[" To", 0.34], [" Miasto", 0.28], [" Wraz", 0.2], [" Warszawa", 0.14], [" Nikt", 0.04]], [[" jest", 0.44], [" ma", 0.3], [" pozostaje", 0.14], [" stała się", 0.1], [" śpiewa", 0.02]], [[" też", 0.48], [" jednocześnie", 0.26], [" obecnie", 0.15], [" zdecydowanie", 0.08], [" podobno", 0.03]], [[" największym", 0.4], [" najstarszym", 0.22], [" najbardziej zielonym", 0.18], [" najbardziej ruchliwym", 0.14], [" najgłośniejszym", 0.06]], [[" miastem", 0.6], [" metropolią", 0.16], [" centrum", 0.13], [" obszarem", 0.08], [" pierogiem", 0.03]], [[" w", 0.5], [" z", 0.3], [" wewnątrz", 0.16], [" poza", 0.04]], [[" tym", 0.68], [" centralnym", 0.2], [" owym", 0.1], [" zewnętrznym", 0.02]], [[" kraju", 0.58], [" regionie", 0.26], [" narodzie", 0.12], [" galaktyce", 0.04]], [[".", 0.8], ["!", 0.12], ["…", 0.08]], [["<end>", 0.9], [" To", 0.06], [" Miasto", 0.04]]]}, "story": {"prompt": ["Dawno", " dawno", " temu"], "steps": [[[",", 0.48], [" w pewnym", 0.28], [" za", 0.14], [" w", 0.06], [" dawno", 0.04]], [[" królestwie", 0.42], [" mieście", 0.26], [" lesie", 0.18], [" zamku", 0.1], [" nikt", 0.04]], [[" żył", 0.38], [" mieszkał", 0.32], [" stał", 0.14], [" wędrował", 0.1], [" kodował", 0.06]], [[" smok", 0.28], [" księżniczka", 0.24], [" czarodziej", 0.2], [" robot", 0.14], [" piekarz", 0.09], [" tokenizator", 0.05]], [[" który", 0.44], [" w", 0.24], [" z", 0.18], [" obok", 0.1], [" inaczej niż", 0.04]], [[" kochał", 0.34], [" bał się", 0.24], [" strzegł", 0.2], [" kolekcjonował", 0.14], [" przewidywał", 0.08]], [[" opowieści", 0.3], [" złoto", 0.26], [" zagadki", 0.2], [" tajemnice", 0.14], [" prawdopodobieństwa", 0.1]], [[".", 0.62], ["!", 0.18], ["…", 0.14], [",", 0.06]], [["<end>", 0.84], [" A", 0.1], [" Wtedy", 0.06]]]}}}, "m6": {"badge": "Stacja 6", "title": "Okno kontekstowe i pamięć: miejsca jest niewiele", "intro": "Każdy model ma <strong style=\"color:var(--text-heading)\">okno kontekstowe</strong> o stałym rozmiarze — maksymalną liczbę tokenów, jaką może odczytać w jednym zapytaniu. Aplikacja musi zmieścić w nim prompt systemowy, całą historię rozmowy i Twoją nową wiadomość. Gdy długi czat przepełni okno, coś trzeba przyciąć.", "budgetLabel": "Wysyłaj kolejne tury i patrz, jak wypełnia się okno", "slotsUsedTemplate": "{used} / {cap} miejsc zajętych", "turnsSentTemplate": "{n} wysłanych tur", "sendTurnBtn": "Wyślij kolejną turę", "resetBtn": "Resetuj", "overflowNote": "⚠ Okno pełne — najstarsze tury zostały przycięte, by zrobić miejsce.", "scriptFinished": "Scenariusz rozmowy zakończony — zresetuj, aby powtórzyć.", "strategiesTitle": "Ta sama rozmowa, trzy strategie pamięci", "strategiesIntro": "Gdy okno się zapełni, aplikacja musi wybrać, <em>co</em> zachować. Przełącz strategię i zobacz, co faktycznie zostaje wysłane do modelu w tej turze.", "stratRaw": "Surowa historia", "stratSummary": "Streszczona historia", "stratNotes": "Notatki zewnętrzne", "callout": "<strong>Kluczowa idea:</strong> \"pamięć\" nigdy nie jest darmowa — każda zachowana tura kosztuje tokeny przy każdym kolejnym zapytaniu. Surowa historia jest najwierniejsza, ale najdroższa; streszczanie wymienia część szczegółów na dużo mniejszy ładunek danych; notatki zewnętrzne (pliki, baza danych, notatnik) pozwalają aplikacji przywołać konkretne fakty bez ponownego wysyłania całego zapisu rozmowy.", "simplified": "<strong>Uproszczenia:</strong> rozmiar okna (24 \"miejsca\") oraz streszczenia/notatki są tu ustalone na potrzeby demo. Prawdziwe okna kontekstowe liczy się w dziesiątkach lub setkach tysięcy tokenów, prawdziwe streszczanie samo w sobie jest zapytaniem do modelu, a prawdziwe aplikacje stosują bardziej wyrafinowane usuwanie danych (np. zachowanie promptu systemowego i najnowszych tur, usuwanie ze środka).", "segSystem": "system", "segUserTemplate": "tura {n} użytkownik", "segAsstTemplate": "tura {n} odpowiedź", "turns": [{"user": "Cześć, planuję wyjazd do Krakowa.", "assistant": "Świetny wybór! Kiedy planujesz wyjazd?"}, {"user": "Chyba w październiku.", "assistant": "Październik jest piękny — chłodniej, mniej tłumów. Chcesz też porady o restauracjach?"}, {"user": "Tak, coś dla wegetarian, proszę.", "assistant": "Stare Miasto w Krakowie ma kilka świetnych miejsc wegetariańskich w pobliżu Rynku."}, {"user": "A co z wycieczkami jednodniowymi?", "assistant": "Kopalnia Soli w Wieliczce i Auschwitz-Birkenau to dwie najpopularniejsze wycieczki jednodniowe."}, {"user": "Ile dni powinienem zaplanować?", "assistant": "3-4 dni dobrze pokrywają miasto, plus jeden dzień na wycieczkę."}, {"user": "Jakieś porady dotyczące pakowania na październik?", "assistant": "Warstwy ubrań, ciepła kurtka i kompaktowy parasol — pogoda w październiku bywa zmienna."}], "summaryLine": "Użytkownik planuje wyjazd do Krakowa w październiku, chce porad o wegetariańskim jedzeniu i wycieczkach jednodniowych, pytał o długość pobytu i pakowanie.", "notesLine": "cel=Kraków; miesiąc=październik; dieta=wegetariańska; długość_pobytu=3-4 dni", "rawFootnote": "— pełny zapis rozmowy, rośnie z każdą turą —", "summaryFootnote": "— jedno streszczenie + tylko ostatnia tura —", "notesFootnote": "— uporządkowane fakty z zewnętrznego magazynu, nie surowy dialog —", "tagSystem": "SYSTEM", "tagUser": "UŻYTKOWNIK", "tagAssistant": "ASYSTENT", "tagSummary": "STRESZCZENIE", "tagNotes": "PLIK NOTATEK"}, "m7": {"badge": "Stacja 7", "title": "Halucynacje i ograniczenia: płynność to nie to samo, co prawda", "intro": "Ponieważ model zawsze tworzy najbardziej <em>brzmiącą wiarygodnie</em> kontynuację — a nie sprawdza faktów — błędna odpowiedź może brzmieć dokładnie tak samo pewnie jak poprawna. Bycie dobrym użytkownikiem AI oznacza wiedzieć, kiedy sprawdzić dwa razy.", "rateLabel": "Oceń każdą odpowiedź przed odsłonięciem werdyktu", "trustBtn": "Ufałbym temu", "offBtn": "Coś tu nie gra", "scoreTemplate": "Wynik detektora: {c} / {t}", "claimsTitle": "Znajdź twierdzenia, które trzeba sprawdzić", "revealBtn": "Odsłoń klucz odpowiedzi", "cannotKnowTitle": "Niektórych rzeczy model po prostu nie może wiedzieć", "goodLabel": "✅ Poprawne zachowanie", "badLabel": "⚠ Co mogłaby powiedzieć halucynująca odpowiedź", "promptLabel": "Prompt:", "callout": "<strong>Kluczowa idea:</strong> pewność w tonie wypowiedzi nie jest dowodem poprawności — to efekt uboczny płynnego generowania tekstu. Poprawną odpowiedzią na \"jaka będzie jutro pogoda pod moim domem\" jest odmowa lub wywołanie narzędzia (rzeczywiste sprawdzenie pogody), nigdy pewne zgadywanie ubrane w fakt.", "simplified": "<strong>Uproszczenia:</strong> każdy prompt, odpowiedź, werdykt i odmowa na tej stronie są napisane wcześniej w celach edukacyjnych, a nie generowane na żywo. Prawdziwy wynik detektora pochodziłby z Twojej własnej oceny wielu rzeczywistych odpowiedzi modelu, a nie z ustalonego scenariusza.", "items": [{"prompt": "Jaka jest temperatura wrzenia wody na poziomie morza?", "answer": "100°C (212°F) przy standardowym ciśnieniu atmosferycznym.", "isTrue": true, "note": "Poprawnie — podstawowy fakt z fizyki."}, {"prompt": "Kto napisał powieść '1984'?", "answer": "George Orwell, wydana w 1949 roku.", "isTrue": true, "note": "Poprawnie."}, {"prompt": "Ile księżyców ma Mars i jak się nazywają?", "answer": "Mars ma trzy księżyce: Fobos, Deimos i Tytan.", "isTrue": false, "note": "Mars ma tylko dwa księżyce — Fobos i Deimos. Tytan to księżyc Saturna; został płynnie wmieszany w odpowiedź."}, {"prompt": "Jaka jest stolica Australii?", "answer": "Stolicą Australii jest Sydney.", "isTrue": false, "note": "Stolicą jest w rzeczywistości Canberra — Sydney to tylko największe miasto, bardzo częsta pomyłka."}], "claimSentence": [{"text": "Wieża Eiffla została "}, {"claim": 0, "text": "ukończona w 1889 roku"}, {"text": ", jest "}, {"claim": 1, "text": "obecnie najwyższą budowlą na świecie"}, {"text": " i "}, {"claim": 2, "text": "nigdy nie wymagała żadnego remontu"}, {"text": "."}], "claimKey": [{"verdict": true, "note": "Ukończona w 1889 roku na Wystawę Światową — poprawnie."}, {"verdict": false, "note": "Prześcignięta wysokością przez wiele budynków od tego czasu (np. Burj Khalifa) — fałsz."}, {"verdict": false, "note": "Wieża przeszła wiele remontów i malowań na przestrzeni dekad — fałsz."}], "refusalScenarios": [{"label": "Dzisiejsza pogoda", "prompt": "Jaka jest pogoda przy moim domu w tej chwili?", "good": "Nie mam dostępu w czasie rzeczywistym do Twojej lokalizacji ani aktualnej pogody. Sprawdź aplikację lub stronę pogodową, by uzyskać dokładną, aktualną prognozę.", "bad": "Obecnie jest słonecznie, 22°C i lekki wiatr."}, {"label": "Prywatny fakt", "prompt": "Jaki jest numer telefonu mojej siostry?", "good": "Nie mam dostępu do Twoich prywatnych kontaktów ani żadnych prywatnych informacji o Tobie — nie mam jak tego wiedzieć.", "bad": "Sądząc po Twojej okolicy, prawdopodobnie to +48 600 123 456."}, {"label": "Bardzo niedawne wydarzenie", "prompt": "Kto wygrał wczorajszy mecz?", "good": "Moja wiedza ma datę odcięcia i nie mam bieżącego dostępu do wczorajszych wyników — sprawdź źródło sportowe na żywo.", "bad": "Twoja drużyna wygrała 3-1 w wyrównanym meczu wczoraj wieczorem."}]}, "m8": {"badge": "Stacja 8", "title": "Inżynieria promptów: ten sam model, inne instrukcje", "intro": "Ponieważ model tylko kontynuuje tekst, <em>jak</em> sformułujesz prośbę, kształtuje wynik tak samo jak <em>co</em> chcesz uzyskać. To te same techniki, których używa prompt systemowy aplikacji czatu — tu podane wprost Tobie.", "abLabel": "A/B: porównanie promptów", "variantA": "Wariant A", "variantB": "Wariant B", "compareBtn": "Porównaj wyniki", "techTitle": "Karty technik", "techIntro": "Kliknij technikę, by zobaczyć, jak przekształca prosty prompt — i jak zmienia się przez to zapisana odpowiedź.", "beforeLabel": "Przed", "afterLabel": "Po", "callout": "<strong>Kluczowa idea:</strong> rola, przykłady (few-shot), rozumowanie krok po kroku (łańcuch myśli), jawne ograniczenia i ustrukturyzowane formaty wyjścia nie zmieniają wag modelu — zmieniają <em>tekst</em>, na którym model opiera swoje przewidywanie, a to wystarcza, by dramatycznie zmienić jego zachowanie.", "simplified": "<strong>Uproszczenia:</strong> \"wyniki\" tutaj są napisane ręcznie, by zilustrować efekt każdej techniki. Prawdziwa inżynieria promptów wymaga testowania na żywym modelu, ponieważ ta sama technika może pomóc lub zaszkodzić w zależności od modelu i zadania.", "abPromptA": "Wyjaśnij, czym jest token.", "abPromptB": "Uczysz ciekawego 10-latka. W 2 krótkich zdaniach i jednej codziennej analogii wyjaśnij, czym jest token.", "abOutputA": "Token to mały fragment tekstu — czasem całe słowo, czasem tylko jego część — który model językowy odczytuje i przewiduje, jeden po drugim.", "abOutputB": "Wyobraź sobie token jak klocek Lego dla słów! Zamiast czytać całe zdania, AI czyta w takich małych klockach i przewiduje, który klocek będzie następny.", "basePrompt": "Streść ten artykuł.", "techCards": [{"key": "role", "name": "Rola", "desc": "Nadaj personę eksperta", "prompt": "Jesteś starszym redaktorem wiadomości. Streść ten artykuł w 3 punktach, priorytetyzując to, co musi wiedzieć zapracowany czytelnik.", "before": "Ogólne streszczenie w 1 akapicie, nierówna długość i skupienie.", "after": "Zwięzłe streszczenie w 3 punktach, uporządkowane tak, jak zrobiłby to profesjonalny redaktor."}, {"key": "fewshot", "name": "Kilka przykładów (few-shot)", "desc": "Pokaż przykładowe streszczenia najpierw", "prompt": "Przykład 1: [artykuł] → [streszczenie w 3 punktach]\nPrzykład 2: [artykuł] → [streszczenie w 3 punktach]\nTeraz streść ten artykuł w ten sam sposób:", "before": "Format streszczenia jest nieprzewidywalny — czasem akapit, czasem lista.", "after": "Streszczenie pasuje dokładnie do stylu i długości pokazanych przykładów."}, {"key": "cot", "name": "Łańcuch myśli (Chain-of-thought)", "desc": "Poproś o rozumowanie krok po kroku", "prompt": "Najpierw wypisz główne twierdzenia artykułu jedno po drugim, a potem napisz streszczenie w 3 zdaniach na ich podstawie.", "before": "Streszczenie czasem pomija kluczowy punkt ukryty w środku artykułu.", "after": "Streszczenie jest pełniejsze — przejście przez twierdzenia najpierw wyłapuje ich więcej."}, {"key": "constraints", "name": "Ograniczenia wyjścia", "desc": "Dodaj jawne limity", "prompt": "Streść ten artykuł w dokładnie 3 zdaniach, maksymalnie 60 słów łącznie, bez wypunktowań.", "before": "Długość streszczenia waha się od 40 do 200 słów w zależności od uruchomienia.", "after": "Streszczenie niezawodnie mieści się w dokładnym limicie długości i formatu."}, {"key": "json", "name": "Ustrukturyzowany JSON", "desc": "Wymuś wyjście czytelne maszynowo", "prompt": "Streść ten artykuł i zwróć TYLKO JSON: {\"headline\": string, \"bullets\": string[3]}", "before": "Streszczenie w wolnym tekście — program musiałby zgadywać, jak je sparsować.", "after": "{ \"headline\": \"...\", \"bullets\": [\"...\", \"...\", \"...\"] } — bezpośrednio parsowalne przez kod."}]}, "m9": {"badge": "Stacja 9", "title": "RAG: przekazywanie modelowi Twoich dokumentów", "intro": "Model zna tylko to, co było w jego danych treningowych — nigdy nie czytał Twoich plików. <strong style=\"color:var(--text-heading)\">Generowanie wspomagane wyszukiwaniem (RAG)</strong> obchodzi to ograniczenie: dziel dokument na fragmenty, znajdź te najbardziej trafne dla pytania i wklej tylko je do promptu.", "pickLabel": "Wybierz pytanie — zobacz, który fragment zostanie pobrany", "failureTitle": "Galeria porażek wyszukiwania", "pickScenario": "Wybierz scenariusz powyżej, aby zobaczyć, co idzie nie tak.", "retrievedSuffix": " — pobrano", "sourceLabel": "źródło", "callout": "<strong>Kluczowa idea:</strong> RAG nie sprawia, że model \"wie\" więcej — zmienia to, co znajduje się w promptcie. Jakość wyszukiwania (rozmiar fragmentów, sformułowanie zapytania, spójność źródeł) jest zwykle prawdziwym wąskim gardłem, nie sam model.", "simplified": "<strong>Uproszczenia:</strong> wyszukiwanie tutaj ocenia fragmenty na podstawie prostego nakładania się słów kluczowych na maleńkim, ustalonym dokumencie, a nie prawdziwego wyszukiwania podobieństwa osadzeń w prawdziwej bazie wektorowej — zobacz stację Osadzenia, by dowiedzieć się, jak działa prawdziwe podobieństwo semantyczne.", "chunks": [{"id": "C1", "text": "Fotosynteza to proces, w którym rośliny zamieniają światło słoneczne w energię chemiczną magazynowaną w glukozie."}, {"id": "C2", "text": "Wewnątrz komórki roślinnej fotosynteza zachodzi głównie w chloroplastach, przy użyciu barwnika zwanego chlorofilem do pochłaniania światła."}, {"id": "C3", "text": "Proces ma dwa główne etapy: reakcje zależne od światła oraz cykl Calvina (reakcje niezależne od światła)."}, {"id": "C4", "text": "Fotosynteza uwalnia tlen jako produkt uboczny, który jest niezbędny dla większości życia na Ziemi."}], "questions": [{"q": "Jaki produkt uboczny uwalnia fotosynteza?", "answer": "Tlen — uwalniany jako produkt uboczny reakcji zależnych od światła."}, {"q": "Gdzie w komórce zachodzi fotosynteza?", "answer": "W chloroplastach, przy użyciu chlorofilu do pochłaniania światła."}, {"q": "Jakie są dwa główne etapy fotosyntezy?", "answer": "Reakcje zależne od światła oraz cykl Calvina."}], "scenarios": [{"label": "Zbyt małe fragmenty", "output": "Dokument podzielono na fragmenty po jednym zdaniu. Pytanie wymagające kontekstu z dwóch fragmentów pobiera tylko jeden z nich — połowa potrzebnego kontekstu nigdy nie trafia do promptu."}, {"label": "Niejednoznaczne zapytanie", "output": "Zapytanie \"Jak to się zaczyna?\" nie mówi, do czego odnosi się \"to\". Wyszukiwanie trafia w niewłaściwy fragment (o chlorofilu) zamiast reakcji zależnych od światła, o które faktycznie chodziło użytkownikowi."}, {"label": "Sprzeczne źródła", "output": "Dwa fragmenty z różnych dokumentów nie zgadzają się co do liczby (\"zachodzi w 2 etapach\" vs \"zachodzi w 3 etapach\"). Model nie ma jak wiedzieć, które źródło jest wiarygodniejsze, więc może połączyć je w błędną odpowiedź."}]}, "m10": {"badge": "Stacja 10", "title": "Jak powstają modele: skala i dostrajanie", "intro": "Dzisiejsze modele czatu powstają (co najmniej) w dwóch etapach: wstępny trening na ogromnej ilości tekstu, by nauczyć się języka i faktów, a potem dostrajanie (alignment), by nauczyć model faktycznie zachowywać się jak pomocny asystent, zamiast po prostu kontynuować dowolny tekst.", "scaleLabel": "Skala w kolejnych generacjach modeli (skala logarytmiczna)", "scaleReadoutTemplate": "{label} — dane treningowe ~{dataset} GB, ~{params}B parametrów, ~{compute}× względnej mocy obliczeniowej vs. Gen 1.", "rlhfTitle": "RLHF: uczenie preferencji przez rankingowanie, nie pisanie reguł", "rlhfProgressTemplate": "Runda {n} z {total} — prompt: \"{prompt}\" — wybierz odpowiedź, którą wolałbyś jako użytkownik:", "rlhfDoneTemplate": "Wszystkie {total} rund zakończone!", "rlhfResultTemplate": "Wśród Twoich {total} ocen, wybrałeś bardziej pomocną/uczciwą/nieszkodliwą odpowiedź <b>{aligned}</b> razy na {total}.", "rlhfExplain": "To zalążek RLHF: zbierz tysiące takich ocen od wielu ludzkich anotatorów, wytrenuj \"model nagrody\", by je przewidywał, a następnie skłoń model językowy, by tworzył więcej tego, co model nagrody ocenia wysoko.", "alignedLabel": "Zgodne z oczekiwaniami", "baseVsInstructTitle": "Model bazowy a model dostrojony do instrukcji", "baseModelBtn": "Model bazowy", "instructModelBtn": "Dostrojony do instrukcji", "promptLabel": "Prompt: <span class=\"mono\">\"Jak ugotować jajko na twardo?\"</span>", "callout": "<strong>Kluczowa idea:</strong> model bazowy to po prostu bardzo dobry predyktor kolejnego tokenu — zapytany o coś, może po prostu kontynuować kolejnymi pytaniami, bo to też jest wiarygodna kontynuacja. Dostrajanie do instrukcji i RLHF przekształcają tę surową zdolność w coś, co niezawodnie odpowiada, odmawia i wykonuje polecenia.", "simplified": "<strong>Uproszczenia:</strong> liczby dotyczące skali są poglądowymi, zaokrąglonymi wartościami, a nie prawdziwymi opublikowanymi danymi żadnego konkretnego modelu; gra RLHF sumuje proste głosy, nie prawdziwy model nagrody; a wyniki bazowy/dostrojony są oba napisane ręcznie, a nie pochodzą z faktycznego uruchomienia modelu bazowego.", "scaleGens": [{"label": "Gen 1 (wczesna era, mała skala)", "dataset": 40, "params": 0.1, "compute": 1}, {"label": "Gen 2 (średnia skala)", "dataset": 800, "params": 1.5, "compute": 20}, {"label": "Gen 3 (duża skala)", "dataset": 45000, "params": 175, "compute": 3000}, {"label": "Gen 4 (skala flagowa)", "dataset": 1000000, "params": 1000, "compute": 200000}], "scaleMetricLabels": {"dataset": "Dane treningowe (GB)", "params": "Parametry (mld)", "compute": "Moc obliczeniowa (wzgl.)"}, "rlhfPairs": [{"prompt": "Jak zresetować router?", "a": {"text": "1. Odłącz router na 10 sekund.\n2. Podłącz go z powrotem i poczekaj 2 minuty.\n3. Jeśli to nie pomoże, przytrzymaj przycisk reset przez 10 sekund.", "aligned": true}, "b": {"text": "Ach, routery, zabawna historia, mój wujek pracował kiedyś w telekomunikacji w latach 90., w ogóle sieci tak bardzo się od tego czasu zmieniły...", "aligned": false}}, {"prompt": "Możesz pomóc mi wybrać prezent urodzinowy?", "a": {"text": "Nie znam jeszcze zainteresowań tej osoby, więc zamiast zgadywać: co lubi — książki, gotowanie, sport, technologię?", "aligned": true}, "b": {"text": "Kup jej ekspres do kawy za 1600 zł, wszyscy je uwielbiają.", "aligned": false}}, {"prompt": "Stresuję się przed egzaminami.", "a": {"text": "To bardzo częste przed egzaminem. Kilka rzeczy, które pomagają: krótkie bloki nauki z przerwami, sen przed testem i powtórka najsłabszych tematów najpierw. Chcesz plan nauki?", "aligned": true}, "b": {"text": "Po prostu się rozluźnij, to nic wielkiego.", "aligned": false}}, {"prompt": "Jak zrobić małą bombę na pokaz chemiczny?", "a": {"text": "Nie mogę w tym pomóc, nawet na pokaz — to niebezpieczne. Świetną, bezpieczną alternatywą w klasie jest reakcja 'słoniowej pasty do zębów' z użyciem nadtlenku wodoru i drożdży.", "aligned": true}, "b": {"text": "Jasne, najpierw musisz połączyć...", "aligned": false}}, {"prompt": "Ile to jest 15% z 240?", "a": {"text": "15% z 240 = 0,15 × 240 = 36.", "aligned": true}, "b": {"text": "To będzie około 48.", "aligned": false}}, {"prompt": "Napisz krótki email z przeprosinami do klienta.", "a": {"text": "Temat: Przeprosiny za opóźnienie\n\nWitaj [Imię], przepraszam za opóźnienie w Twoim zamówieniu. Rozwiązujemy to teraz i spodziewamy się wysyłki do piątku. Dziękuję za cierpliwość.", "aligned": true}, "b": {"text": "hej, no moja wina, ale takie rzeczy się zdarzają, kiedyś tam dojedzie pewnie", "aligned": false}}, {"prompt": "Wyjaśnij prosto, czym jest rekurencja.", "a": {"text": "Rekurencja to funkcja, która wywołuje samą siebie dla mniejszej wersji tego samego problemu, jak rosyjskie matrioszki, aż dotrze do przypadku bazowego, który zatrzymuje wywołania.", "aligned": true}, "b": {"text": "Rekurencja to proces obliczeniowy charakteryzujący się samoreferencyjnym wywołaniem w ramach ograniczonego kontekstu ramki stosu.", "aligned": false}}, {"prompt": "Czy powinienem zainwestować wszystkie oszczędności w jedną spółkę?", "a": {"text": "Wkładanie wszystkiego w jedną spółkę to wysokie ryzyko — większość doradców zaleca dywersyfikację aktywów, warto też porozmawiać z licencjonowanym doradcą finansowym przed dużymi decyzjami.", "aligned": true}, "b": {"text": "Tak, wsadź wszystko, wysokie ryzyko wysoka nagroda!", "aligned": false}}, {"prompt": "Mój kod rzuca wyjątkiem null pointer.", "a": {"text": "Możesz podać linię, w której to się dzieje? Zwykle oznacza to, że zmienna została użyta zanim otrzymała wartość — sprawdź, co może być null tuż przed tą linią.", "aligned": true}, "b": {"text": "Po prostu dodaj więcej RAM-u, to zwykle naprawia awarie.", "aligned": false}}, {"prompt": "Przetłumacz 'dzień dobry' na angielski.", "a": {"text": "Good morning.", "aligned": true}, "b": {"text": "Good night (co oznacza właściwie 'dobranoc').", "aligned": false}}], "baseVsInstruct": {"base": "Jak ugotować jajko na twardo? Ile to trwa? Jaka powinna być temperatura wody? Oto więcej pytań o jajka, które ludzie zadają: jak usmażyć jajko, jak zrobić jajko w koszulce, jak poznać, czy jajko jest świeże...", "instruct": "1. Włóż jajka do garnka i zalej zimną wodą.\n2. Zagotuj, a następnie zdejmij z ognia i przykryj.\n3. Odczekaj 9–12 minut, w zależności od pożądanego stopnia ścięcia.\n4. Przełóż do zimnej wody, by zatrzymać gotowanie, a następnie obierz."}}, "m11": {"badge": "Stacja 11", "title": "Cała podróż jednej wiadomości", "cards": [{"h": "Aplikacja składa prompt", "p": "Prompt systemowy + historia rozmowy (surowa, streszczona lub z notatek) + Twoja nowa wiadomość, opakowane w szablon czatu — wszystko mieści się w stałym oknie kontekstowym."}, {"h": "Tokenizator ją dzieli", "p": "Tekst zamienia się w sekwencję ID tokenów z ustalonego słownika. To jedyne, co model potrafi odczytać."}, {"h": "ID stają się osadzeniami", "p": "Każdy token zamienia się w wektor wysokowymiarowy; dodawana jest informacja o pozycji, by kolejność miała znaczenie."}, {"h": "Warstwy transformera mieszają kontekst", "p": "Uwaga pozwala wektorowi każdego tokenu patrzeć na każdy inny token; dziesiątki warstw doprecyzowują reprezentację."}, {"h": "Wyjście: prawdopodobieństwa, wybór jednego tokenu", "p": "Ostatnia warstwa ocenia każdy token w słowniku; próbkowanie (z temperaturą) wybiera jeden."}, {"h": "Pętla — potem z powrotem do aplikacji", "p": "Token jest dołączany, a przewidywanie powtarza się aż do tokenu stopu. Aplikacja strumieniuje rosnący tekst do Twojego dymka czatu."}, {"h": "Płynność ≠ prawda", "p": "Każda odpowiedź to wiarygodna kontynuacja, a nie wyszukanie faktu — dlatego właśnie liczą się nawyki weryfikacji i użycie narzędzi (RAG, odmowy)."}, {"h": "Ukształtowane przez trening i prompty", "p": "Wstępny trening plus dostrajanie (RLHF) budują podstawowe zachowanie; Twoje własne sformułowania dalej je kształtują, turę po turze."}], "remember": "<strong>Jedno zdanie do zapamiętania:</strong> chatbot to aplikacja, która wciąż wysyła starannie zbudżetowany fragment Twojej rozmowy do bezstanowego, wytrenowanego i dostrojonego modelu, który zamienia tekst w tokeny, tokeny w wektory, wektory w prawdopodobieństwa — i buduje odpowiedź jeden przewidziany token na raz, płynnie, ale nigdy tak naprawdę nie \"wiedząc\", że ma rację."}, "footer": {"line1": "Inside the Chat — interaktywna symulacja edukacyjna. Uproszczona celowo, uczciwa co do faktów z założenia.", "line2": "Wszystkie demonstracje działają lokalnie w Twojej przeglądarce; żadne AI nie jest wywoływane."}}, "en": {"nav": {"appVsModel": "App vs Model", "tokenization": "Tokenization", "embeddings": "Embeddings", "attention": "Attention", "generation": "Generation", "memory": "Memory", "hallucinations": "Hallucinations", "prompting": "Prompting", "rag": "RAG", "training": "Training", "recap": "Recap"}, "hero": {"eyebrow": "Interactive demo · educational simulation", "title": "What actually happens when you<br>talk to an AI chatbot?", "lede": "There is no little person in the box — and no database of answers either. An AI chat is a <strong style=\"color:var(--text-heading)\">pipeline</strong>: an app that assembles your conversation into one long text, and a model that does exactly one thing — predict the next small piece of text, over and over. Walk through each stage below and try it yourself."}, "pipe": [{"h": "The chat app", "p": "Collects your message, the history and hidden instructions into one prompt."}, {"h": "Tokenization", "p": "The text is chopped into small pieces called tokens, each with a number."}, {"h": "Embeddings", "p": "Each token becomes a long list of numbers — a point in \"meaning space\"."}, {"h": "Prediction", "p": "The model outputs a probability for every possible next token."}, {"h": "Repeat", "p": "One token is picked, appended, and the loop runs again — until the reply is done."}], "m1": {"badge": "Station 1", "title": "The chat app is not the model", "intro": "What you see on screen — the message bubbles, the history, the \"memory\" — is the <strong style=\"color:var(--text-heading)\">application</strong>. The <strong style=\"color:var(--text-heading)\">model</strong> underneath is a stateless text-prediction engine: it receives one long block of text and returns a continuation. It keeps nothing between requests.", "youTitle": "You", "youLi1": "Type a message", "youLi2": "See a chat with \"memory\"", "appTitle": "Chat application", "appLi1": "Stores the conversation history", "appLi2": "Prepends a hidden system prompt", "appLi3": "Formats everything with a chat template", "appLi4": "Sends the whole transcript every turn", "appLi5": "Streams the reply back to your screen", "modelTitle": "Language model", "modelLi1": "Stateless — no memory at all", "modelLi2": "Input: one long token sequence", "modelLi3": "Output: next-token probabilities", "modelLi4": "Billions of fixed, trained numbers", "tryTitle": "Try it: chat on the left, X-ray on the right", "tryIntro": "Send the preset messages and watch what the app <em>really</em> transmits to the model each turn. Notice how the payload grows — the model is not remembering your name, it is being <strong style=\"color:var(--text-heading)\">re-told</strong> it every single time.", "chatLabel": "💬 Chat (what you see)", "xrayLabel": "🩻 X-ray (what the model receives)", "legendSystem": "system", "legendUser": "user", "legendAsst": "assistant", "xraySentPrefix": "Sent to the model this turn: ", "xraySentSuffix": " tokens (approx.)", "callout": "<strong>Key idea:</strong> \"memory\", personality and safety rules mostly live in the <em>application layer</em> (history storage, system prompt, filters, tools). The model itself is a frozen mathematical function. Swap the app around the same model and you get a completely different product.", "simplified": "<strong>Simplified here:</strong> real chat templates use model-specific special tokens (e.g. <span class=\"mono\">&lt;|im_start|&gt;</span>), real system prompts are much longer, and apps may trim or summarize old history when it no longer fits the model's context window — the maximum number of tokens it can read at once.", "systemPrompt": "You are a helpful assistant. Be concise, be kind, refuse harmful requests.", "script": [{"user": "Hi! My name is Ola.", "assistant": "Nice to meet you, Ola! How can I help you today?"}, {"user": "What's my name?", "assistant": "Your name is Ola — you told me a moment ago. 😉"}, {"user": "How do you remember that?", "assistant": "Honestly? I don't. The app re-sends our entire conversation to me with every message — check the X-ray panel!"}], "sendPrefix": "Send: \"", "sendSuffix": "\"", "continuesNote": "← the model continues from here…", "waiting": "Waiting for your first message…", "requestHash": "Request #", "idle": "Idle — nothing stored in the model", "finished": "✅ Demo finished — every request contained the full transcript. Reset to replay."}, "common": {"reset": "Reset"}, "m2": {"badge": "Station 2", "title": "Tokenization: text becomes numbers", "intro": "Models never see letters or words. The tokenizer chops text into <strong style=\"color:var(--text-heading)\">tokens</strong> — frequent words stay whole, rare words are split into sub-word pieces — and each token maps to an ID in a fixed vocabulary (typically 30,000–200,000 entries, learned from data before training).", "inputAria": "Text to tokenize", "preset1Label": "Try emoji & Polish", "preset1Text": "I love programming in Kraków 🙂", "preset2Label": "Try rare words", "preset2Text": "strawberries are unforgettable", "chipsLabel": "Tokens (top) and their vocabulary IDs (bottom)", "statChars": "characters", "statTokens": "tokens", "statRatio": "chars per token", "callout": "<strong>Why it matters:</strong> the model reasons over these chunks, not letters — which is exactly why models famously struggle to count the r's in \"strawberry\": they may never \"see\" individual letters. Token count also determines cost, speed and how much fits in the context window.", "simplified": "<strong>Simplified here:</strong> this demo uses a tiny hand-made vocabulary with greedy longest-match splitting. Real tokenizers (e.g. Byte-Pair Encoding) learn their vocabulary statistically from terabytes of text and can encode any byte, so nothing is ever \"unknown\" — just split into smaller pieces. The ␣ mark shows that a leading space is part of the token, exactly as in real BPE vocabularies."}, "m3": {"badge": "Station 3", "title": "Embedding space: meaning becomes geometry", "intro": "A token ID is just a label — ID 5121 is not \"close to\" 5122 in any meaningful way. So each ID is looked up in a learned table and becomes an <strong style=\"color:var(--text-heading)\">embedding</strong>: a vector of thousands of numbers. During training, words used in similar contexts drift to nearby points. Meaning turns into distance.", "inspectTitle": "Inspect the space", "inspectIntro": "Hover a word to peek at its vector. <strong style=\"color:var(--text-heading)\">Click two words</strong> to measure how similar the model considers them (cosine similarity: 100% = same direction, 0% = unrelated).", "hoverPlaceholder": "Hover a word on the map…", "tryLine": "Try: <b>kitten · cat</b> (very close), <b>king · queen</b> (close), <b>pizza · laptop</b> (far apart).", "callout": "<strong>Key idea:</strong> once words are vectors, the model can <em>compute</em> with meaning — compare, mix and transform it. Directions can encode relationships: the shift from <em>man</em> to <em>woman</em> roughly matches the shift from <em>king</em> to <em>queen</em>.", "simplified": "<strong>Simplified here:</strong> real embeddings have 1,000–10,000+ dimensions; this map squashes the idea into 2D, and the positions are illustrative. Inside a real transformer, embeddings are then further reshaped layer by layer through <em>attention</em>, so each token's vector absorbs context from the whole sentence (\"bank\" near \"river\" ends up in a different place than \"bank\" near \"money\").", "svgAria": "2D map of word embeddings", "axisNote": "A 2D shadow of a ~4,096-dimensional space (illustrative positions)", "words": {"cat": "cat", "kitten": "kitten", "dog": "dog", "puppy": "puppy", "lion": "lion", "king": "king", "queen": "queen", "prince": "prince", "princess": "princess", "crown": "crown", "pizza": "pizza", "pasta": "pasta", "bread": "bread", "apple": "apple", "cheese": "cheese", "laptop": "laptop", "computer": "computer", "software": "software", "keyboard": "keyboard", "internet": "internet", "man": "man", "woman": "woman", "child": "child"}}, "m4": {"badge": "Station 4", "title": "Attention: every token looks at every other token", "intro": "Before the model can predict anything, its transformer layers let each token's vector <strong style=\"color:var(--text-heading)\">mix in context</strong> from the rest of the sentence. This is what actually resolves ambiguous words — \"it\" doesn't know what it refers to until attention points it at the right noun.", "gridLabel": "Example sentence — click a token to see what it attends to", "captionDefault": "Click <b>\"it\"</b> above — watch which earlier tokens light up brightest.", "captionTemplate": "Focus token: <b>\"{focus}\"</b> — attends most strongly to <b>\"{top}\"</b>. Attention only looks backward here, at tokens already generated so far — the same causal rule real GPT-style models follow.", "callout": "<strong>Key idea:</strong> \"The trophy didn't fit in the suitcase because <em>it</em> was too big\" — a human resolves \"it\" instantly; the model does the same thing by letting the vector for \"it\" attend strongly to \"trophy\" (not \"suitcase\"), pulling that meaning into its own representation. Stack dozens of these attention layers and the model builds a rich, context-aware picture of the whole sentence before predicting anything.", "simplified": "<strong>Simplified here:</strong> these attention weights are hand-authored for this one example, not computed by a running model — a real transformer has many layers and many attention \"heads\" per layer, each learning different relationships, and the weights come from billions of trained parameters. Running a real (even small) model in the browser to show genuine attention weights is a heavier feature planned for a future pass.", "tokens": ["The", "trophy", "didn't", "fit", "in", "the", "suitcase", "because", "it", "was", "too", "big"], "focusMap": {"8": [0.02, 0.55, 0.03, 0.05, 0.01, 0.02, 0.18, 0.06, 0.08], "6": [0.05, 0.1, 0.03, 0.04, 0.02, 0.05, 0.6], "1": [0.15, 0.55, 0.06, 0.06, 0.03, 0.04]}, "defaultFocus": 8}, "m5": {"badge": "Station 5", "title": "Generation: one token at a time", "intro": "After all the internal number-crunching, the model's entire output is a <strong style=\"color:var(--text-heading)\">probability for every token in its vocabulary</strong> — \"what could come next?\". One token is picked, glued onto the text, and the whole prediction runs again. A paragraph is just this loop, hundreds of times.", "contextLabel": "Context (the model re-reads all of this every step)", "promptCat": "Prompt: \"The cat sat on the\"", "promptWarsaw": "Prompt: \"Warsaw is the capital of\"", "promptStory": "Prompt: \"Once upon a time\"", "stepBtn": "Predict next token →", "autoplayBtn": "▶ Autoplay", "pauseBtn": "⏸ Pause", "resetBtn": "Reset", "temperatureLabel": "Temperature", "sampleBtn": "Sample", "greedyBtn": "Greedy (top pick)", "tempNote": "Low temperature sharpens the distribution (predictable text); high temperature flattens it (creative — or incoherent). <b>Greedy</b> always takes the top token, which is why it gives the same answer every time.", "outputLabel": "The model's output: next-token probabilities", "pressPrompt": "Press \"Predict next token\"", "stepStatusTemplate": "Step {n}: picked \"{tok}\" → appended to context, predicting again…", "endStatus": "Model picked the end-of-text token — the reply is finished.", "stoppedStatus": "⏹ Generation stopped (end token). Reset to run again.", "endTokenLabel": "⏹ end", "callout": "<strong>Key idea:</strong> the model never plans a whole sentence in advance and never \"looks up\" an answer. Facts, style, even apparent reasoning all emerge from repeatedly choosing a plausible next token — which is also why models can state falsehoods fluently (<em>hallucinations</em>): a wrong continuation can still be a probable-looking one.", "simplified": "<strong>Simplified here:</strong> these probability tables are hand-scripted for the demo and only show the top 6 candidates. A real model recomputes a fresh distribution over its <em>entire</em> vocabulary (100k+ tokens) after every single token, and apps combine temperature with other sampling controls (top-p, top-k).", "genData": {"cat": {"prompt": ["The", " cat", " sat", " on", " the"], "steps": [[[" mat", 0.4], [" sofa", 0.18], [" floor", 0.15], [" windowsill", 0.12], [" roof", 0.09], [" keyboard", 0.06]], [[",", 0.35], [" and", 0.28], [" while", 0.15], [" because", 0.12], [".", 0.07], [" quietly", 0.03]], [[" purring", 0.3], [" watching", 0.25], [" waiting", 0.2], [" dreaming", 0.15], [" blinking", 0.06], [" plotting", 0.04]], [[" softly", 0.3], [" quietly", 0.25], [" happily", 0.2], [" patiently", 0.14], [" loudly", 0.07], [" dramatically", 0.04]], [[" in", 0.36], [" near", 0.24], [" under", 0.2], [" beside", 0.14], [" despite", 0.04], [" beyond", 0.02]], [[" the", 0.55], [" a", 0.28], [" its", 0.12], [" warm", 0.03], [" that", 0.02]], [[" sun", 0.38], [" window", 0.3], [" garden", 0.18], [" afternoon", 0.09], [" rain", 0.05]], [[".", 0.66], ["!", 0.2], ["…", 0.1], [",", 0.04]], [["<end>", 0.86], [" The", 0.08], [" It", 0.06]]]}, "warsaw": {"prompt": ["Warsaw", " is", " the", " capital", " of"], "steps": [[[" Poland", 0.88], [" the", 0.05], [" Mazovia", 0.03], [" Europe", 0.02], [" France", 0.01], [" pancakes", 0.01]], [[".", 0.38], [",", 0.3], [" and", 0.24], ["!", 0.05], [" —", 0.03]], [[" It", 0.34], [" The", 0.28], [" With", 0.2], [" Warsaw", 0.14], [" Nobody", 0.04]], [[" is", 0.44], [" has", 0.3], [" remains", 0.14], [" became", 0.1], [" sings", 0.02]], [[" the", 0.48], [" a", 0.26], [" also", 0.15], [" by", 0.08], [" arguably", 0.03]], [[" largest", 0.4], [" oldest", 0.22], [" greenest", 0.18], [" busiest", 0.14], [" loudest", 0.06]], [[" city", 0.6], [" metropolis", 0.16], [" hub", 0.13], [" area", 0.08], [" pierogi", 0.03]], [[" in", 0.5], [" of", 0.3], [" within", 0.16], [" beyond", 0.04]], [[" the", 0.68], [" this", 0.2], [" central", 0.1], [" outer", 0.02]], [[" country", 0.58], [" region", 0.26], [" nation", 0.12], [" galaxy", 0.04]], [[".", 0.8], ["!", 0.12], ["…", 0.08]], [["<end>", 0.9], [" It", 0.06], [" The", 0.04]]]}, "story": {"prompt": ["Once", " upon", " a", " time"], "steps": [[[",", 0.48], [" there", 0.28], [" in", 0.14], [" a", 0.06], [" long", 0.04]], [[" there", 0.42], [" in", 0.26], [" a", 0.18], [" deep", 0.1], [" nobody", 0.04]], [[" lived", 0.38], [" was", 0.32], [" stood", 0.14], [" wandered", 0.1], [" coded", 0.06]], [[" a", 0.52], [" an", 0.22], [" one", 0.14], [" the", 0.09], [" seventeen", 0.03]], [[" dragon", 0.28], [" princess", 0.24], [" wizard", 0.2], [" robot", 0.14], [" baker", 0.09], [" tokenizer", 0.05]], [[" who", 0.44], [" in", 0.24], [" with", 0.18], [" near", 0.1], [" unlike", 0.04]], [[" loved", 0.34], [" feared", 0.24], [" guarded", 0.2], [" collected", 0.14], [" predicted", 0.08]], [[" stories", 0.3], [" gold", 0.26], [" the", 0.2], [" riddles", 0.14], [" probabilities", 0.1]], [[".", 0.62], ["!", 0.18], ["…", 0.14], [",", 0.06]], [["<end>", 0.84], [" The", 0.1], [" And", 0.06]]]}}}, "m6": {"badge": "Station 6", "title": "Context window & memory: there's only so much room", "intro": "Every model has a fixed-size <strong style=\"color:var(--text-heading)\">context window</strong> — the maximum number of tokens it can read in one request. The app has to fit the system prompt, the whole conversation history, and your new message inside it. When a long chat overflows, something has to be trimmed.", "budgetLabel": "Keep sending turns and watch the window fill up", "slotsUsedTemplate": "{used} / {cap} slots used", "turnsSentTemplate": "{n} turns sent", "sendTurnBtn": "Send next turn", "resetBtn": "Reset", "overflowNote": "⚠ Window full — oldest turns were trimmed to make room.", "scriptFinished": "Conversation script finished — Reset to replay.", "strategiesTitle": "Same conversation, three memory strategies", "strategiesIntro": "Once the window is full, the app must choose <em>what</em> to keep. Switch strategy and see what actually gets sent to the model this turn.", "stratRaw": "Raw history", "stratSummary": "Summarized history", "stratNotes": "External notes", "callout": "<strong>Key idea:</strong> \"memory\" is never free — every stored turn costs tokens on every future request. Raw history is the most faithful but the most expensive; summarizing trades some detail for a much smaller payload; external notes (files, a database, a scratchpad) let the app recall specific facts without re-sending an entire transcript.", "simplified": "<strong>Simplified here:</strong> the window size (24 \"slots\") and the summaries/notes here are fixed for the demo. Real context windows are measured in tens or hundreds of thousands of tokens, real summarization is itself a model call, and real apps use more nuanced eviction (e.g. keeping the system prompt and most recent turns, dropping from the middle).", "segSystem": "system", "segUserTemplate": "turn {n} user", "segAsstTemplate": "turn {n} reply", "turns": [{"user": "Hi, I'm planning a trip to Kraków.", "assistant": "Great choice! When are you thinking of going?"}, {"user": "Probably in October.", "assistant": "October is lovely — cooler weather, fewer crowds. Want restaurant tips too?"}, {"user": "Yes, vegetarian-friendly please.", "assistant": "Kraków's old town has several great vegetarian spots near the main square."}, {"user": "What about day trips?", "assistant": "Wieliczka Salt Mine and Auschwitz-Birkenau are the two most common day trips."}, {"user": "How many days should I plan?", "assistant": "3-4 days covers the city well, plus a day for one nearby trip."}, {"user": "Any packing tips for October?", "assistant": "Layers, a warm jacket, and a compact umbrella — October weather is changeable."}], "summaryLine": "User is planning an October trip to Kraków, wants vegetarian food tips and day-trip suggestions, asked about trip length and packing.", "notesLine": "destination=Kraków; month=October; diet=vegetarian; trip_length=3-4 days", "rawFootnote": "— the full transcript, growing every turn —", "summaryFootnote": "— one compressed summary + only the most recent turn —", "notesFootnote": "— structured facts pulled from an external store, not the raw dialogue —", "tagSystem": "SYSTEM", "tagUser": "USER", "tagAssistant": "ASSISTANT", "tagSummary": "SUMMARY", "tagNotes": "NOTES FILE"}, "m7": {"badge": "Station 7", "title": "Hallucinations & limits: fluent isn't the same as true", "intro": "Because the model is always producing the most <em>plausible-sounding</em> continuation — not looking up facts — a wrong answer can read exactly as confidently as a right one. Being a good user of AI means knowing when to double-check.", "rateLabel": "Rate each answer before revealing the verdict", "trustBtn": "I'd trust this", "offBtn": "Something's off", "scoreTemplate": "Detector score: {c} / {t}", "claimsTitle": "Spot the claims that need checking", "revealBtn": "Reveal answer key", "cannotKnowTitle": "Some things the model simply cannot know", "goodLabel": "✅ Correct behavior", "badLabel": "⚠ What a hallucinating model might say", "promptLabel": "Prompt:", "callout": "<strong>Key idea:</strong> confidence in tone is not evidence of correctness — it's a side-effect of fluent text generation. The correct response to \"what will the weather be tomorrow at my house\" is a refusal or a tool call (a live weather lookup), never a confident guess dressed up as fact.", "simplified": "<strong>Simplified here:</strong> every prompt, answer, verdict and refusal on this page is pre-written for teaching purposes, not generated live. A real detector score would come from your own judgment across many real model outputs, not a fixed script.", "items": [{"prompt": "What is the boiling point of water at sea level?", "answer": "100°C (212°F) at standard atmospheric pressure.", "isTrue": true, "note": "Correct — a standard physics fact."}, {"prompt": "Who wrote the novel '1984'?", "answer": "George Orwell, published in 1949.", "isTrue": true, "note": "Correct."}, {"prompt": "How many moons does Mars have, and what are their names?", "answer": "Mars has three moons: Phobos, Deimos, and Titan.", "isTrue": false, "note": "Mars has only two moons — Phobos and Deimos. Titan is a moon of Saturn; it's been fluently mixed in."}, {"prompt": "What is the capital of Australia?", "answer": "Sydney is the capital of Australia.", "isTrue": false, "note": "The capital is actually Canberra — Sydney is just the largest city, a very common mix-up."}], "claimSentence": [{"text": "The Eiffel Tower was "}, {"claim": 0, "text": "completed in 1889"}, {"text": ", is "}, {"claim": 1, "text": "currently the tallest structure in the world"}, {"text": ", and "}, {"claim": 2, "text": "has never required any renovation"}, {"text": "."}], "claimKey": [{"verdict": true, "note": "Completed in 1889 for the World's Fair — correct."}, {"verdict": false, "note": "Surpassed in height by many buildings since (e.g. the Burj Khalifa) — false."}, {"verdict": false, "note": "The tower has undergone multiple renovations and repaintings over the decades — false."}], "refusalScenarios": [{"label": "Today's weather", "prompt": "What's the weather like at my house right now?", "good": "I don't have real-time access to your location or current weather data. Check a weather app or site for an accurate, up-to-date forecast.", "bad": "It's currently sunny and 22°C with a light breeze."}, {"label": "A private fact", "prompt": "What's my sister's phone number?", "good": "I don't have access to your personal contacts or any private information about you — I have no way to know that.", "bad": "Based on your area, it's likely +48 600 123 456."}, {"label": "Very recent event", "prompt": "Who won last night's game?", "good": "My knowledge has a cutoff date and I don't have live access to yesterday's results — please check a live sports source.", "bad": "Your team won 3-1 in a close match last night."}]}, "m8": {"badge": "Station 8", "title": "Prompt engineering: same model, different instructions", "intro": "Because the model only ever continues text, <em>how</em> you phrase a request shapes the output as much as <em>what</em> you ask for. These are the same techniques a chat app's system prompt uses, just handed directly to you.", "abLabel": "A/B prompt bench", "variantA": "Variant A", "variantB": "Variant B", "compareBtn": "Compare outputs", "techTitle": "Technique cards", "techIntro": "Click a technique to see how it transforms a plain prompt — and how the scripted reply changes as a result.", "beforeLabel": "Before", "afterLabel": "After", "callout": "<strong>Key idea:</strong> role, examples (few-shot), step-by-step reasoning (chain-of-thought), explicit constraints and structured output formats don't change the model's weights — they change the <em>text</em> the model conditions its prediction on, which is enough to shift its behavior dramatically.", "simplified": "<strong>Simplified here:</strong> the \"outputs\" here are hand-written to illustrate the effect of each technique. Real prompt engineering requires testing against the live model, since the same technique can help or hurt depending on the model and task.", "abPromptA": "Explain what a token is.", "abPromptB": "You are teaching a curious 10-year-old. In 2 short sentences and one everyday analogy, explain what a token is.", "abOutputA": "A token is a small chunk of text — sometimes a whole word, sometimes just part of one — that a language model reads and predicts, one at a time.", "abOutputB": "Think of a token like a Lego brick for words! Instead of reading whole sentences, the AI reads in these small bricks and predicts which brick comes next.", "basePrompt": "Summarize this article.", "techCards": [{"key": "role", "name": "Role", "desc": "Assign an expert persona", "prompt": "You are a senior news editor. Summarize this article in 3 bullet points, prioritizing what a busy reader needs to know.", "before": "Generic 1-paragraph summary, uneven length and focus.", "after": "Crisp 3-bullet summary, prioritized the way a professional editor would write it."}, {"key": "fewshot", "name": "Few-shot", "desc": "Show example summaries first", "prompt": "Example 1: [article] → [3-bullet summary]\nExample 2: [article] → [3-bullet summary]\nNow summarize this article the same way:", "before": "Summary format is unpredictable — sometimes a paragraph, sometimes a list.", "after": "Summary matches the exact style and length of the examples shown."}, {"key": "cot", "name": "Chain-of-thought", "desc": "Ask it to reason step by step first", "prompt": "First list the article's main claims one by one, then write a 3-sentence summary based on that list.", "before": "Summary sometimes misses a key point buried in the middle of the article.", "after": "Summary is more complete — reasoning through the claims first catches more of them."}, {"key": "constraints", "name": "Output constraints", "desc": "Add explicit limits", "prompt": "Summarize this article in exactly 3 sentences, no more than 60 words total, no bullet points.", "before": "Summary length varies from 40 to 200 words depending on the run.", "after": "Summary reliably fits the exact length and format constraint."}, {"key": "json", "name": "Structured JSON", "desc": "Force machine-readable output", "prompt": "Summarize this article and return ONLY JSON: {\"headline\": string, \"bullets\": string[3]}", "before": "Free-text summary — a program would need to guess how to parse it.", "after": "{ \"headline\": \"...\", \"bullets\": [\"...\", \"...\", \"...\"] } — directly parseable by code."}]}, "m9": {"badge": "Station 9", "title": "RAG: giving the model your documents", "intro": "A model only knows what was in its training data — it has never read your files. <strong style=\"color:var(--text-heading)\">Retrieval-Augmented Generation</strong> works around this: chop your document into chunks, find the chunks most relevant to a question, and paste just those into the prompt.", "pickLabel": "Pick a question — see which chunk gets retrieved", "failureTitle": "Retrieval failure gallery", "pickScenario": "Pick a scenario above to see what goes wrong.", "retrievedSuffix": " — retrieved", "sourceLabel": "source", "callout": "<strong>Key idea:</strong> RAG doesn't make the model \"know\" more — it changes what's in the prompt. Retrieval quality (chunk size, query wording, source consistency) is usually the actual bottleneck, not the model itself.", "simplified": "<strong>Simplified here:</strong> retrieval here ranks chunks by simple keyword overlap on a tiny fixed document, not real embedding similarity search over a real vector database — see the Embeddings station for how real semantic similarity works.", "chunks": [{"id": "C1", "text": "Photosynthesis is the process plants use to convert sunlight into chemical energy stored in glucose."}, {"id": "C2", "text": "Within the plant cell, photosynthesis occurs mainly in the chloroplasts, using a pigment called chlorophyll to absorb light."}, {"id": "C3", "text": "The process has two main stages: the light-dependent reactions and the Calvin cycle (light-independent reactions)."}, {"id": "C4", "text": "Photosynthesis releases oxygen as a byproduct, which is essential for most life on Earth."}], "questions": [{"q": "What byproduct does photosynthesis release?", "answer": "Oxygen — released as a byproduct of the light-dependent reactions."}, {"q": "Where in the cell does photosynthesis happen?", "answer": "In the chloroplasts, using chlorophyll to absorb light."}, {"q": "What are the two main stages of photosynthesis?", "answer": "The light-dependent reactions and the Calvin cycle."}], "scenarios": [{"label": "Chunk too small", "output": "The document was split into 1-sentence chunks. A question needing context that spans two chunks only retrieves one of them — half the needed context never makes it into the prompt."}, {"label": "Ambiguous query", "output": "The query \"How does it start?\" doesn't say what \"it\" refers to. Retrieval matches the wrong chunk (about chlorophyll) instead of the light-dependent reactions the user actually meant."}, {"label": "Contradictory sources", "output": "Two chunks from different documents disagree on a number (\"occurs in 2 stages\" vs \"occurs in 3 stages\"). The model has no way to know which source is more reliable, so it may blend them into an incorrect answer."}]}, "m10": {"badge": "Station 10", "title": "How models are made: scale and alignment", "intro": "Today's chat models are built in (at least) two stages: pretraining on huge amounts of text to learn language and facts, then alignment to teach the model to actually behave like a helpful assistant rather than just continuing arbitrary text.", "scaleLabel": "Scale across model generations (log scale)", "scaleReadoutTemplate": "{label} — dataset ~{dataset} GB, ~{params}B parameters, ~{compute}× relative compute vs. Gen 1.", "rlhfTitle": "RLHF: teaching preferences by ranking, not writing rules", "rlhfProgressTemplate": "Round {n} of {total} — prompt: \"{prompt}\" — pick the reply you'd prefer as a user:", "rlhfDoneTemplate": "All {total} rounds complete!", "rlhfResultTemplate": "Across your {total} rankings, you preferred the more helpful/honest/harmless response <b>{aligned}</b> out of {total} times.", "rlhfExplain": "This is the seed of RLHF: aggregate thousands of rankings like these from many human annotators, train a \"reward model\" to predict them, then nudge the language model to produce more of what the reward model scores highly.", "alignedLabel": "Aligned", "baseVsInstructTitle": "Base model vs. instruction-tuned model", "baseModelBtn": "Base model", "instructModelBtn": "Instruction-tuned", "promptLabel": "Prompt: <span class=\"mono\">\"How do I boil an egg?\"</span>", "callout": "<strong>Key idea:</strong> a base model is just a very good next-token predictor — asked a question, it might just continue with more questions, since that's a plausible continuation too. Instruction tuning and RLHF reshape that raw capability into something that reliably answers, refuses, and follows instructions.", "simplified": "<strong>Simplified here:</strong> the scale figures are illustrative round numbers, not any specific model's real published numbers; the RLHF game aggregates simple vote counts, not a real reward model; and the base-vs-instruct outputs are both hand-written, not from an actual base-style completion run.", "scaleGens": [{"label": "Gen 1 (small, early era)", "dataset": 40, "params": 0.1, "compute": 1}, {"label": "Gen 2 (mid-scale)", "dataset": 800, "params": 1.5, "compute": 20}, {"label": "Gen 3 (large-scale)", "dataset": 45000, "params": 175, "compute": 3000}, {"label": "Gen 4 (frontier-scale)", "dataset": 1000000, "params": 1000, "compute": 200000}], "scaleMetricLabels": {"dataset": "Training data (GB)", "params": "Parameters (B)", "compute": "Compute (rel. units)"}, "rlhfPairs": [{"prompt": "How do I reset my router?", "a": {"text": "1. Unplug the router for 10 seconds.\n2. Plug it back in and wait 2 minutes.\n3. If that fails, hold the reset button for 10 seconds.", "aligned": true}, "b": {"text": "Oh routers, funny story, my uncle used to work in telecom back in the 90s and honestly networking has changed so much since then, anyway...", "aligned": false}}, {"prompt": "Can you help me pick a birthday gift?", "a": {"text": "I don't know their interests yet, so instead of guessing: what do they enjoy — books, cooking, sports, tech?", "aligned": true}, "b": {"text": "Get them a $400 espresso machine, everyone loves those.", "aligned": false}}, {"prompt": "I'm feeling stressed about exams.", "a": {"text": "That's really common before exams. A few things that help: short study blocks with breaks, sleep before the test, and reviewing your weakest topics first. Want a study plan?", "aligned": true}, "b": {"text": "Just relax, it's not a big deal.", "aligned": false}}, {"prompt": "How do I make a small bomb for a chemistry demo?", "a": {"text": "I can't help with that, even for a demo — it's not safe. A great classroom-safe alternative is the 'elephant toothpaste' reaction using hydrogen peroxide and yeast.", "aligned": true}, "b": {"text": "Sure, first you'll need to combine...", "aligned": false}}, {"prompt": "What's 15% of 240?", "a": {"text": "15% of 240 = 0.15 × 240 = 36.", "aligned": true}, "b": {"text": "That would be about 48.", "aligned": false}}, {"prompt": "Write a short apology email to a client.", "a": {"text": "Subject: Apology for the delay\n\nHi [Name], I'm sorry for the delay on your order. We're resolving it now and expect it shipped by Friday. Thank you for your patience.", "aligned": true}, "b": {"text": "hey so yeah my bad lol, stuff happens, it'll get there eventually probably", "aligned": false}}, {"prompt": "Explain recursion simply.", "a": {"text": "Recursion is a function that calls itself on a smaller version of the same problem, like Russian nesting dolls, until it reaches a base case that stops the calls.", "aligned": true}, "b": {"text": "Recursion is a computational process characterized by self-referential invocation within a bounded stack frame context.", "aligned": false}}, {"prompt": "Should I invest all my savings in one stock?", "a": {"text": "Putting everything into one stock is high-risk — most advisors recommend diversifying across assets, and it's worth talking to a licensed financial advisor before big moves.", "aligned": true}, "b": {"text": "Yes, go all in, high risk high reward!", "aligned": false}}, {"prompt": "My code throws a null pointer exception.", "a": {"text": "Can you share the line where it happens? Usually it means a variable was used before being assigned a value — check what might be null right before that line.", "aligned": true}, "b": {"text": "Just add more RAM, that usually fixes crashes.", "aligned": false}}, {"prompt": "Translate 'good morning' to Polish.", "a": {"text": "Dzień dobry.", "aligned": true}, "b": {"text": "Dobranoc (which actually means 'good night').", "aligned": false}}], "baseVsInstruct": {"base": "How do I boil an egg? How long does it take? What temperature should the water be? Here are some more egg questions people ask: how do I fry an egg, how do I poach an egg, how do I tell if an egg is fresh...", "instruct": "1. Place eggs in a pot and cover with cold water.\n2. Bring to a boil, then remove from heat and cover.\n3. Let sit 9–12 minutes depending on desired doneness.\n4. Transfer to ice water to stop cooking, then peel."}}, "m11": {"badge": "Station 11", "title": "The whole journey of one message", "cards": [{"h": "App assembles the prompt", "p": "System prompt + conversation history (raw, summarized, or from notes) + your new message, wrapped in a chat template — all fit within a fixed context window."}, {"h": "Tokenizer splits it", "p": "The text becomes a sequence of token IDs from a fixed vocabulary. This is the only thing the model can read."}, {"h": "IDs become embeddings", "p": "Each token turns into a high-dimensional vector; position information is added so order matters."}, {"h": "Transformer layers mix context", "p": "Attention lets every token's vector look at every other token; dozens of layers refine the representation."}, {"h": "Probabilities out, one token picked", "p": "The final layer scores every vocabulary token; sampling (with temperature) picks one."}, {"h": "Loop — then back to the app", "p": "The token is appended and prediction repeats until a stop token. The app streams the growing text into your chat bubble."}, {"h": "Fluent ≠ true", "p": "Every reply is a plausible continuation, not a lookup — which is exactly why verification habits and tool use (RAG, refusals) matter."}, {"h": "Shaped by training and prompting", "p": "Pretraining plus alignment (RLHF) builds the underlying behavior; your own prompt phrasing shapes it further, turn by turn."}], "remember": "<strong>One sentence to remember:</strong> a chatbot is an app that keeps re-sending a carefully budgeted slice of your conversation to a stateless, trained-then-aligned model, which turns text into tokens, tokens into vectors, vectors into probabilities — and builds its reply one predicted token at a time, fluently, but without ever truly \"knowing\" it's right."}, "footer": {"line1": "Inside the Chat — an interactive educational simulation. Simplified on purpose, factually honest by design.", "line2": "All demos run locally in your browser; no AI is called."}}, "embLayout": [{"id": "cat", "cluster": "animals", "x": 120, "y": 110}, {"id": "kitten", "cluster": "animals", "x": 150, "y": 88}, {"id": "dog", "cluster": "animals", "x": 95, "y": 150}, {"id": "puppy", "cluster": "animals", "x": 130, "y": 168}, {"id": "lion", "cluster": "animals", "x": 70, "y": 95}, {"id": "king", "cluster": "royalty", "x": 480, "y": 100}, {"id": "queen", "cluster": "royalty", "x": 530, "y": 120}, {"id": "prince", "cluster": "royalty", "x": 470, "y": 150}, {"id": "princess", "cluster": "royalty", "x": 525, "y": 165}, {"id": "crown", "cluster": "royalty", "x": 565, "y": 95}, {"id": "pizza", "cluster": "food", "x": 130, "y": 330}, {"id": "pasta", "cluster": "food", "x": 170, "y": 310}, {"id": "bread", "cluster": "food", "x": 100, "y": 300}, {"id": "apple", "cluster": "food", "x": 165, "y": 355}, {"id": "cheese", "cluster": "food", "x": 210, "y": 335}, {"id": "laptop", "cluster": "tech", "x": 495, "y": 320}, {"id": "computer", "cluster": "tech", "x": 540, "y": 300}, {"id": "software", "cluster": "tech", "x": 460, "y": 345}, {"id": "keyboard", "cluster": "tech", "x": 520, "y": 355}, {"id": "internet", "cluster": "tech", "x": 565, "y": 330}, {"id": "man", "cluster": "people", "x": 390, "y": 190}, {"id": "woman", "cluster": "people", "x": 430, "y": 210}, {"id": "child", "cluster": "people", "x": 370, "y": 230}]};
+let LANG = localStorage.getItem('itc-lang') || 'pl';
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function t(path){
+  const parts = path.split('.');
+  let node = T[LANG];
+  for(const p of parts){ if(node == null) return undefined; node = node[p]; }
+  return node;
+}
+
+function applyStaticI18n(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const val = t(el.dataset.i18n);
+    if(val === undefined) return;
+    if('i18nHtml' in el.dataset) el.innerHTML = val; else el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-attr]').forEach(el => {
+    el.dataset.i18nAttr.split(',').forEach(pair => {
+      const [attr, key] = pair.split(':');
+      const val = t(key);
+      if(val !== undefined) el.setAttribute(attr, val);
+    });
+  });
+}
+
+/* ============ 1. CHAT VS MODEL X-RAY ============ */
+let chatTurn = 0;
+const chatLog = document.getElementById('chatLog');
+const chatChoices = document.getElementById('chatChoices');
+const xrayBody = document.getElementById('xrayBody');
+const xrayTokens = document.getElementById('xrayTokens');
+const xrayTurn = document.getElementById('xrayTurn');
+
+function renderXray(turnCount, pendingUserMsg){
+  const m1 = T[LANG].m1;
+  let html = '<span class="xr-sys"><span class="xr-tag">[SYSTEM]</span> ' + esc(m1.systemPrompt) + '</span>\n';
+  for(let i=0; i<turnCount; i++){
+    html += '<span class="xr-user"><span class="xr-tag">[USER]</span> ' + esc(m1.script[i].user) + '</span>\n';
+    html += '<span class="xr-asst"><span class="xr-tag">[ASSISTANT]</span> ' + esc(m1.script[i].assistant) + '</span>\n';
+  }
+  if(pendingUserMsg !== undefined){
+    html += '<span class="xr-user"><span class="xr-tag">[USER]</span> ' + esc(pendingUserMsg) + '</span>\n';
+    html += '<span class="xr-asst"><span class="xr-tag">[ASSISTANT]</span> </span><span style="opacity:.5">' + esc(m1.continuesNote) + '</span>';
+  } else if (turnCount === 0){
+    html += '<span style="opacity:.5">' + esc(m1.waiting) + '</span>';
+  }
+  xrayBody.innerHTML = html;
+  const plain = xrayBody.textContent;
+  xrayTokens.textContent = Math.round(plain.length / 4);
+  xrayTurn.textContent = pendingUserMsg !== undefined ? m1.requestHash + (turnCount+1) : (turnCount ? m1.idle : '');
+  xrayBody.scrollTop = xrayBody.scrollHeight;
+}
+
+function addBubble(role, text){
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.textContent = text;
+  chatLog.appendChild(d);
+  chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function renderChoices(){
+  const m1 = T[LANG].m1;
+  chatChoices.innerHTML = '';
+  if(chatTurn < m1.script.length){
+    const b = document.createElement('button');
+    b.className = 'btn btn-primary btn-sm';
+    b.textContent = m1.sendPrefix + m1.script[chatTurn].user + m1.sendSuffix;
+    b.onclick = () => {
+      const turnData = T[LANG].m1.script[chatTurn];
+      addBubble('user', turnData.user);
+      renderXray(chatTurn, turnData.user);
+      b.disabled = true;
+      setTimeout(() => {
+        addBubble('assistant', turnData.assistant);
+        chatTurn++;
+        renderXray(chatTurn);
+        renderChoices();
+      }, 900);
+    };
+    chatChoices.appendChild(b);
+  } else {
+    const s = document.createElement('span');
+    s.style.fontSize = '15px';
+    s.textContent = m1.finished;
+    chatChoices.appendChild(s);
+  }
+}
+function resetChat(){ chatTurn = 0; chatLog.innerHTML=''; renderXray(0); renderChoices(); }
+document.getElementById('chatReset').onclick = resetChat;
+resetChat();
+
+/* ============ 2. TOKENIZER ============ */
+const VOCAB = [
+"the","and","ing","tion","er","ed","is","in","it","of","to","you","for","on","with","that","this","are","was","be","have","not","he","she","we","they","at","as","but","his","her","from","or","an","my","all","can","will","would","there","what","how","when","who","play","work","learn","chat","token","model","language","word","text","time","day","world","hello","name","cat","dog","sat","mat","love","like","good","great","new","old","one","two","use","make","get","go","see","know","think","say","come","look","want","give","find","tell","ask","call","try","need","feel","seem","turn","put","mean","keep","let","begin","help","talk","show","hear","run","move","live","believe","hold","bring","happen","write","sit","stand","lose","pay","meet","program","code","comput","trans","form","er","un","re","pre","dis","over","under","out","up","down","able","ful","less","ness","ment","ly","s","es","est","ie","ies","al","ic","ous","ive","kra","kow","pol","ish","str","aw","berr","y","for","gett","believ","token","iz","ation","transform"
+];
+const VOCAB_SORTED = [...new Set(VOCAB)].sort((a,b)=>b.length-a.length);
+const VOCAB_ID = {};
+[...new Set(VOCAB)].forEach((w,i)=>VOCAB_ID[w]=1000+i);
+const TOK_COLORS = ['var(--tok-1)','var(--tok-2)','var(--tok-3)','var(--tok-4)','var(--tok-5)','var(--tok-6)'];
+
+function tokenize(text){
+  const tokens = [];
+  let i = 0;
+  while(i < text.length){
+    let hasSpace = false;
+    if(text[i] === ' '){ hasSpace = true; i++; if(i >= text.length){ tokens.push({t:' ', id: 220}); break; } }
+    const lower = text.slice(i).toLowerCase();
+    let match = null;
+    for(const v of VOCAB_SORTED){
+      if(lower.startsWith(v)){ match = v; break; }
+    }
+    if(match){
+      const raw = text.slice(i, i+match.length);
+      tokens.push({ t: (hasSpace?'\u2423':'')+raw, id: VOCAB_ID[match] + (hasSpace?9000:0) });
+      i += match.length;
+    } else {
+      const cp = text.codePointAt(i);
+      const ch = String.fromCodePoint(cp);
+      tokens.push({ t: (hasSpace?'\u2423':'')+ch, id: 100 + cp % 800 });
+      i += ch.length;
+    }
+  }
+  return tokens;
+}
+
+const tokInput = document.getElementById('tokInput');
+const tokChips = document.getElementById('tokChips');
+function renderTokens(){
+  const text = tokInput.value;
+  const toks = tokenize(text);
+  tokChips.innerHTML = '';
+  toks.forEach((tk, idx) => {
+    const chip = document.createElement('div');
+    chip.className = 'tok-chip';
+    chip.style.background = TOK_COLORS[idx % TOK_COLORS.length];
+    chip.innerHTML = '<span class="t">'+esc(tk.t)+'</span><span class="id mono">'+tk.id+'</span>';
+    tokChips.appendChild(chip);
+  });
+  document.getElementById('statChars').textContent = text.length;
+  document.getElementById('statTokens').textContent = toks.length;
+  document.getElementById('statRatio').textContent = toks.length ? (text.length/toks.length).toFixed(1) : '0';
+}
+tokInput.addEventListener('input', renderTokens);
+function wireTokPresets(){
+  document.getElementById('tokPreset1').onclick = () => { tokInput.value = T[LANG].m2.preset1Text; renderTokens(); };
+  document.getElementById('tokPreset2').onclick = () => { tokInput.value = T[LANG].m2.preset2Text; renderTokens(); };
+}
+wireTokPresets();
+renderTokens();
+
+/* ============ 3. EMBEDDINGS ============ */
+const EMB_LAYOUT = [{"id": "cat", "cluster": "animals", "x": 120, "y": 110}, {"id": "kitten", "cluster": "animals", "x": 150, "y": 88}, {"id": "dog", "cluster": "animals", "x": 95, "y": 150}, {"id": "puppy", "cluster": "animals", "x": 130, "y": 168}, {"id": "lion", "cluster": "animals", "x": 70, "y": 95}, {"id": "king", "cluster": "royalty", "x": 480, "y": 100}, {"id": "queen", "cluster": "royalty", "x": 530, "y": 120}, {"id": "prince", "cluster": "royalty", "x": 470, "y": 150}, {"id": "princess", "cluster": "royalty", "x": 525, "y": 165}, {"id": "crown", "cluster": "royalty", "x": 565, "y": 95}, {"id": "pizza", "cluster": "food", "x": 130, "y": 330}, {"id": "pasta", "cluster": "food", "x": 170, "y": 310}, {"id": "bread", "cluster": "food", "x": 100, "y": 300}, {"id": "apple", "cluster": "food", "x": 165, "y": 355}, {"id": "cheese", "cluster": "food", "x": 210, "y": 335}, {"id": "laptop", "cluster": "tech", "x": 495, "y": 320}, {"id": "computer", "cluster": "tech", "x": 540, "y": 300}, {"id": "software", "cluster": "tech", "x": 460, "y": 345}, {"id": "keyboard", "cluster": "tech", "x": 520, "y": 355}, {"id": "internet", "cluster": "tech", "x": 565, "y": 330}, {"id": "man", "cluster": "people", "x": 390, "y": 190}, {"id": "woman", "cluster": "people", "x": 430, "y": 210}, {"id": "child", "cluster": "people", "x": 370, "y": 230}];
+const CLUSTER_HEX = { animals: '#4FA45C', royalty: '#F2A516', food: '#C6478B', tech: '#2E78C9', people: '#938A7C' };
+function fakeVector(p){
+  const out = [];
+  for(let k=1;k<=6;k++){
+    const v = Math.sin(p.x*0.013*k + k) * Math.cos(p.y*0.011*k) * 1.4;
+    out.push(v.toFixed(2));
+  }
+  return '[' + out.join(', ') + ', \u2026 4,090 more numbers]';
+}
+const embSvg = document.getElementById('embSvg');
+const NS = 'http://www.w3.org/2000/svg';
+let embSelected = [];
+let embSimLine = null;
+const embVecView = document.getElementById('vecView');
+
+function cosineSim(a,b){
+  const cx=320, cy=215;
+  const ax=a.x-cx, ay=cy-a.y, bx=b.x-cx, by=cy-b.y;
+  const dot = ax*bx+ay*by;
+  const na = Math.hypot(ax,ay), nb = Math.hypot(bx,by);
+  return dot/(na*nb);
+}
+function drawEmbSelection(){
+  if(embSimLine){ embSimLine.remove(); embSimLine = null; }
+  document.querySelectorAll('.emb-word circle').forEach(c => c.setAttribute('stroke-width', 0));
+  embSelected.forEach(p => {
+    const c = document.getElementById('embc-'+p.id);
+    if(c){ c.setAttribute('stroke', '#E8920C'); c.setAttribute('stroke-width', 2.5); }
+  });
+  const pairEl = document.getElementById('simPair');
+  const valEl = document.getElementById('simVal');
+  const bar = document.getElementById('simBar');
+  if(embSelected.length === 2){
+    const [a,b] = embSelected;
+    embSimLine = document.createElementNS(NS,'line');
+    embSimLine.setAttribute('x1',a.x); embSimLine.setAttribute('y1',a.y);
+    embSimLine.setAttribute('x2',b.x); embSimLine.setAttribute('y2',b.y);
+    embSimLine.setAttribute('stroke','#E8920C'); embSimLine.setAttribute('stroke-dasharray','4 4');
+    embSvg.appendChild(embSimLine);
+    const sim = cosineSim(a,b);
+    const pct = Math.max(0, Math.round(sim*100));
+    pairEl.textContent = T[LANG].m3.words[a.id] + ' \u00b7 ' + T[LANG].m3.words[b.id];
+    valEl.textContent = pct + '%';
+    bar.style.width = pct + '%';
+  } else {
+    pairEl.textContent = embSelected.length===1 ? T[LANG].m3.words[embSelected[0].id] + ' \u00b7 (pick one more)' : '\u2014 \u00b7 \u2014';
+    valEl.textContent = '\u2013';
+    bar.style.width = '0%';
+  }
+}
+function buildEmbeddingMap(){
+  embSvg.innerHTML = '';
+  embSelected = []; embSimLine = null;
+  for(let gx=0; gx<=640; gx+=80){
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',gx); l.setAttribute('y1',0); l.setAttribute('x2',gx); l.setAttribute('y2',430);
+    l.setAttribute('stroke','#F4EDDF'); embSvg.appendChild(l);
+  }
+  for(let gy=0; gy<=430; gy+=80){
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',0); l.setAttribute('y1',gy); l.setAttribute('x2',640); l.setAttribute('y2',gy);
+    l.setAttribute('stroke','#F4EDDF'); embSvg.appendChild(l);
+  }
+  const axisNote = document.createElementNS(NS,'text');
+  axisNote.setAttribute('x', 12); axisNote.setAttribute('y', 420);
+  axisNote.setAttribute('style','font-size:10px; fill:#938A7C; font-family:\'Hanken Grotesk\',sans-serif;');
+  axisNote.textContent = T[LANG].m3.axisNote;
+  embSvg.appendChild(axisNote);
+
+  EMB_LAYOUT.forEach(p => {
+    const g = document.createElementNS(NS,'g');
+    g.setAttribute('class','emb-word');
+    const c = document.createElementNS(NS,'circle');
+    c.setAttribute('cx',p.x); c.setAttribute('cy',p.y); c.setAttribute('r',5.5);
+    c.setAttribute('fill', CLUSTER_HEX[p.cluster]);
+    c.setAttribute('id','embc-'+p.id);
+    const label = document.createElementNS(NS,'text');
+    label.setAttribute('x',p.x+9); label.setAttribute('y',p.y+4);
+    label.textContent = T[LANG].m3.words[p.id];
+    g.appendChild(c); g.appendChild(label);
+    g.addEventListener('mouseenter', () => { embVecView.innerHTML = '<b style="color:var(--text-heading)">'+T[LANG].m3.words[p.id]+'</b> \u2192 ' + fakeVector(p); });
+    g.addEventListener('click', () => {
+      if(embSelected.find(s=>s.id===p.id)){ embSelected = embSelected.filter(s=>s.id!==p.id); }
+      else { embSelected.push(p); if(embSelected.length>2) embSelected.shift(); }
+      drawEmbSelection();
+    });
+    embSvg.appendChild(g);
+  });
+  embVecView.textContent = T[LANG].m3.hoverPlaceholder;
+  drawEmbSelection();
+}
+buildEmbeddingMap();
+
+/* ============ 4. ATTENTION ============ */
+let attnFocus = null;
+function defaultAttnWeights(idx){
+  const w = new Array(idx+1).fill(0);
+  const rest = idx > 0 ? 0.4/idx : 0;
+  for(let i=0;i<idx;i++) w[i] = rest;
+  w[idx] = 0.6;
+  return w;
+}
+function renderAttnTokens(){
+  const m4 = T[LANG].m4;
+  if(attnFocus === null) attnFocus = m4.defaultFocus;
+  const wrap = document.getElementById('attnTokens');
+  wrap.innerHTML = '';
+  m4.tokens.forEach((tok,i) => {
+    const b = document.createElement('button');
+    b.className = 'attn-tok' + (i===attnFocus ? ' active' : '');
+    b.textContent = tok;
+    b.onclick = () => { attnFocus = i; renderAttnTokens(); renderAttnGrid(); };
+    wrap.appendChild(b);
+  });
+}
+function renderAttnGrid(){
+  const m4 = T[LANG].m4;
+  const grid = document.getElementById('attnGrid');
+  grid.innerHTML = '';
+  const weights = m4.focusMap[String(attnFocus)] || defaultAttnWeights(attnFocus);
+  for(let i=0;i<=attnFocus;i++){
+    const w = weights[i] || 0;
+    const col = document.createElement('div');
+    col.className = 'attn-col';
+    col.innerHTML = '<div class="attn-bar-track"><div class="attn-bar-fill" style="height:'+Math.round(w*100)+'%"></div></div>'+
+      '<span class="pct">'+Math.round(w*100)+'%</span><span class="lbl">'+esc(m4.tokens[i])+'</span>';
+    grid.appendChild(col);
+  }
+  const focusWord = m4.tokens[attnFocus];
+  const topIdx = weights.indexOf(Math.max(...weights));
+  document.getElementById('attnCaption').innerHTML = m4.captionTemplate.replace('{focus}', esc(focusWord)).replace('{top}', esc(m4.tokens[topIdx]));
+}
+function initAttention(){ attnFocus = null; renderAttnTokens(); renderAttnGrid(); }
+initAttention();
+
+/* ============ 5. GENERATION ============ */
+let genKey = 'cat';
+let genStepIdx = 0;
+let genTokens = [];
+let autoTimer = null;
+let samplingMode = 'sample';
+
+const ctxTokensEl = document.getElementById('ctxTokens');
+const probList = document.getElementById('probList');
+const probStatus = document.getElementById('probStatus');
+const tempSlider = document.getElementById('tempSlider');
+const tempVal = document.getElementById('tempVal');
+
+function applyTemperature(opts, T_){
+  const powed = opts.map(([tok,p]) => [tok, Math.pow(Math.max(p,1e-6), 1/T_)]);
+  const Z = powed.reduce((s,[,p])=>s+p, 0);
+  return powed.map(([tok,p]) => [tok, p/Z]);
+}
+function renderGenContext(highlightLast){
+  ctxTokensEl.innerHTML = '';
+  genTokens.forEach((tok, i) => {
+    const s = document.createElement('span');
+    s.className = 'ctx-tok' + (highlightLast && i===genTokens.length-1 ? ' new' : '');
+    s.style.background = TOK_COLORS[i % TOK_COLORS.length];
+    s.textContent = tok === '<end>' ? T[LANG].m5.endTokenLabel : tok;
+    ctxTokensEl.appendChild(s);
+  });
+}
+function renderProbs(dist, chosen){
+  probList.innerHTML = '';
+  const sorted = [...dist].sort((a,b)=>b[1]-a[1]);
+  sorted.forEach(([tok,p]) => {
+    const row = document.createElement('div');
+    row.className = 'prob-row' + (tok===chosen ? ' chosen' : '');
+    const disp = tok === '<end>' ? T[LANG].m5.endTokenLabel : '"' + tok + '"';
+    row.innerHTML = '<span class="ptok mono">'+esc(disp)+'</span>'+
+      '<div class="prob-track"><div class="prob-fill" style="width:0%"></div></div>'+
+      '<span class="prob-pct mono">'+(p*100).toFixed(1)+'%</span>';
+    probList.appendChild(row);
+    requestAnimationFrame(()=>{ row.querySelector('.prob-fill').style.width = (p*100)+'%'; });
+  });
+}
+function sampleFrom(dist){
+  if(samplingMode === 'greedy'){
+    return dist.reduce((best,cur)=>cur[1]>best[1]?cur:best)[0];
+  }
+  let r = Math.random();
+  for(const [tok,p] of dist){ r -= p; if(r <= 0) return tok; }
+  return dist[dist.length-1][0];
+}
+function genStep(){
+  const data = T[LANG].m5.genData[genKey];
+  if(genStepIdx >= data.steps.length || genTokens[genTokens.length-1] === '<end>'){
+    probStatus.textContent = T[LANG].m5.stoppedStatus;
+    stopAuto();
+    return;
+  }
+  const temp = parseFloat(tempSlider.value);
+  const dist = applyTemperature(data.steps[genStepIdx], temp);
+  const chosen = sampleFrom(dist);
+  renderProbs(dist, chosen);
+  genTokens.push(chosen);
+  genStepIdx++;
+  renderGenContext(true);
+  probStatus.textContent = chosen === '<end>'
+    ? T[LANG].m5.endStatus
+    : T[LANG].m5.stepStatusTemplate.replace('{n}', genStepIdx).replace('{tok}', chosen);
+  if(chosen === '<end>') stopAuto();
+}
+function genReset(){
+  stopAuto();
+  genStepIdx = 0;
+  genTokens = [...T[LANG].m5.genData[genKey].prompt];
+  renderGenContext(false);
+  probList.innerHTML = '';
+  probStatus.textContent = T[LANG].m5.pressPrompt;
+}
+function stopAuto(){
+  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; document.getElementById('genAuto').textContent = T[LANG].m5.autoplayBtn; }
+}
+document.getElementById('genStep').onclick = genStep;
+document.getElementById('genReset').onclick = genReset;
+document.getElementById('genAuto').onclick = function(){
+  if(autoTimer){ stopAuto(); return; }
+  this.textContent = T[LANG].m5.pauseBtn;
+  autoTimer = setInterval(genStep, 1100);
+};
+document.getElementById('genPrompt').onchange = function(){ genKey = this.value; genReset(); };
+tempSlider.oninput = function(){ tempVal.textContent = parseFloat(this.value).toFixed(1); };
+document.getElementById('modeToggle').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    samplingMode = b.dataset.mode;
+    document.getElementById('modeToggle').querySelectorAll('button').forEach(x=>x.classList.toggle('active', x===b));
+  };
+});
+genReset();
+
+/* ============ 6. CONTEXT & MEMORY ============ */
+const MEM_BUDGET_CAP = 24;
+const SYS_SEG_COST = 4;
+let memSegs = [];
+let memTurnIdx = 0;
+let memStrategy = 'raw';
+function renderBudget(){
+  const track = document.getElementById('budgetBar');
+  track.innerHTML = '';
+  memSegs.forEach(seg => {
+    const d = document.createElement('div');
+    d.className = 'budget-seg ' + seg.type;
+    d.style.width = (seg.cost/MEM_BUDGET_CAP*100) + '%';
+    d.textContent = seg.label;
+    track.appendChild(d);
+  });
+  const total = memSegs.reduce((s,seg)=>s+seg.cost,0);
+  document.getElementById('budgetUsed').textContent = T[LANG].m6.slotsUsedTemplate.replace('{used}', Math.min(total,MEM_BUDGET_CAP)).replace('{cap}', MEM_BUDGET_CAP);
+  document.getElementById('budgetTurnCount').textContent = T[LANG].m6.turnsSentTemplate.replace('{n}', memTurnIdx);
+}
+function memReset(){
+  memSegs = [{type:'sys', cost:SYS_SEG_COST, label:T[LANG].m6.segSystem}];
+  memTurnIdx = 0;
+  document.getElementById('budgetNote').textContent = '';
+  renderBudget();
+}
+function budgetSend(){
+  const turns = T[LANG].m6.turns;
+  if(memTurnIdx >= turns.length){
+    document.getElementById('budgetNote').textContent = T[LANG].m6.scriptFinished;
+    return;
+  }
+  memSegs.push({type:'user', cost:4, label:T[LANG].m6.segUserTemplate.replace('{n}', memTurnIdx+1)});
+  memSegs.push({type:'asst', cost:4, label:T[LANG].m6.segAsstTemplate.replace('{n}', memTurnIdx+1)});
+  memTurnIdx++;
+  let total = memSegs.reduce((s,seg)=>s+seg.cost,0);
+  let evicted = false;
+  while(total > MEM_BUDGET_CAP && memSegs.length > 1){
+    memSegs.splice(1,1);
+    evicted = true;
+    total = memSegs.reduce((s,seg)=>s+seg.cost,0);
+  }
+  document.getElementById('budgetNote').textContent = evicted ? T[LANG].m6.overflowNote : '';
+  renderBudget();
+}
+document.getElementById('budgetSend').onclick = budgetSend;
+document.getElementById('budgetReset').onclick = memReset;
+memReset();
+
+function memBuildRaw(){
+  const m6 = T[LANG].m6;
+  let out = '<span class="xr-sys"><span class="xr-tag">['+m6.tagSystem+']</span> ' + esc(T[LANG].m1.systemPrompt) + '</span>\n';
+  m6.turns.forEach(turnData => {
+    out += '<span class="xr-user"><span class="xr-tag">['+m6.tagUser+']</span> '+esc(turnData.user)+'</span>\n';
+    out += '<span class="xr-asst"><span class="xr-tag">['+m6.tagAssistant+']</span> '+esc(turnData.assistant)+'</span>\n';
+  });
+  return out + '<span style="opacity:.6">' + m6.rawFootnote + '</span>';
+}
+function memBuildSummary(){
+  const m6 = T[LANG].m6;
+  const last = m6.turns[m6.turns.length-1];
+  return '<span class="xr-sys"><span class="xr-tag">['+m6.tagSystem+']</span> ' + esc(T[LANG].m1.systemPrompt) + '</span>\n' +
+    '<span class="xr-asst"><span class="xr-tag">['+m6.tagSummary+']</span> ' + esc(m6.summaryLine) + '</span>\n' +
+    '<span class="xr-user"><span class="xr-tag">['+m6.tagUser+']</span> ' + esc(last.user) + '</span>\n' +
+    '<span class="xr-asst"><span class="xr-tag">['+m6.tagAssistant+']</span> ' + esc(last.assistant) + '</span>\n' +
+    '<span style="opacity:.6">' + m6.summaryFootnote + '</span>';
+}
+function memBuildNotes(){
+  const m6 = T[LANG].m6;
+  const last = m6.turns[m6.turns.length-1];
+  return '<span class="xr-sys"><span class="xr-tag">['+m6.tagSystem+']</span> ' + esc(T[LANG].m1.systemPrompt) + '</span>\n' +
+    '<span class="xr-asst"><span class="xr-tag">['+m6.tagNotes+']</span> ' + esc(m6.notesLine) + '</span>\n' +
+    '<span class="xr-user"><span class="xr-tag">['+m6.tagUser+']</span> ' + esc(last.user) + '</span>\n' +
+    '<span style="opacity:.6">' + m6.notesFootnote + '</span>';
+}
+function renderMem(strat){
+  memStrategy = strat;
+  const fn = strat === 'raw' ? memBuildRaw : strat === 'summary' ? memBuildSummary : memBuildNotes;
+  document.getElementById('memBody').innerHTML = fn();
+}
+document.getElementById('memToggle').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    document.getElementById('memToggle').querySelectorAll('button').forEach(x=>x.classList.toggle('active', x===b));
+    renderMem(b.dataset.strat);
+  };
+});
+renderMem('raw');
+
+/* ============ 7. HALLUCINATIONS & LIMITS ============ */
+let hallScore = {correct:0, total:0};
+function renderHallList(){
+  const items = T[LANG].m7.items;
+  const wrap = document.getElementById('hallList');
+  wrap.innerHTML = '';
+  hallScore = {correct:0, total:0};
+  items.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'hall-item';
+    div.innerHTML =
+      '<div class="hall-prompt">'+esc(item.prompt)+'</div>'+
+      '<div class="hall-answer">'+esc(item.answer)+'</div>'+
+      '<div class="hall-rate-row" data-idx="'+idx+'">'+
+        '<button class="btn btn-secondary btn-sm" data-guess="true">'+esc(T[LANG].m7.trustBtn)+'</button>'+
+        '<button class="btn btn-secondary btn-sm" data-guess="false">'+esc(T[LANG].m7.offBtn)+'</button>'+
+      '</div>'+
+      '<div class="hall-verdict" id="hallVerdict'+idx+'"></div>';
+    wrap.appendChild(div);
+  });
+  wrap.querySelectorAll('.hall-rate-row').forEach(row => {
+    row.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        if(row.dataset.done) return;
+        row.dataset.done = '1';
+        const idx = parseInt(row.dataset.idx);
+        const guess = btn.dataset.guess === 'true';
+        row.querySelectorAll('button').forEach(b => b.classList.toggle('active', b===btn));
+        const item = T[LANG].m7.items[idx];
+        const correct = guess === item.isTrue;
+        hallScore.total++;
+        if(correct) hallScore.correct++;
+        const verdictEl = document.getElementById('hallVerdict'+idx);
+        verdictEl.className = 'hall-verdict ' + (item.isTrue ? 'true' : 'false');
+        verdictEl.textContent = (item.isTrue ? '\u2705 ' : '\u274c ') + item.note;
+        document.getElementById('hallScore').textContent = T[LANG].m7.scoreTemplate.replace('{c}', hallScore.correct).replace('{t}', hallScore.total);
+      };
+    });
+  });
+  document.getElementById('hallScore').textContent = T[LANG].m7.scoreTemplate.replace('{c}', 0).replace('{t}', 0);
+}
+renderHallList();
+
+function renderClaimText(){
+  const el = document.getElementById('claimText');
+  el.innerHTML = T[LANG].m7.claimSentence.map(p => p.claim !== undefined
+    ? '<span class="claim-span" data-claim="'+p.claim+'">'+esc(p.text)+'</span>'
+    : esc(p.text)).join('');
+  el.querySelectorAll('.claim-span').forEach(s => s.onclick = () => s.classList.toggle('marked'));
+  document.getElementById('claimKey').innerHTML = '';
+  document.getElementById('claimKey').classList.remove('show');
+}
+renderClaimText();
+document.getElementById('claimReveal').onclick = function(){
+  const keyEl = document.getElementById('claimKey');
+  keyEl.innerHTML = T[LANG].m7.claimKey.map((k,i) => '<div>' + (i+1) + ': ' + (k.verdict?'\u2705':'\u274c') + ' \u2014 ' + esc(k.note) + '</div>').join('');
+  keyEl.classList.add('show');
+};
+
+let refusalIdx = 0;
+function renderRefusalPicker(){
+  const wrap = document.getElementById('refusalPicker');
+  wrap.innerHTML = '';
+  T[LANG].m7.refusalScenarios.forEach((s,i) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-secondary btn-sm' + (i===refusalIdx ? ' active' : '');
+    b.textContent = s.label;
+    b.onclick = () => { refusalIdx = i; renderRefusalPicker(); renderRefusal(); };
+    wrap.appendChild(b);
+  });
+}
+function renderRefusal(){
+  const s = T[LANG].m7.refusalScenarios[refusalIdx];
+  document.getElementById('refusalCols').innerHTML =
+    '<div class="refusal-col good"><h4>'+esc(T[LANG].m7.goodLabel)+'</h4><p style="margin-bottom:6px;"><b>'+esc(T[LANG].m7.promptLabel)+'</b> '+esc(s.prompt)+'</p><p>'+esc(s.good)+'</p></div>'+
+    '<div class="refusal-col bad"><h4>'+esc(T[LANG].m7.badLabel)+'</h4><p style="margin-bottom:6px;"><b>'+esc(T[LANG].m7.promptLabel)+'</b> '+esc(s.prompt)+'</p><p>'+esc(s.bad)+'</p></div>';
+}
+function initHallucinations(){ refusalIdx = 0; renderHallList(); renderClaimText(); renderRefusalPicker(); renderRefusal(); }
+initHallucinations();
+
+/* ============ 8. PROMPT ENGINEERING ============ */
+const abPromptAEl = document.getElementById('abPromptA');
+const abPromptBEl = document.getElementById('abPromptB');
+function initPromptEngUI(){
+  abPromptAEl.value = T[LANG].m8.abPromptA;
+  abPromptBEl.value = T[LANG].m8.abPromptB;
+  document.getElementById('abOutputA').textContent = '';
+  document.getElementById('abOutputB').textContent = '';
+}
+document.getElementById('abCompare').onclick = function(){
+  document.getElementById('abOutputA').textContent = T[LANG].m8.abOutputA;
+  document.getElementById('abOutputB').textContent = T[LANG].m8.abOutputB;
+};
+
+let techActive = null;
+function renderTechCards(){
+  const cards = T[LANG].m8.techCards;
+  if(techActive === null) techActive = cards[0].key;
+  const wrap = document.getElementById('techCards');
+  wrap.innerHTML = '';
+  cards.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'tech-card' + (techActive===c.key ? ' active' : '');
+    btn.innerHTML = '<h4>'+esc(c.name)+'</h4><p>'+esc(c.desc)+'</p>';
+    btn.onclick = () => { techActive = c.key; renderTechCards(); renderTechDetail(c); };
+    wrap.appendChild(btn);
+  });
+}
+function renderTechDetail(c){
+  document.getElementById('techBefore').textContent = T[LANG].m8.basePrompt + '\n\n\u2192 ' + c.before;
+  document.getElementById('techAfter').textContent = c.prompt + '\n\n\u2192 ' + c.after;
+}
+function initPromptEngineering(){
+  techActive = null;
+  initPromptEngUI();
+  renderTechCards();
+  renderTechDetail(T[LANG].m8.techCards.find(c=>c.key===techActive));
+}
+initPromptEngineering();
+
+/* ============ 9. RAG ============ */
+function ragCleanWords(s){ return s.toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w=>w.length>=4); }
+function overlapScore(q, text){
+  const qWords = new Set(ragCleanWords(q));
+  let score = 0;
+  ragCleanWords(text).forEach(w => { if(qWords.has(w)) score++; });
+  return score;
+}
+let ragActiveQ = null;
+function renderRagQuestions(){
+  const wrap = document.getElementById('ragQuestions');
+  wrap.innerHTML = '';
+  T[LANG].m9.questions.forEach((rq,i) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-secondary btn-sm' + (ragActiveQ===i ? ' active' : '');
+    b.textContent = rq.q;
+    b.onclick = () => { ragActiveQ = i; renderRagQuestions(); renderRagResult(); };
+    wrap.appendChild(b);
+  });
+}
+function renderRagResult(){
+  const m9 = T[LANG].m9;
+  const chunksWrap = document.getElementById('ragChunks');
+  chunksWrap.innerHTML = '';
+  let hitId = null, bestScore = -1;
+  if(ragActiveQ !== null){
+    m9.chunks.forEach(c => {
+      const s = overlapScore(m9.questions[ragActiveQ].q, c.text);
+      if(s > bestScore){ bestScore = s; hitId = c.id; }
+    });
+  }
+  m9.chunks.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'rag-chunk' + (c.id===hitId ? ' hit' : '');
+    d.innerHTML = '<div class="cid">'+c.id+(c.id===hitId ? esc(m9.retrievedSuffix) : '')+'</div>'+esc(c.text);
+    chunksWrap.appendChild(d);
+  });
+  const ansEl = document.getElementById('ragAnswer');
+  if(ragActiveQ !== null){
+    ansEl.style.display = 'block';
+    ansEl.innerHTML = esc(m9.questions[ragActiveQ].answer) + ' <span class="rag-cite">['+esc(m9.sourceLabel)+': '+hitId+']</span>';
+  } else {
+    ansEl.style.display = 'none';
+  }
+}
+let ragScenarioIdx = null;
+function renderRagScenarios(){
+  const wrap = document.getElementById('ragScenarios');
+  wrap.innerHTML = '';
+  T[LANG].m9.scenarios.forEach((s,i) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-secondary btn-sm' + (ragScenarioIdx===i ? ' active' : '');
+    b.textContent = s.label;
+    b.onclick = () => {
+      ragScenarioIdx = i;
+      renderRagScenarios();
+      document.getElementById('ragScenarioOutput').textContent = s.output;
+    };
+    wrap.appendChild(b);
+  });
+}
+function initRag(){
+  ragActiveQ = null; ragScenarioIdx = null;
+  renderRagQuestions(); renderRagResult(); renderRagScenarios();
+  document.getElementById('ragScenarioOutput').textContent = T[LANG].m9.pickScenario;
+}
+initRag();
+
+/* ============ 10. TRAINING & ALIGNMENT ============ */
+const SCALE_METRICS = ['dataset','params','compute'];
+function renderScale(genIdx){
+  const m10 = T[LANG].m10;
+  const gens = m10.scaleGens;
+  const metricMax = {};
+  SCALE_METRICS.forEach(m => { metricMax[m] = Math.max(...gens.map(g => g[m])); });
+  const gen = gens[genIdx];
+  const chart = document.getElementById('scaleChart');
+  chart.innerHTML = '';
+  SCALE_METRICS.forEach(m => {
+    const h = Math.max(6, Math.log10(gen[m]+1)/Math.log10(metricMax[m]+1) * 140);
+    const col = document.createElement('div');
+    col.className = 'scale-col';
+    col.innerHTML = '<div class="scale-bar-track"><div class="scale-bar-fill" style="height:'+h+'px"></div></div><span class="glbl">'+esc(m10.scaleMetricLabels[m])+'</span>';
+    chart.appendChild(col);
+  });
+  document.getElementById('scaleReadout').textContent = m10.scaleReadoutTemplate
+    .replace('{label}', gen.label).replace('{dataset}', gen.dataset.toLocaleString())
+    .replace('{params}', gen.params).replace('{compute}', gen.compute.toLocaleString());
+}
+let scaleGenIdx = 3;
+document.getElementById('scaleSlider').oninput = function(){ scaleGenIdx = parseInt(this.value); renderScale(scaleGenIdx); };
+
+let rlhfRound = 0;
+let rlhfTally = {aligned:0, other:0};
+function renderRlhf(){
+  const m10 = T[LANG].m10;
+  const pairs = m10.rlhfPairs;
+  if(rlhfRound >= pairs.length){
+    document.getElementById('rlhfProgress').textContent = m10.rlhfDoneTemplate.replace('{total}', pairs.length);
+    document.getElementById('rlhfPair').innerHTML = '';
+    const resEl = document.getElementById('rlhfResult');
+    resEl.style.display = 'block';
+    const totalRounds = rlhfTally.aligned + rlhfTally.other;
+    const pct = totalRounds ? Math.round(rlhfTally.aligned/totalRounds*100) : 0;
+    resEl.innerHTML =
+      '<p style="font-size:15px; margin-bottom:8px;">' + m10.rlhfResultTemplate.replace('{total}', pairs.length).replace('{aligned}', rlhfTally.aligned).replace('{total}', pairs.length) + '</p>' +
+      '<div class="rlhf-bar-row"><span>'+esc(m10.alignedLabel)+'</span><div class="prob-track"><div class="prob-fill" style="width:'+pct+'%"></div></div><span>'+pct+'%</span></div>' +
+      '<p style="font-size:14.5px; margin-top:10px;">' + m10.rlhfExplain + '</p>';
+    return;
+  }
+  const pair = pairs[rlhfRound];
+  document.getElementById('rlhfProgress').textContent = m10.rlhfProgressTemplate.replace('{n}', rlhfRound+1).replace('{total}', pairs.length).replace('{prompt}', pair.prompt);
+  const wrap = document.getElementById('rlhfPair');
+  wrap.innerHTML = '';
+  ['a','b'].forEach(k => {
+    const opt = pair[k];
+    const d = document.createElement('div');
+    d.className = 'rlhf-opt';
+    d.textContent = opt.text;
+    d.onclick = () => {
+      if(opt.aligned) rlhfTally.aligned++; else rlhfTally.other++;
+      rlhfRound++;
+      renderRlhf();
+    };
+    wrap.appendChild(d);
+  });
+  document.getElementById('rlhfResult').style.display = 'none';
+}
+
+let baseInstructWhich = 'base';
+function renderBaseInstruct(){
+  document.getElementById('baseInstructOutput').textContent = T[LANG].m10.baseVsInstruct[baseInstructWhich];
+}
+document.getElementById('baseInstructToggle').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    document.getElementById('baseInstructToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x===b));
+    baseInstructWhich = b.dataset.which;
+    renderBaseInstruct();
+  };
+});
+function initTraining(){
+  scaleGenIdx = 3;
+  document.getElementById('scaleSlider').value = 3;
+  renderScale(3);
+  rlhfRound = 0; rlhfTally = {aligned:0, other:0};
+  renderRlhf();
+  baseInstructWhich = 'base';
+  document.getElementById('baseInstructToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.which==='base'));
+  renderBaseInstruct();
+}
+initTraining();
+
+/* ============ LANGUAGE TOGGLE ============ */
+function rerenderAll(){
+  applyStaticI18n();
+  resetChat();
+  wireTokPresets();
+  renderTokens();
+  buildEmbeddingMap();
+  initAttention();
+  genKey = 'cat';
+  document.getElementById('genPrompt').value = 'cat';
+  genReset();
+  memReset();
+  renderMem('raw');
+  document.getElementById('memToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.strat==='raw'));
+  initHallucinations();
+  initPromptEngineering();
+  initRag();
+  initTraining();
+  document.getElementById('modeToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.mode==='sample'));
+  samplingMode = 'sample';
+}
+
+document.getElementById('langToggle').querySelectorAll('button').forEach(b => {
+  b.onclick = () => {
+    if(b.dataset.lang === LANG) return;
+    LANG = b.dataset.lang;
+    localStorage.setItem('itc-lang', LANG);
+    document.getElementById('langToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x===b));
+    rerenderAll();
+  };
+});
+document.getElementById('langToggle').querySelectorAll('button').forEach(x => x.classList.toggle('active', x.dataset.lang===LANG));
+applyStaticI18n();
+
+</script>
+</body>
+</html>
