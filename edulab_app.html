@@ -228,6 +228,9 @@ body.edu { background: var(--paper); color: var(--ink); font-family: var(--font-
   --app-index-top: 105px;
   --app-header-blur: 12px;
   --app-duration: 160ms;
+  --app-badge: 32px;
+  --app-chip-type: 11px;
+  --app-chip-tracking: .08em;
 }
 
 /* ─── Foundation ─── */
@@ -313,7 +316,8 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 .probabilities { margin: var(--sp-5) 0; display: grid; gap: var(--sp-3); }
 .probability-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: var(--sp-3); align-items: center; font-family: var(--font-mono); font-size: var(--caption); color: var(--ink); }
 .probability-row progress { height: var(--sp-2); }
-.lesson-section { margin: var(--sp-8) 0; }
+.lesson-section { margin: var(--sp-8) 0; display: grid; grid-template-columns: var(--app-badge) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+.section-number, .recap-number { display: flex; align-items: center; justify-content: center; width: var(--app-badge); height: var(--app-badge); background: var(--blue-soft); color: var(--blue-ink); border-radius: var(--r-pill); font-family: var(--font-mono); font-size: var(--caption); font-weight: 500; }
 .edu h3.section-title { font-size: var(--app-section-title); line-height: var(--app-tight-leading); margin-bottom: var(--sp-3); }
 .lesson-section p + p { margin-top: var(--sp-3); }
 .source-link { display: inline-block; margin-top: var(--sp-3); font-size: var(--body-sm); }
@@ -323,16 +327,16 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 .caveat { color: var(--ink-2); font-size: var(--body-sm) !important; }
 .caveat strong { color: var(--ink); }
 .recap-list { list-style: none; padding: 0; margin: var(--sp-8) 0; display: grid; gap: var(--sp-5); }
-.recap-item { display: grid; grid-template-columns: var(--sp-10) minmax(0, 1fr); gap: var(--sp-4); }
-.recap-number { display: flex; align-items: center; justify-content: center; width: var(--sp-10); height: var(--sp-10); background: var(--paper-3); color: var(--ink); border-radius: var(--r-pill); font-family: var(--font-mono); font-size: var(--body-sm); }
+.recap-item { display: grid; grid-template-columns: var(--app-badge) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
 .edu .recap-item h3 { font-size: var(--app-section-title); margin-bottom: var(--sp-2); }
 
 /* ─── Knowledge checks ─── */
-.knowledge-check { margin-top: var(--sp-10); padding-top: var(--sp-8); border-top: var(--app-rule) solid var(--line); }
+.knowledge-check { margin-top: var(--sp-10); }
+.quiz-head { padding: var(--sp-6) var(--sp-8); border-radius: var(--r-xl); background: var(--blue-soft); color: var(--blue-ink); }
 .edu .knowledge-check h3 { font-size: var(--h3); }
 .quiz-intro { margin-top: var(--sp-3); }
 .question { margin-top: var(--sp-6); padding: var(--sp-6); border: var(--app-rule) solid var(--line); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-sm); }
-.question-number { font-family: var(--font-mono); font-size: var(--caption); color: var(--ink-2); margin-bottom: var(--sp-3); letter-spacing: var(--app-mono-tracking); }
+.question-number { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); margin-bottom: var(--sp-3); border-radius: var(--r-pill); background: var(--blue-soft); color: var(--blue-ink); font-family: var(--font-mono); font-size: var(--app-chip-type); font-weight: 500; letter-spacing: var(--app-chip-tracking); text-transform: uppercase; }
 .edu h4.question-title { font-family: var(--font-sans); font-size: var(--body-lg); line-height: var(--app-tight-leading); margin-bottom: var(--sp-5); }
 .answer-list { display: grid; gap: var(--sp-2); }
 .answer { width: 100%; min-height: var(--app-touch); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-md); color: var(--ink); background: var(--surface); text-align: var(--app-body-align); font-size: var(--body); line-height: var(--app-tight-leading); transition: background var(--app-duration); }
@@ -361,7 +365,8 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 /* ─── Results and tools ─── */
 .results-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); margin: var(--sp-6) 0; }
 .stat-card { padding: var(--sp-6); background: var(--paper-2); border-radius: var(--r-xl); }
-.stat-card:first-child { background: var(--yellow); color: var(--yellow-ink); }
+.stat-card[data-result="reading"] { background: var(--yellow-soft); color: var(--yellow-ink); }
+.stat-card[data-result="quiz"] { background: var(--blue-soft); color: var(--blue-ink); }
 .stat-number { display: block; font-family: var(--font-display); font-size: var(--app-stat-type); font-weight: var(--app-title-weight); line-height: var(--app-title-leading); margin-bottom: var(--sp-3); }
 .stat-label { font-size: var(--body); line-height: var(--app-tight-leading); }
 .result-list { list-style: none; margin: var(--sp-8) 0; padding: 0; display: grid; gap: var(--sp-3); }
@@ -414,6 +419,8 @@ dialog::backdrop { background: var(--app-dialog-backdrop); }
   .question { padding: var(--sp-5) var(--sp-4); }
   .answer { padding: var(--sp-3); gap: var(--sp-2); }
   .takeaway { padding: var(--sp-5); }
+  .quiz-head { padding: var(--sp-5); }
+  .lesson-section, .recap-item { gap: var(--sp-3); }
   .reading-row { align-items: stretch; }
   .reading-row .button { width: 100%; }
   .results-stats { gap: var(--sp-3); }
@@ -1608,7 +1615,9 @@ function buildQuiz() {
   const title = node('h3', '', t('quizTitle'));
   title.id = 'quizTitle';
   quiz.setAttribute('aria-labelledby', title.id);
-  quiz.append(title, node('p', 'quiz-intro', t('quizIntro')));
+  const head = node('div', 'quiz-head edu-block');
+  head.append(title, node('p', 'quiz-intro', t('quizIntro')));
+  quiz.append(head);
   questions.forEach((question, index) => quiz.append(buildQuestion(question, index, questions.length)));
   const retryRow = node('div', 'retry-row');
   const retry = button('retry', 'retry');
@@ -1659,7 +1668,9 @@ function renderLesson() {
       source.rel = 'noopener noreferrer';
       content.append(source);
     }
-    if (state.chapter === TOTAL) section.append(node('span', 'recap-number', String(index)));
+    const badge = node('span', state.chapter === TOTAL ? 'recap-number' : 'section-number', String(index));
+    badge.setAttribute('aria-hidden', 'true');
+    section.append(badge);
     section.append(content);
     sections.append(section);
   }
