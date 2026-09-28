@@ -1,0 +1,1814 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Zrozum, co dzieje się między Twoją wiadomością a odpowiedzią chatbota. Jedenaście krótkich rozdziałów po polsku i angielsku.">
+<title>Co dzieje się w chatbocie? · edulab</title>
+<style>
+/* ============================================================
+   edulab – Colors & Type foundation
+   Fonts loaded from Google Fonts (CDN). See README "Visual
+   Foundations" for substitution notes.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Brand fonts ---- */
+  --font-display: 'Outfit', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-sans:    'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --font-mono:    'Roboto Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* ============================================================
+     RAW COLOR TOKENS
+     ============================================================ */
+
+  /* Paper – page background is white; the sand steps are wells/alternating sections */
+  --paper:    #FFFFFF;   /* page background (white)    */
+  --paper-2:  #FBF7E6;   /* alternating section        */
+  --paper-3:  #F5EDCB;   /* deepest sand / wells       */
+  --surface:  #FFFFFF;   /* cards & sheets             */
+
+  /* Ink – warm near-black text & lines */
+  --ink:      #1C1917;   /* primary text               */
+  --ink-2:    #57534E;   /* secondary text             */
+  --ink-3:    #948C82;   /* muted / placeholder        */
+  --line:     #EDE7D2;   /* hairline borders           */
+  --line-2:   #DDD4B6;   /* stronger borders           */
+
+  /* ---- Brand: Yellow main · Blue + Green secondary · Red danger ----
+     Plain saturated colours. A "-soft" tint IS the saturated colour
+     (panels and chips are solid), "-ink" is the text colour ON it:
+     white on blue/green/red, dark ink on yellow. Never colour-on-colour
+     (no green text on green); the saturated colour itself goes only on
+     white or black. */
+
+  /* Yellow – primary (buttons, progress, values on dark panels) */
+  --yellow:      #FFD500;
+  --yellow-600:  #F0C800;  /* hover / press          */
+  --yellow-soft: #FFD500;  /* chip / panel fill      */
+  --yellow-ink:  #1C1917;  /* text on yellow         */
+
+  /* Blue – secondary (panels, chips, correct / selected state) */
+  --blue:      #1E8FC2;
+  --blue-600:  #177AA8;
+  --blue-soft: #1E8FC2;
+  --blue-ink:  #FFFFFF;
+
+  /* Green – secondary support (chips, success) */
+  --green:      #00A651;
+  --green-600:  #009444;
+  --green-soft: #00A651;
+  --green-ink:  #FFFFFF;
+
+  /* Red – danger / important / wrong (use sparingly) */
+  --red:      #E5322D;
+  --red-600:  #C92823;
+  --red-soft: #E5322D;
+  --red-ink:  #FFFFFF;
+
+  /* Legacy role aliases – older edulab apps use these names */
+  --marigold: var(--yellow); --marigold-600: var(--yellow-600); --marigold-soft: var(--yellow-soft); --marigold-ink: var(--yellow-ink);
+  --teal:     var(--blue);   --teal-600:     var(--blue-600);   --teal-soft:     var(--blue-soft);   --teal-ink:     var(--blue-ink);
+  --sky:      var(--green);                                     --sky-soft:      var(--green-soft);  --sky-ink:      var(--green-ink);
+  --coral:    var(--red);    --coral-600:    var(--red-600);    --coral-soft:    var(--red-soft);    --coral-ink:    var(--red-ink);
+
+  /* Play palette – subject/category colours in the kids app */
+  --play-sun:    #FFD500;
+  --play-grass:  #00A651;
+  --play-berry:  #C6478B;
+  --play-grape:  #7A5AC2;
+  --play-sky:    #1E8FC2;
+  --play-coral:  #E5322D;
+
+  /* ---- Semantic ---- */
+  --success:      #00A651;  --success-soft: #00A651;  --success-ink: #FFFFFF;
+  --warning:      #FFD500;  --warning-soft: #FFD500;  --warning-ink: #1C1917;
+  --danger:       #E5322D;  --danger-soft:  #E5322D;  --danger-ink:  #FFFFFF;
+  --info:         #1E8FC2;  --info-soft:    #1E8FC2;  --info-ink:    #FFFFFF;
+
+  /* ---- Functional aliases ---- */
+  --bg:        var(--paper);
+  --fg:        var(--ink);
+  --fg-muted:  var(--ink-2);
+  --primary:   var(--yellow);
+  --on-primary:#1C1917;      /* dark text on yellow */
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--yellow) 45%, transparent);
+
+  /* ============================================================
+     SPACING  (4pt base)
+     ============================================================ */
+  --sp-1: 4px;  --sp-2: 8px;  --sp-3: 12px; --sp-4: 16px;
+  --sp-5: 20px; --sp-6: 24px; --sp-8: 32px; --sp-10: 40px;
+  --sp-12: 48px; --sp-16: 64px; --sp-20: 80px; --sp-24: 96px;
+
+  /* ---- Radii (friendly, generous) ---- */
+  --r-xs: 6px; --r-sm: 10px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px; --r-pill: 999px;
+
+  /* ---- Elevation – warm, low, soft ---- */
+  --shadow-sm: 0 1px 2px rgba(33,30,26,.06), 0 1px 1px rgba(33,30,26,.04);
+  --shadow-md: 0 4px 16px rgba(33,30,26,.08), 0 1px 3px rgba(33,30,26,.05);
+  --shadow-lg: 0 16px 40px rgba(33,30,26,.12), 0 3px 8px rgba(33,30,26,.06);
+  --shadow-primary:  0 8px 22px color-mix(in srgb, var(--yellow) 30%, transparent);
+  --shadow-marigold: var(--shadow-primary);   /* legacy alias */
+
+  /* ============================================================
+     TYPE SCALE (semantic sizes)
+     ============================================================ */
+  --display-font:  clamp(48px, 6vw, 72px);
+  --h1: 44px; --h2: 33px; --h3: 25px; --h4: 19px;
+  --body-lg: 18px; --body: 16px; --body-sm: 14px;
+  --caption: 13px; --overline: 12px;
+}
+
+/* ============================================================
+   SEMANTIC ELEMENT STYLES
+   Apply via element selectors or .edu-prose wrapper.
+   ============================================================ */
+
+.edu-display, .edu h1.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--display-font);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+.edu h1, .edu-h1 {
+  font-family: var(--font-display);
+  font-weight: 700; font-size: var(--h1);
+  line-height: 1.06; letter-spacing: -0.02em; color: var(--ink);
+}
+.edu h2, .edu-h2 {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: var(--h2);
+  line-height: 1.12; letter-spacing: -0.015em; color: var(--ink);
+}
+.edu h3, .edu-h3 {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: var(--h3);
+  line-height: 1.2; letter-spacing: -0.01em; color: var(--ink);
+}
+.edu h4, .edu-h4 {
+  font-family: var(--font-sans);
+  font-weight: 700; font-size: var(--h4);
+  line-height: 1.3; color: var(--ink);
+}
+.edu p, .edu-p, .edu-body {
+  font-family: var(--font-sans);
+  font-weight: 400; font-size: var(--body);
+  line-height: 1.6; color: var(--ink-2);
+}
+.edu-body-lg { font-family: var(--font-sans); font-size: var(--body-lg); line-height: 1.6; color: var(--ink-2); }
+.edu-small  { font-family: var(--font-sans); font-size: var(--body-sm); line-height: 1.5; color: var(--ink-2); }
+.edu-caption{ font-family: var(--font-sans); font-size: var(--caption); line-height: 1.45; color: var(--ink-3); }
+
+/* Overline – mono, tracked; functional labels only (never above page/section titles) */
+.edu-overline {
+  font-family: var(--font-mono);
+  font-weight: 500; font-size: var(--overline);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink);
+}
+.edu code, .edu-mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em; color: var(--ink);
+  background: var(--paper-3); padding: 0.12em 0.4em; border-radius: var(--r-xs);
+}
+
+/* Solid colour blocks (callouts, stat cards, chips): set background: var(--X-soft) and
+   color: var(--X-ink) on the block, add .edu-block, and every heading/paragraph inside
+   inherits that text colour instead of the default ink. */
+.edu-block, .edu-block h1, .edu-block h2, .edu-block h3, .edu-block h4, .edu-block p,
+.edu-block li, .edu-block small { color: inherit; }
+
+body.edu { background: var(--paper); color: var(--ink); font-family: var(--font-sans); }
+
+/* ─── App tokens ─── */
+:root {
+  --app-width: 1100px;
+  --app-index-width: 230px;
+  --app-header-height: 81px;
+  --app-page-title: clamp(2rem, 4.5vw, 2.85rem);
+  --app-lesson-title: clamp(1.75rem, 3vw, 2.3rem);
+  --app-section-title: 1.35rem;
+  --app-example-title: 1.125rem;
+  --app-example-type: 1rem;
+  --app-wordmark-type: 22px;
+  --app-number-type: 2.5rem;
+  --app-stat-type: 2.5rem;
+  --app-nav-type: 14px;
+  --app-button-type: 15px;
+  --app-title-weight: 700;
+  --app-strong-weight: 600;
+  --app-body-leading: 1.65;
+  --app-title-leading: 1.12;
+  --app-tight-leading: 1.4;
+  --app-title-tracking: -.025em;
+  --app-mono-tracking: .02em;
+  --app-body-align: start;
+  --app-hero-align: center;
+  --app-functional-align: center;
+  --app-end-align: end;
+  --app-header-bg: color-mix(in srgb, var(--paper) 90%, transparent);
+  --app-dialog-backdrop: color-mix(in srgb, var(--ink) 30%, transparent);
+  --app-clear: transparent;
+  --app-selected: var(--blue-600);
+  --app-selected-ink: var(--blue-ink);
+  --app-focus: var(--ink);
+  --app-focus-size: 2px;
+  --app-rule: 1px;
+  --app-touch: 44px;
+  --app-logo-width: 64px;
+  --app-logo-gap: -6px;
+  --app-nav-number: 25px;
+  --app-answer-number: 30px;
+  --app-progress-height: 7px;
+  --app-index-top: 105px;
+  --app-header-blur: 12px;
+  --app-duration: 160ms;
+}
+
+/* ─── Foundation ─── */
+* { box-sizing: border-box; }
+html { scroll-padding-top: var(--app-index-top); }
+body { margin: 0; text-align: var(--app-body-align); }
+button, input, textarea, select { font: inherit; }
+button, a, summary { -webkit-tap-highlight-color: var(--app-clear); }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+button, a { touch-action: manipulation; }
+button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-visible { outline: var(--app-focus-size) solid var(--app-focus); outline-offset: var(--sp-1); box-shadow: var(--focus-ring); }
+h1, h2, h3, h4, p { margin: 0; }
+a { color: inherit; text-underline-offset: var(--sp-1); }
+.edu p { line-height: var(--app-body-leading); }
+.edu strong { font-weight: var(--app-strong-weight); color: inherit; }
+[hidden] { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.skip-link { position: fixed; z-index: 100; top: var(--sp-3); left: var(--sp-4); transform: translateY(-200%); padding: var(--sp-3) var(--sp-5); background: var(--yellow); border-radius: var(--r-pill); color: var(--yellow-ink); font-size: var(--body); }
+.skip-link:focus { transform: translateY(0); }
+.edu-header { position: sticky; top: 0; z-index: 40; width: 100%; background: var(--app-header-bg); backdrop-filter: blur(var(--app-header-blur)); -webkit-backdrop-filter: blur(var(--app-header-blur)); border-bottom: var(--app-rule) solid var(--line); }
+.edu-header-inner { max-width: var(--app-width); margin: 0 auto; padding: var(--sp-2) var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); }
+.brand { display: inline-flex; align-items: center; gap: var(--sp-2); text-decoration: none; }
+.edu-logo { width: var(--app-logo-width); height: var(--app-logo-width); display: block; margin-right: var(--app-logo-gap); }
+.edu-wordmark { font-family: var(--font-display); font-weight: var(--app-title-weight); font-size: var(--app-wordmark-type); letter-spacing: var(--app-title-tracking); color: var(--ink); }
+.header-tools { margin-inline-start: auto; display: flex; align-items: center; gap: var(--sp-3); }
+.language-switch { display: inline-flex; gap: var(--sp-1); padding: var(--sp-1); background: var(--paper-2); border: 0; border-radius: var(--r-pill); }
+.language-switch button { min-height: var(--app-touch); padding: var(--sp-2) var(--sp-4); border: 0; border-radius: var(--r-pill); background: var(--app-clear); color: var(--ink-2); font-size: var(--body-sm); font-weight: var(--app-strong-weight); }
+.language-switch button[aria-pressed="true"] { background: var(--yellow); color: var(--yellow-ink); }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); min-height: var(--app-touch); padding: var(--sp-3) var(--sp-5); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-pill); font-family: var(--font-display); font-size: var(--app-button-type); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); background: var(--surface); color: var(--ink); text-align: var(--app-functional-align); text-decoration: none; transition: background var(--app-duration), border-color var(--app-duration); }
+.button:hover:not(:disabled) { background: var(--paper-2); border-color: var(--ink-2); }
+.button.primary { background: var(--yellow); color: var(--yellow-ink); border-color: var(--yellow); box-shadow: var(--shadow-sm); }
+.button.primary:hover:not(:disabled) { background: var(--yellow-600); border-color: var(--yellow-600); }
+.button.quiet { background: var(--app-clear); border-color: var(--app-clear); box-shadow: none; }
+.button.quiet:hover:not(:disabled) { background: var(--paper-2); border-color: var(--app-clear); }
+.button:disabled { color: var(--ink-2); background: var(--paper-2); border-color: var(--line); box-shadow: none; }
+
+/* ─── Page and chapter index ─── */
+.app-shell { max-width: var(--app-width); margin: 0 auto; padding: var(--sp-12) var(--sp-6) var(--sp-16); }
+.page-header { text-align: var(--app-hero-align); }
+.edu h1.app-title { font-family: var(--font-display); font-size: var(--app-page-title); font-weight: 800; letter-spacing: var(--app-title-tracking); line-height: var(--app-title-leading); color: var(--ink); }
+.edu p.edu-lead { width: 100%; max-width: none; font-size: var(--body-lg); color: var(--ink-2); margin-top: var(--sp-5); }
+.course-progress { margin: var(--sp-10) 0 var(--sp-10); }
+.progress-copy { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+.progress-copy span { font-size: var(--body-sm); color: var(--ink-2); }
+.progress-copy strong { font-family: var(--font-mono); font-size: var(--caption); font-weight: 500; color: var(--ink); }
+progress { width: 100%; height: var(--app-progress-height); display: block; appearance: none; border: 0; border-radius: var(--r-pill); overflow: hidden; background: var(--paper-3); color: var(--yellow); }
+progress::-webkit-progress-bar { background: var(--paper-3); border-radius: var(--r-pill); }
+progress::-webkit-progress-value { background: var(--yellow); border-radius: var(--r-pill); }
+progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-pill); }
+.saving-notice { margin-top: var(--sp-4); padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); font-size: var(--body-sm); background: var(--yellow); color: var(--yellow-ink); }
+.course-layout { display: grid; grid-template-columns: var(--app-index-width) minmax(0, 1fr); gap: var(--sp-10); align-items: start; }
+.chapter-index { position: sticky; top: var(--app-index-top); max-height: calc(100dvh - var(--app-index-top) - var(--sp-6)); overflow-y: auto; scrollbar-width: thin; padding: var(--sp-1); margin: calc(-1 * var(--sp-1)); }
+.edu h2.index-title { font-size: var(--app-section-title); margin: 0 0 var(--sp-4) var(--sp-3); }
+.mobile-index-toggle { display: none; }
+.chapter-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-1); }
+.chapter-link { display: flex; align-items: center; width: 100%; min-height: var(--app-touch); gap: var(--sp-2); border: 0; border-radius: var(--r-pill); padding: var(--sp-3); background: var(--app-clear); color: var(--ink-2); text-align: var(--app-body-align); font-size: var(--app-nav-type); line-height: var(--app-tight-leading); transition: background var(--app-duration); }
+.chapter-link:hover { background: var(--paper-2); }
+.chapter-link[aria-current="step"] { background: var(--yellow); color: var(--yellow-ink); font-weight: var(--app-strong-weight); }
+.chapter-number { flex: 0 0 var(--app-nav-number); font-family: var(--font-mono); font-size: var(--caption); }
+.chapter-name { flex: 1; }
+.chapter-done { color: var(--ink); font-weight: var(--app-title-weight); }
+.index-footnote { margin: var(--sp-5) var(--sp-3) 0; font-size: var(--caption); color: var(--ink-2); line-height: var(--app-tight-leading); }
+.lesson-workspace { min-width: 0; }
+.lesson-heading { margin-bottom: var(--sp-8); }
+.edu h2.lesson-title { font-size: var(--app-lesson-title); line-height: var(--app-title-leading); letter-spacing: var(--app-title-tracking); outline: none; }
+.lesson-intro { margin-top: var(--sp-4); font-size: var(--body-lg) !important; }
+
+/* ─── Lesson content ─── */
+.example { padding: var(--sp-6); border-radius: var(--r-xl); background: var(--paper-2); margin-bottom: var(--sp-8); border: var(--app-rule) solid var(--line); }
+.edu h3.example-title { font-size: var(--app-section-title); margin-bottom: var(--sp-5); }
+.example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
+.example-piece { min-width: 0; background: var(--surface); padding: var(--sp-5); border: var(--app-rule) solid var(--line); border-radius: var(--r-lg); }
+.edu h4.example-label { font-family: var(--font-display); font-size: var(--app-example-title); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); margin-bottom: var(--sp-3); }
+.edu p.example-copy { color: var(--ink); font-size: var(--app-example-type); white-space: pre-line; overflow-wrap: anywhere; }
+.example-note { margin-top: var(--sp-4); font-size: var(--body-sm) !important; }
+.example-stack .example-grid { grid-template-columns: minmax(0,1fr); }
+.token-flow { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-5) 0; }
+.token { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); font-family: var(--font-mono); font-size: var(--app-example-title); background: var(--surface); color: var(--ink); border: var(--app-rule) solid var(--line-2); }
+.token:nth-child(2n) { background: var(--yellow); border-color: var(--yellow); color: var(--yellow-ink); }
+.token strong { text-decoration: underline; text-underline-offset: var(--sp-1); }
+.token-flow-note { font-family: var(--font-mono) !important; font-size: var(--body-sm) !important; color: var(--ink) !important; margin-bottom: var(--sp-5); }
+.probabilities { margin: var(--sp-5) 0; display: grid; gap: var(--sp-3); }
+.probability-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: var(--sp-3); align-items: center; font-family: var(--font-mono); font-size: var(--caption); color: var(--ink); }
+.probability-row progress { height: var(--sp-2); }
+.lesson-section { margin: var(--sp-8) 0; }
+.edu h3.section-title { font-size: var(--app-section-title); line-height: var(--app-tight-leading); margin-bottom: var(--sp-3); }
+.lesson-section p + p { margin-top: var(--sp-3); }
+.source-link { display: inline-block; margin-top: var(--sp-3); font-size: var(--body-sm); }
+.takeaway { padding: var(--sp-6); margin: var(--sp-8) 0 var(--sp-5); border-radius: var(--r-lg); background: var(--yellow); color: var(--yellow-ink); }
+.edu .takeaway h3 { font-size: var(--app-section-title); margin-bottom: var(--sp-3); color: inherit; }
+.edu .takeaway p { color: inherit; }
+.caveat { color: var(--ink-2); font-size: var(--body-sm) !important; }
+.caveat strong { color: var(--ink); }
+.recap-list { list-style: none; padding: 0; margin: var(--sp-8) 0; display: grid; gap: var(--sp-5); }
+.recap-item { display: grid; grid-template-columns: var(--sp-10) minmax(0, 1fr); gap: var(--sp-4); }
+.recap-number { display: flex; align-items: center; justify-content: center; width: var(--sp-10); height: var(--sp-10); background: var(--paper-3); color: var(--ink); border-radius: var(--r-pill); font-family: var(--font-mono); font-size: var(--body-sm); }
+.edu .recap-item h3 { font-size: var(--app-section-title); margin-bottom: var(--sp-2); }
+
+/* ─── Knowledge checks ─── */
+.knowledge-check { margin-top: var(--sp-10); padding-top: var(--sp-8); border-top: var(--app-rule) solid var(--line); }
+.edu .knowledge-check h3 { font-size: var(--h3); }
+.quiz-intro { margin-top: var(--sp-3); }
+.question { margin-top: var(--sp-6); padding: var(--sp-6); border: var(--app-rule) solid var(--line); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-sm); }
+.question-number { font-family: var(--font-mono); font-size: var(--caption); color: var(--ink-2); margin-bottom: var(--sp-3); letter-spacing: var(--app-mono-tracking); }
+.edu h4.question-title { font-family: var(--font-sans); font-size: var(--body-lg); line-height: var(--app-tight-leading); margin-bottom: var(--sp-5); }
+.answer-list { display: grid; gap: var(--sp-2); }
+.answer { width: 100%; min-height: var(--app-touch); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-md); color: var(--ink); background: var(--surface); text-align: var(--app-body-align); font-size: var(--body); line-height: var(--app-tight-leading); transition: background var(--app-duration); }
+.answer:hover:not(:disabled) { background: var(--paper-2); border-color: var(--ink-2); }
+.answer-number { display: flex; flex: 0 0 var(--app-answer-number); width: var(--app-answer-number); min-height: var(--app-answer-number); justify-content: center; align-items: center; font-family: var(--font-mono); font-size: var(--caption); border-radius: var(--r-xs); background: var(--paper-2); color: var(--ink); }
+.answer-label { flex: 1; min-width: 0; }
+.answer-status { display: block; font-size: var(--caption); font-weight: var(--app-strong-weight); margin-top: var(--sp-1); }
+.answer[data-selected="true"][data-correct="true"] { background: var(--app-selected); border-color: var(--app-selected); color: var(--app-selected-ink); }
+.answer[data-selected="true"][data-correct="false"] { background: var(--paper-2); border-color: var(--red); color: var(--ink); }
+.answer[data-selected="false"][data-correct="true"] { border-color: var(--green); }
+.answer[data-selected="true"] .answer-number { background: var(--surface); color: var(--ink); }
+.question-feedback { margin-top: var(--sp-4); padding: var(--sp-4); background: var(--paper-2); border-radius: var(--r-md); color: var(--ink); font-size: var(--body-sm); line-height: var(--app-body-leading); }
+.retry-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); margin-top: var(--sp-5); }
+.retry-note { font-size: var(--caption) !important; }
+.reflection { padding: var(--sp-5); border-radius: var(--r-lg); background: var(--paper-2); margin-top: var(--sp-6); }
+.reflection > summary { font-family: var(--font-display); font-size: var(--app-example-title); font-weight: var(--app-strong-weight); cursor: pointer; min-height: var(--app-touch); display: list-item; align-content: center; }
+.reflection-question { color: var(--ink) !important; margin: var(--sp-3) 0; }
+.model-answer summary { min-height: var(--app-touch); align-content: center; font-size: var(--body-sm); cursor: pointer; }
+.model-answer p { padding-top: var(--sp-2); }
+.lesson-controls { margin-top: var(--sp-10); padding-top: var(--sp-6); border-top: var(--app-rule) solid var(--line); }
+.reading-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sp-4); }
+.reading-row p { font-size: var(--body-sm); flex: 1; min-width: 170px; }
+.navigation-row { margin-top: var(--sp-6); display: flex; justify-content: space-between; align-items: center; gap: var(--sp-3); }
+.next-button { margin-inline-start: auto; }
+
+/* ─── Results and tools ─── */
+.results-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); margin: var(--sp-6) 0; }
+.stat-card { padding: var(--sp-6); background: var(--paper-2); border-radius: var(--r-xl); }
+.stat-card:first-child { background: var(--yellow); color: var(--yellow-ink); }
+.stat-number { display: block; font-family: var(--font-display); font-size: var(--app-stat-type); font-weight: var(--app-title-weight); line-height: var(--app-title-leading); margin-bottom: var(--sp-3); }
+.stat-label { font-size: var(--body); line-height: var(--app-tight-leading); }
+.result-list { list-style: none; margin: var(--sp-8) 0; padding: 0; display: grid; gap: var(--sp-3); }
+.result-item { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); border: var(--app-rule) solid var(--line); border-radius: var(--r-lg); }
+.result-item strong { display: block; font-size: var(--body); margin-bottom: var(--sp-2); }
+.result-item small { display: block; color: var(--ink-2); font-size: var(--body-sm); line-height: var(--app-tight-leading); }
+.result-item .button { flex: 0 0 auto; }
+.app-footer { max-width: var(--app-width); margin: 0 auto; padding: 0 var(--sp-6) var(--sp-8); color: var(--ink-2); }
+.footer-inner { border-top: var(--app-rule) solid var(--line); padding-top: var(--sp-6); display: flex; align-items: flex-start; justify-content: space-between; gap: var(--sp-5); }
+.footer-copy { flex: 1; }
+.edu .footer-copy p { font-size: var(--caption); }
+.footer-copy p + p { margin-top: var(--sp-2); }
+.footer-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: flex-end; }
+.footer-actions .button { font-size: var(--body-sm); padding: var(--sp-2) var(--sp-3); }
+kbd { font-family: var(--font-mono); font-size: var(--caption); padding: 0 var(--sp-1); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-xs); color: var(--ink); }
+dialog { padding: var(--sp-8); border: var(--app-rule) solid var(--line); border-radius: var(--r-xl); background: var(--surface); color: var(--ink); max-width: min(640px, calc(100vw - var(--sp-8))); max-height: calc(100dvh - var(--sp-10)); box-shadow: var(--shadow-lg); }
+dialog::backdrop { background: var(--app-dialog-backdrop); }
+.edu dialog h2 { font-size: var(--h3); margin-bottom: var(--sp-4); }
+.verify-list { padding: 0; list-style: none; margin: var(--sp-5) 0; display: grid; gap: var(--sp-3); }
+.verify-list li { padding: var(--sp-3) var(--sp-4); border: var(--app-rule) solid var(--line); border-radius: var(--r-md); font-size: var(--body-sm); }
+.verify-list li[data-pass="false"] { border-color: var(--red); }
+.verify-list strong { margin-right: var(--sp-2); }
+.verify-list small { display: block; color: var(--ink-2); margin-top: var(--sp-1); font-size: var(--caption); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+@media (max-width: 768px) {
+  :root { --app-lesson-title: 1.8rem; --app-header-height: 81px; --app-example-type: 1rem; }
+  .edu-header-inner { padding-inline: var(--sp-4); gap: var(--sp-2); }
+  .header-tools { gap: var(--sp-1); }
+  .header-results { display: none; }
+  .language-switch button { padding-inline: var(--sp-3); }
+  .app-shell { padding: var(--sp-8) var(--sp-4) var(--sp-10); }
+  .edu p.edu-lead { font-size: var(--body); }
+  .course-progress { margin: var(--sp-6) 0; }
+  .progress-copy { align-items: start; }
+  .progress-copy span { font-size: var(--caption); }
+  .progress-copy strong { white-space: nowrap; }
+  .course-layout { grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+  .chapter-index { position: static; max-height: none; overflow: visible; }
+  .index-title { display: none; }
+  .mobile-index-toggle { display: flex; justify-content: space-between; width: 100%; }
+  .chapter-index nav { display: none; margin-top: var(--sp-3); }
+  .chapter-index[data-expanded="true"] nav { display: block; }
+  .chapter-list { grid-template-columns: minmax(0,1fr); }
+  .index-footnote { display: none; }
+  .lesson-heading { margin-bottom: var(--sp-6); }
+  .lesson-intro { font-size: var(--body) !important; }
+  .example { padding: var(--sp-5); }
+  .example-grid { grid-template-columns: minmax(0, 1fr); }
+  .example-piece { padding: var(--sp-4); }
+  .question { padding: var(--sp-5) var(--sp-4); }
+  .answer { padding: var(--sp-3); gap: var(--sp-2); }
+  .takeaway { padding: var(--sp-5); }
+  .reading-row { align-items: stretch; }
+  .reading-row .button { width: 100%; }
+  .results-stats { gap: var(--sp-3); }
+  .stat-card { padding: var(--sp-5); }
+  .result-item { padding: var(--sp-4); gap: var(--sp-2); }
+  .result-item .button { padding-inline: var(--sp-3); }
+  .app-footer { padding-inline: var(--sp-4); }
+  .footer-inner { flex-direction: column; }
+  .footer-actions { justify-content: flex-start; }
+  .shortcuts { display: none; }
+  dialog { padding: var(--sp-6); }
+}
+</style>
+</head>
+<body class="edu">
+<a class="skip-link" href="#lessonTitle" data-i18n="skip">Przejdź do rozdziału</a>
+<header class="edu-header">
+  <div class="edu-header-inner">
+    <a class="brand" href="#chapter-1" aria-label="edulab">
+      <img class="edu-logo" alt="" width="64" height="64" src="data:image/png;base64,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">
+      <span class="edu-wordmark">edulab</span>
+    </a>
+    <div class="header-tools">
+      <button class="button quiet header-results" type="button" data-action="results" data-i18n="results">Moje postępy</button>
+      <div class="language-switch" role="group" id="languageSwitch">
+        <button type="button" data-lang-target="pl" lang="pl" aria-label="Polski" aria-pressed="true">PL</button>
+        <button type="button" data-lang-target="en" lang="en" aria-label="English" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+<main id="app" class="app-shell" data-screen="lesson" data-chapter="1" data-total="11" data-lang="pl" data-completed="0" data-score="0">
+  <header class="page-header">
+    <h1 class="app-title" data-i18n="title">Co naprawdę dzieje się, gdy rozmawiasz z chatbotem AI?</h1>
+    <p class="edu-lead" data-i18n="lead"></p>
+  </header>
+  <section class="course-progress" aria-labelledby="progressLabel">
+    <div class="progress-copy"><span id="progressLabel"></span><strong id="progressValue"></strong></div>
+    <progress id="readingProgress" max="11" value="0" aria-labelledby="progressLabel"></progress>
+    <div id="savingNotice" class="saving-notice" role="status" aria-live="polite" hidden></div>
+  </section>
+  <div class="course-layout">
+    <aside class="chapter-index" id="chapterIndex" data-expanded="false">
+      <h2 class="index-title" data-i18n="contents">Spis treści</h2>
+      <button class="button mobile-index-toggle" type="button" data-action="toggle-index" aria-expanded="false" aria-controls="chapterNav"><span id="mobileIndexLabel"></span><span aria-hidden="true">⌄</span></button>
+      <nav id="chapterNav"><ol class="chapter-list" id="chapterList"></ol></nav>
+      <p class="index-footnote" data-i18n="indexNote"></p>
+    </aside>
+    <article class="lesson-workspace" id="workspace" aria-labelledby="lessonTitle"></article>
+  </div>
+</main>
+<footer class="app-footer">
+  <div class="footer-inner">
+    <div class="footer-copy"><p data-i18n="localNote"></p><p class="shortcuts" id="shortcutHelp"></p></div>
+    <div class="footer-actions">
+      <button class="button quiet" type="button" data-action="results" data-i18n="results">Moje postępy</button>
+      <button class="button quiet" type="button" data-action="verify" data-i18n="verify">Sprawdź aplikację</button>
+      <button class="button quiet" type="button" data-action="reset" data-i18n="reset">Zacznij od nowa</button>
+    </div>
+  </div>
+</footer>
+<div id="liveStatus" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+<dialog id="verificationDialog" aria-labelledby="verificationTitle">
+  <h2 id="verificationTitle" data-i18n="verifyTitle"></h2>
+  <p data-i18n="verifyIntro"></p>
+  <ul class="verify-list" id="verificationList" data-verification></ul>
+  <button type="button" class="button primary" data-action="close-verification" data-i18n="close" autofocus>Zamknij</button>
+</dialog>
+<noscript><p>Ta lekcja wymaga włączonego JavaScript. / This lesson needs JavaScript enabled.</p></noscript>
+<script>
+'use strict';
+// ─── Constants ───
+const STORAGE_KEY = 'edulab-chat-course-v1';
+const TOTAL = 11;
+const CHAPTERS = [
+  {id: 1, sections: 3, example: 'split'},
+  {id: 2, sections: 3, example: 'tokens'},
+  {id: 3, sections: 3, example: 'split'},
+  {id: 4, sections: 3, example: 'split'},
+  {id: 5, sections: 3, example: 'generation'},
+  {id: 6, sections: 3, example: 'stack', pieces: 3},
+  {id: 7, sections: 4, example: 'split'},
+  {id: 8, sections: 5, example: 'split'},
+  {id: 9, sections: 4, example: 'stack'},
+  {id: 10, sections: 4, example: 'split'},
+  {id: 11, sections: 8, example: 'split'}
+];
+const QUESTIONS = [{"id":"q1-1","chapter":1,"options":3,"correct":1},{"id":"q1-2","chapter":1,"options":3,"correct":1},{"id":"q1-3","chapter":1,"options":3,"correct":1},{"id":"q2-1","chapter":2,"options":3,"correct":1},{"id":"q2-2","chapter":2,"options":3,"correct":1},{"id":"q2-3","chapter":2,"options":3,"correct":0},{"id":"q3-1","chapter":3,"options":3,"correct":1},{"id":"q3-2","chapter":3,"options":3,"correct":2},{"id":"q3-3","chapter":3,"options":3,"correct":0},{"id":"q4-1","chapter":4,"options":3,"correct":0},{"id":"q4-2","chapter":4,"options":3,"correct":1},{"id":"q4-3","chapter":4,"options":3,"correct":1},{"id":"q5-1","chapter":5,"options":3,"correct":1},{"id":"q5-2","chapter":5,"options":3,"correct":1},{"id":"q5-3","chapter":5,"options":3,"correct":1},{"id":"q6-1","chapter":6,"options":3,"correct":1},{"id":"q6-2","chapter":6,"options":3,"correct":1},{"id":"q6-3","chapter":6,"options":3,"correct":1},{"id":"q7-1","chapter":7,"options":3,"correct":1},{"id":"q7-2","chapter":7,"options":3,"correct":1},{"id":"q7-3","chapter":7,"options":3,"correct":0},{"id":"q8-1","chapter":8,"options":3,"correct":1},{"id":"q8-2","chapter":8,"options":3,"correct":0},{"id":"q8-3","chapter":8,"options":3,"correct":1},{"id":"q9-1","chapter":9,"options":3,"correct":1},{"id":"q9-2","chapter":9,"options":3,"correct":0},{"id":"q9-3","chapter":9,"options":3,"correct":1},{"id":"q10-1","chapter":10,"options":3,"correct":0},{"id":"q10-2","chapter":10,"options":3,"correct":1},{"id":"q10-3","chapter":10,"options":3,"correct":1}];
+const T = {
+  pl: {
+    title: 'Co naprawdę dzieje się, gdy rozmawiasz z chatbotem AI?',
+    lead: 'W 11 krótkich rozdziałach poznasz działanie aplikacji i modelu oraz ich ograniczenia. Wyjaśnieniom towarzyszą przykłady i pytania sprawdzające.',
+    documentTitle: 'Co dzieje się w chatbocie? · edulab',
+    skip: 'Przejdź do rozdziału', contents: 'Spis treści', language: 'Język lekcji',
+    indexNote: 'Czytaj po kolei lub wybierz temat. Możesz wrócić w dowolnym momencie.',
+    progressLabel: 'Przeczytane rozdziały', progressValue: '{done} z {total}',
+    mobileIndex: 'Spis treści · rozdział {chapter} z {total}', chapterLabel: 'Rozdział {chapter}: {title}',
+    done: 'przeczytany', notRead: 'jeszcze nieprzeczytany', results: 'Moje postępy',
+    previous: 'Poprzedni', next: 'Następny rozdział', complete: 'Oznacz jako przeczytany', completed: '✓ Przeczytany',
+    readingHint: 'Możesz oznaczyć rozdział jako przeczytany bez odpowiadania na pytania. Postęp w czytaniu i wynik quizu liczymy osobno.',
+    completedAnnouncement: 'Rozdział oznaczony jako przeczytany.',
+    takeaway: 'Zapamiętaj', caveat: 'Uproszczenia w przykładzie: ',
+    quizTitle: 'Sprawdź, czy rozumiesz', quizIntro: 'Odpowiedz na trzy krótkie pytania. Po każdym wyborze zobaczysz wyjaśnienie. Sprawdzisz tu swoją wiedzę, nie działanie modelu.',
+    questionNumber: 'Pytanie {n} z {total}', correct: 'Dobrze.', wrong: 'Niepoprawna odpowiedź.',
+    yourAnswer: 'Twój wybór', correctAnswer: 'Poprawna odpowiedź', yourCorrectAnswer: 'Twój wybór · poprawna odpowiedź',
+    retry: 'Powtórz pytania', retryNote: 'Nowa próba zastąpi odpowiedzi i wynik tego rozdziału.', retryAnnouncement: 'Usunięto odpowiedzi z tego rozdziału. Możesz spróbować ponownie.',
+    reflection: 'Wyjaśnij własnymi słowami', reflectionHint: 'Zatrzymaj się na chwilę i odpowiedz samodzielnie. To ćwiczenie nie jest punktowane.', modelAnswer: 'Porównaj z przykładową odpowiedzią',
+    resultsTitle: 'Twoje postępy', resultsIntro: 'Tutaj osobno sprawdzisz postęp w czytaniu i wynik quizu. Za samo przeczytanie rozdziału nie przyznajemy punktów.',
+    readStat: 'rozdziały oznaczone jako przeczytane', scoreStat: 'poprawne odpowiedzi spośród udzielonych',
+    unanswered: 'Pytania bez odpowiedzi: {count}. Nie liczymy ich jako błędnych.',
+    emptyResults: 'Nie ma jeszcze zapisanych odpowiedzi. Wybierz rozdział, przeczytaj przykład i odpowiedz na pierwsze pytanie.',
+    resultQuestions: 'Quiz: {correct}/{answered} poprawnych odpowiedzi. Pytań w rozdziale: {total}.', recapNoQuiz: 'Podsumowanie wszystkich rozdziałów, bez dodatkowych punktów.',
+    returnToChapter: 'Wróć', continueLearning: 'Wróć do nauki',
+    localNote: 'Przykłady przygotowano wcześniej. Aplikacja działa lokalnie i nie wysyła zapytań do AI. Postępy zapisuje tylko w tej przeglądarce. Nie potrzebujesz konta.',
+    shortcutPrefix: 'Skróty klawiszowe (poza przyciskami i polami):', shortcutNav: 'rozdziały', shortcutAnswers: 'pierwsze pytanie bez odpowiedzi', shortcutNext: 'dalej',
+    storageBlocked: 'Przeglądarka blokuje zapis postępu. Możesz się uczyć, ale po zamknięciu lub odświeżeniu wyniki mogą zniknąć.',
+    storageRecovered: 'Poprzedni zapis był uszkodzony lub niezgodny z tą wersją aplikacji. Nieprawidłowe dane zostały pominięte. Możesz kontynuować naukę.',
+    reset: 'Zacznij od nowa', resetConfirm: 'Wyzerować postęp i usunąć wszystkie zapisane odpowiedzi w tej przeglądarce? Ustawienie języka pozostanie bez zmian.', resetAnnouncement: 'Wyzerowano postęp i usunięto zapisane odpowiedzi.',
+    verify: 'Sprawdź aplikację', verifyTitle: 'Sprawdzenie aplikacji',
+    verifyIntro: 'Testy sprawdzają zgodność treści, stanu aplikacji i elementów strony (DOM). Nie zmieniają odpowiedzi ani postępu i nie oceniają Twojej wiedzy.',
+    close: 'Zamknij', pass: 'OK', fail: 'Błąd',
+    verifyState: 'Wartości w stanie aplikacji są prawidłowe', verifyContract: 'DOM zgadza się ze stanem i wynikiem', verifyNav: 'Wszystkie rozdziały mają poprawną nawigację',
+    verifyLanguage: 'Polskie i angielskie teksty mają te same klucze', verifyContent: 'Każdy rozdział zawiera przykład, wyjaśnienia i opis uproszczeń',
+    verifyQuiz: 'Pytania i zapisane odpowiedzi są spójne', verifyVisible: 'Widoczny ekran odpowiada wybranemu rozdziałowi',
+    verifyAnswers: 'Zaznaczone opcje odpowiadają zapisanym odpowiedziom', verifyProgress: 'Postęp w czytaniu jest liczony oddzielnie od wyniku quizu',
+    verifyUnreadable: 'Nie można ukończyć sprawdzenia: stan jest nieprawidłowy lub brakuje elementu strony.',
+    causalSource: 'Źródło: Attention Is All You Need, sekcja 3.1 (dekoder)',
+    c1Nav: 'Aplikacja a model', c1Title: 'Aplikacja czatu to nie model',
+    c1Intro: 'Dymki wiadomości, historia i „pamięć” to funkcje aplikacji. Model otrzymuje od niej przygotowany kontekst i przewiduje, jaki fragment tekstu może pojawić się dalej.',
+    c1ExampleTitle: 'Dlaczego chatbot „pamięta” Olę?',
+    c1Example1Label: 'To, co widzisz w czacie',
+    c1Example1: 'Ty: Cześć! Mam na imię Ola.\nAsystent: Miło Cię poznać, Ola!\nTy: Jak mam na imię?',
+    c1Example2Label: 'To, co aplikacja wysyła ponownie',
+    c1Example2: 'Instrukcja systemowa: Bądź pomocny i zwięzły.\nHistoria: „Mam na imię Ola” + odpowiedź asystenta.\nNowa wiadomość: „Jak mam na imię?”',
+    c1ExampleNote: 'Jeśli aplikacja pominie historię i wyśle tylko ostatnie pytanie, w kontekście zabraknie imienia. Ten przykład przygotowano wcześniej, nie wygenerował go model.',
+    c1H1: 'Aplikacja przygotowuje zapytanie',
+    c1P1: 'Aplikacja przechowuje rozmowę, dodaje prompt systemowy i oznacza role rozmówców zgodnie z szablonem czatu. Może też dołączyć notatki, dokumenty i wyniki narzędzi. Tak przygotowaną sekwencję wysyła do modelu, a potem wyświetla napływającą odpowiedź.',
+    c1H2: 'Model przetwarza to, co dostał',
+    c1P2: 'W opisywanym tu trybie model nie zapisuje rozmowy w swoich wagach po każdym pytaniu. Wagi to liczby ustalone podczas treningu. Model otrzymuje kontekst, a w jednym kroku oblicza rozkład prawdopodobieństwa kolejnego tokenu. Aplikacja może pamiętać rozmowę, choć sam model nie zachowuje jej między osobnymi wywołaniami.',
+    c1H3: 'Ten sam model, inny produkt',
+    c1P3: 'Zmiana instrukcji systemowej, historii, narzędzi lub filtrów może zmienić zachowanie aplikacji bez zmiany wag modelu. Na pomocność i bezpieczeństwo odpowiedzi wpływają jednak także trening i dostrajanie modelu. Omówimy je w rozdziale 10.',
+    c1Takeaway: 'Chatbot potrafi podać Twoje imię w kolejnej turze, jeśli aplikacja ponownie mu je przekaże. Nie oznacza to, że model nauczył się go podczas rozmowy.',
+    c1Caveat: 'Rzeczywiste szablony czatu używają specjalnych tokenów zależnych od modelu, a prompty systemowe bywają znacznie dłuższe. Aplikacja może wysłać tylko część historii lub jej streszczenie.',
+    c2Nav: 'Tokenizacja', c2Title: 'Tokenizacja: tekst zamienia się w liczby',
+    c2Intro: 'Model przetwarza tokeny, czyli małe fragmenty tekstu. Tokenizator może zachować często używane słowo w całości, inne podzielić na części, a pojedynczy znak zakodować za pomocą kilku fragmentów. Każdy token ma swój numer (ID) w słowniku.',
+    c2ExampleTitle: 'Trzy „r”, ale nie trzy osobne tokeny',
+    c2Example1Label: 'Ten sam sens, różne języki',
+    c2Example1: 'EN: I love programming in Kraków\nPL: Uwielbiam programować w Krakowie\nDE: Ich liebe es, in Krakau zu programmieren',
+    c2Example2Label: 'Co warto porównać',
+    c2Example2: 'Porównuj liczbę tokenów wybranego modelu, a nie liczbę słów. Ten sam sens zapisany w różnych językach może wymagać różnej liczby tokenów. Wynik zależy też od tokenizatora.',
+    c2ExampleNote: 'Podział „str | aw | berr | y” jest poglądowy. Podkreślenia pokazują trzy litery r w słowie strawberry. Nie jest to wynik prawdziwego tokenizatora.',
+    c2TokenNote: 'strawberry: 10 liter, 3 × r, tutaj 4 poglądowe fragmenty',
+    c2H1: 'ID to numer tokenu',
+    c2P1: 'ID to numer przypisany tokenowi w słowniku. Nie określa liczby liter, pozycji w zdaniu ani prawdopodobieństwa. Tokeny o sąsiednich numerach nie muszą mieć podobnego znaczenia. Spacja również może być częścią tokenu; do jej zaznaczenia bywa używany symbol ␣.',
+    c2H2: 'Dlaczego język wpływa na koszt',
+    c2P2: 'Słownik tokenizatora powstaje na podstawie danych. Jeśli zawiera niewiele fragmentów pasujących do danego języka lub rzadkiego słowa, tekst może wymagać większej liczby tokenów. Polski tekst może mieć ich więcej niż angielski o tym samym znaczeniu, ale różnica zależy od tekstu i tokenizatora. Więcej tokenów może zwiększyć koszt i czas przetwarzania, a także zająć więcej miejsca w kontekście.',
+    c2H3: 'Skąd kłopoty z liczeniem liter',
+    c2P3: 'Model otrzymuje numery fragmentów tekstu, a nie listę pojedynczych liter. W przykładzie ze słowem strawberry litery r znajdują się wewnątrz kilku tokenów. Może to utrudnić liczenie, ale nie oznacza, że model zawsze się pomyli. Gdy wynik musi być dokładny, sprawdź tekst znak po znaku lub użyj narzędzia.',
+    c2Takeaway: 'Token nie musi być słowem ani literą. W tokenach mierzy się długość kontekstu, a często także rozlicza korzystanie z modelu. Sprawdzaj więc tokenizację danego modelu zamiast zgadywać liczbę tokenów na podstawie długości zdania.',
+    c2Caveat: 'Ręczny podział nie odtwarza algorytmu BPE ani innego tokenizatora używanego w rzeczywistych systemach. Takie tokenizatory mogą dzielić rzadkie słowa i emoji na mniejsze fragmenty lub bajty. Nie obliczamy tu kosztów API.',
+    c3Nav: 'Osadzenia', c3Title: 'Osadzenia: jak zapisać relacje za pomocą liczb',
+    c3Intro: 'ID jest tylko etykietą. Model odczytuje z tabeli osadzeń wektor przypisany temu numerowi. Wartości w tabeli powstają podczas treningu. Osadzenie (embedding) pozwala porównywać, łączyć i przekształcać reprezentacje tekstu.',
+    c3ExampleTitle: 'Podobieństwo znaczeń, nie kolejność alfabetyczna',
+    c3Example1Label: 'Podobne konteksty',
+    c3Example1: 'kot ↔ kotek\nkról ↔ królowa\npizza ↔ makaron\n\nSłowa używane w podobnych sytuacjach mogą mieć podobne wektory.',
+    c3Example2Label: 'Poglądowa analogia',
+    c3Example2: 'król − mężczyzna + kobieta ≈ królowa\n\nKierunek w przestrzeni może odpowiadać relacji między pojęciami.',
+    c3ExampleNote: 'Te przykłady pomagają wyobrazić sobie przestrzeń wektorów. Nie pokazują wyników pomiaru konkretnego modelu. Działanie „pizza − chleb + laptop” nie musi dać sensownej analogii.',
+    c3H1: 'Relacje między znaczeniami w przestrzeni',
+    c3P1: 'Podczas treningu reprezentacje słów powstają na podstawie kontekstów, w których te słowa występują. Wektory mogą być blisko siebie ze względu na podobieństwo znaczeń, a nie pisowni. Do ich porównywania służy m.in. podobieństwo kosinusowe, które określa podobieństwo kierunków. Jego wartość nie jest prawdopodobieństwem, że dwa słowa „znaczą to samo”.',
+    c3H2: 'Mapa 2D jest uproszczeniem',
+    c3P2: 'Wektory w modelach językowych często mają tysiące wymiarów. Rysunek w dwóch wymiarach nie pokaże wszystkich relacji między nimi. Osie takiej mapy nie są uniwersalnymi osiami „znaczenia”, a to, które wektory leżą blisko siebie, zależy od modelu.',
+    c3H3: 'Kontekst zmienia reprezentację',
+    c3P3: 'Osadzenie wejściowe to początkowa reprezentacja tokenu. Kolejne warstwy transformera przekształcają ją z uwzględnieniem dostępnego kontekstu. Słowo „zamek” ma tę samą pisownię w otoczeniu słowa „króla” i w wyrażeniu „zamek błyskawiczny”, ale inne znaczenie.',
+    c3Takeaway: 'Dzięki osadzeniom można obliczać relacje między fragmentami tekstu. Nie są one słownikiem definicji i nie gwarantują, że każda analogia zadziała.',
+    c3Caveat: 'Pary słów i działania na nich służą wyjaśnieniu pojęcia. Nie pokazujemy rzeczywistych współrzędnych, wartości podobieństwa ani warstw modelu. Nie jest to eksperyment z użyciem modelu osadzeń.',
+    c4Nav: 'Uwaga', c4Title: 'Uwaga: znaczenie zależy od kontekstu',
+    c4Intro: 'Mechanizm uwagi (attention) pozwala uwzględniać inne dostępne tokeny w reprezentacji danego tokenu. W modelu generującym tekst od lewej do prawej są to tylko tokeny z bieżącej i wcześniejszych pozycji.',
+    c4ExampleTitle: 'Jedno zakończenie zmienia interpretację',
+    c4Example1Label: '… ponieważ on był za duży',
+    c4Example1: 'Puchar nie zmieścił się w plecaku, ponieważ on był za duży.\n\nPo przeczytaniu całości rozumiemy: za duży był puchar.',
+    c4Example2Label: '… ponieważ on był za mały',
+    c4Example2: 'Puchar nie zmieścił się w plecaku, ponieważ on był za mały.\n\nPo przeczytaniu całości rozumiemy: za mały był plecak.',
+    c4ExampleNote: 'Porównujemy znaczenie całych zdań. Nie oznacza to, że wcześniejszy token „on” miał dostęp do późniejszego słowa „duży” lub „mały”.',
+    c4H1: 'Jak model uwzględnia kontekst',
+    c4P1: 'Warstwa uwagi oblicza, jakie informacje z dostępnych reprezentacji połączyć i z jaką wagą. Poszczególne głowy uwagi mogą uwzględniać różne relacje, a kolejne warstwy przetwarzają otrzymany wynik. Mechanizm ten nie sprowadza się do wskazania jednego „najważniejszego” słowa.',
+    c4H2: 'Uwaga przyczynowa nie korzysta z późniejszych tokenów',
+    c4P2: 'W dekoderze przyczynowym reprezentacja tokenu zależy od niego samego i wcześniejszych tokenów, nie od późniejszych. Zmiana zakończenia zdania nie zmieni więc wstecz reprezentacji wcześniejszego „on”. Gdy model przetwarza już zakończenie i przewiduje dalszy tekst, ma dostęp do większej części zdania.',
+    c4H3: 'Wiele warstw i głów uwagi',
+    c4P3: 'Model korzysta z wielu głów uwagi w kolejnych warstwach transformera. Uczy się relacji podczas treningu; nie dostaje ręcznie zapisanych reguł interpretacji zaimków. Pojedyncza mapa wag uwagi nie wyjaśnia w pełni, dlaczego model udzielił danej odpowiedzi.',
+    c4Takeaway: 'Kontekst pomaga rozstrzygać niejednoznaczności, o ile model ma już do niego dostęp. Model generujący tekst od lewej do prawej nie odczytuje tokenów, które dopiero powstaną.',
+    c4Caveat: 'Zdania dobrano do tego przykładu. Nie obliczamy tu wag uwagi. W pierwotnej symulacji również ustalono je ręcznie, zamiast mierzyć w działającym transformerze.',
+    c5Nav: 'Generowanie', c5Title: 'Generowanie: jeden token na raz',
+    c5Intro: 'Po przetworzeniu kontekstu model oblicza rozkład prawdopodobieństwa kolejnego tokenu. Następnie wybierany jest jeden token, który trafia do tekstu. Model powtarza te obliczenia dla nowego kontekstu. Tak, krok po kroku, powstaje odpowiedź.',
+    c5ExampleTitle: '„Kot usiadł na…”',
+    c5Example1Label: 'Jeden wybór', c5Example1: 'Kot usiadł na → dywanie\n\nWybieramy jeden z możliwych fragmentów, nie całe zdanie.',
+    c5Example2Label: 'Nowy kontekst', c5Example2: 'Kot usiadł na dywanie → …\n\nWybrany token staje się częścią kontekstu w następnym kroku. Proces powtarza się do końca odpowiedzi.',
+    c5ExampleNote: 'Wartości ustalono na potrzeby przykładu: dywanie 40%, kanapie 18%, podłodze 15%, parapecie 12%, dachu 9%, klawiaturze 6%. Nie pochodzą z pomiaru rzeczywistego modelu.',
+    c5Candidate1: 'dywanie', c5Candidate2: 'kanapie', c5Candidate3: 'podłodze', c5Candidate4: 'parapecie', c5Candidate5: 'dachu', c5Candidate6: 'klawiaturze',
+    c5H1: 'Prawdopodobieństwo tokenu a poprawność odpowiedzi',
+    c5P1: 'W jednym kroku model oblicza prawdopodobieństwa tokenów ze słownika. Nie tworzy od razu akapitu ani nie potwierdza prawdziwości jego treści. Może przypisać duże prawdopodobieństwo poprawnej kontynuacji „Warszawa jest stolicą Polski”, ale wysoki wynik nie oznacza, że sprawdził źródło.',
+    c5H2: 'Co zmienia temperatura',
+    c5P2: 'Niższa temperatura wyostrza rozkład, zwiększając przewagę tokenów o wysokim prawdopodobieństwie. Wyższa go spłaszcza, więc częściej mogą zostać wybrane mniej typowe tokeny. Daje to bardziej różnorodne odpowiedzi, ale zwiększa też ryzyko niespójności. Temperatura nie określa prawdziwości odpowiedzi ani inteligencji modelu.',
+    c5H3: 'Próbkowanie a wybór zachłanny',
+    c5P3: 'Próbkowanie to losowanie tokenu zgodnie z rozkładem prawdopodobieństwa. Wybór zachłanny polega na wybraniu tokenu z najwyższym wynikiem, więc przy tym samym rozkładzie daje ten sam wybór. System może też stosować top-p lub top-k. Generowanie kończy się np. po wybraniu tokenu stopu albo osiągnięciu limitu długości.',
+    c5Takeaway: 'Odpowiedź powstaje token po tokenie. Prawdopodobna kontynuacja może zawierać błąd, który model rozwinie w kolejnych krokach, zachowując płynny styl.',
+    c5Caveat: 'Pokazujemy sześć tokenów wybranych do przykładu. Rzeczywisty model oblicza wyniki dla całego słownika. Ten schemat nie opisuje wszystkich optymalizacji ani sposobów rozumowania stosowanych we współczesnych systemach.',
+    c6Nav: 'Pamięć', c6Title: 'Okno kontekstowe: co zmieści się w rozmowie?',
+    c6Intro: 'Okno kontekstowe określa, ile tokenów może zmieścić się w zapytaniu. Miejsce zajmują instrukcje, historia rozmowy, notatki, dokumenty i nowa wiadomość. Aplikacja musi też uwzględnić miejsce na odpowiedź.',
+    c6ExampleTitle: 'Wyjazd do Krakowa: trzy sposoby zapisu rozmowy',
+    c6Example1Label: 'Pełny zapis rozmowy',
+    c6Example1: '„Planuję wyjazd do Krakowa.”\n„Chyba w październiku.”\n„Coś dla wegetarian, proszę.”\n+ pełne odpowiedzi i dalsza rozmowa.',
+    c6Example2Label: 'Streszczenie',
+    c6Example2: 'Użytkownik planuje październikowy wyjazd do Krakowa. Pyta o wegetariańskie jedzenie, wycieczki, długość pobytu i pakowanie.',
+    c6Example3Label: 'Notatki zewnętrzne',
+    c6Example3: 'cel = Kraków\nmiesiąc = październik\ndieta = wegetariańska\n\nAplikacja pobiera potrzebne fakty i dołącza je do nowego promptu.',
+    c6ExampleNote: 'To trzy sposoby zapisania tej samej przykładowej rozmowy. Nie przedstawiają rzeczywistego planu podróży ani pomiaru oszczędności tokenów.',
+    c6H1: 'Pełna historia zajmuje coraz więcej miejsca',
+    c6P1: 'Pełny zapis zachowuje sformułowania i szczegóły rozmowy, ale wydłuża się z każdą turą. Ponownie wysłane fragmenty znów zajmują miejsce w kontekście i mogą zwiększać koszt. Gdy zabraknie miejsca, aplikacja skraca historię, np. zachowuje instrukcje i najnowsze wiadomości.',
+    c6H2: 'Streszczenie: mniej tekstu, mniej szczegółów',
+    c6P2: 'Streszczenie skraca rozmowę do informacji uznanych za ważne. Zwykle wymaga mniej tokenów, ale może pominąć wyjątek, dokładny cytat lub zmianę zdania rozmówcy. Do jego przygotowania także może być potrzebne wywołanie modelu.',
+    c6H3: 'Notatki są przechowywane poza modelem',
+    c6P3: 'Plik, baza danych lub notatnik może przechowywać wybrane informacje także między sesjami. Sam zapis nie daje modelowi dostępu do tych informacji. Aplikacja musi je odnaleźć i dołączyć do kontekstu. Nietrafna lub nieaktualna notatka może prowadzić do błędnej odpowiedzi.',
+    c6Takeaway: 'Gdy chatbot „zapomina”, sprawdź, co aplikacja zachowała i ponownie wysłała. To ona wybiera informacje do kontekstu. Model nie ma nieograniczonego miejsca na historię rozmowy.',
+    c6Caveat: 'Streszczenie i notatki przygotowano ręcznie. Różne modele mają różne rozmiary okna kontekstowego, a aplikacje mogą łączyć opisane sposoby zapisu.',
+    c7Nav: 'Halucynacje', c7Title: 'Płynna odpowiedź nie musi być prawdziwa',
+    c7Intro: 'Błędna odpowiedź może brzmieć równie pewnie jak poprawna. Model tworzy wiarygodnie brzmiący tekst, co nie zastępuje sprawdzenia faktów. Oceniaj więc treść i dowody, a nie sam ton wypowiedzi.',
+    c7ExampleTitle: 'Przekonująco brzmiący błąd',
+    c7Example1Label: 'Przykładowa błędna odpowiedź',
+    c7Example1: '„Mars ma trzy księżyce: Fobos, Deimos i Tytan.”\n\nTaka odpowiedź pasuje do wzorca listy księżyców, choć zawiera błąd.',
+    c7Example2Label: 'Co wymaga poprawy',
+    c7Example2: 'Mars ma dwa księżyce: Fobosa i Deimosa. Tytan jest księżycem Saturna.\n\nSprawdź zarówno liczbę księżyców, jak i to, do której planety należy każdy z nich.',
+    c7ExampleNote: 'Ten przykład halucynacji przygotowano wcześniej. Zdanie „Sydney jest stolicą Australii” też może brzmieć znajomo, choć stolicą jest Canberra.',
+    c7H1: 'Sprawdzaj każde twierdzenie osobno',
+    c7P1: 'Zdanie „Wieżę Eiffla ukończono w 1889 roku, jest najwyższą budowlą na świecie i nigdy jej nie remontowano” zawiera trzy twierdzenia. Pierwsze jest prawdziwe, dwa pozostałe są błędne. Jedna poprawna informacja nie potwierdza pozostałych. Sprawdzaj daty, liczby, nazwy i cytaty oraz to, czy przywołane źródło potwierdza dany wniosek.',
+    c7H2: 'Aktualne informacje wymagają dostępu do danych',
+    c7P2: 'Żeby odpowiedzieć na pytanie „Jaka jest teraz pogoda przy moim domu?”, trzeba znać lokalizację i aktualną pogodę. Model bez odpowiedniego narzędzia nie powinien zgadywać temperatury. Powinien wskazać, jakich danych mu brakuje, poprosić o nie lub skorzystać z dostępnego narzędzia.',
+    c7H3: 'Prywatne dane wymagają dostępu',
+    c7P3: 'Pytanie „Jaki jest numer telefonu mojej siostry?” nie daje modelowi dostępu do Twoich kontaktów. Musiałby otrzymać tę informację w kontekście albo przez narzędzie z odpowiednimi uprawnieniami. Bez tego nie ma podstaw do podania numeru. Odmowa zgadywania nie jest usterką.',
+    c7H4: 'Niedawne wydarzenie trzeba sprawdzić',
+    c7P4: 'Pytanie „Kto wygrał wczorajszy mecz?” może dotyczyć wydarzenia, którego nie obejmują dane treningowe. Bez aktualnego źródła model nie ma podstaw do podania wyniku. Nieaktualna wiedza, brak dostępu do prywatnych danych i brak narzędzi to różne ograniczenia. Pewny ton odpowiedzi nie usuwa żadnego z nich.',
+    c7Takeaway: 'Ufaj informacjom potwierdzonym w źródłach, nie samemu stylowi odpowiedzi. Wskazanie braku danych lub użycie odpowiedniego narzędzia może być lepsze niż przekonująco brzmiące zgadywanie.',
+    c7Caveat: 'Odpowiedzi i omówienia przygotowano na potrzeby lekcji. Aplikacja nie uruchamia modelu, detektora halucynacji ani wyszukiwarki. Narzędzie może pomóc zdobyć dane, ale jego wynik również bywa błędny.',
+    c8Nav: 'Prompty', c8Title: 'Ten sam model, inne instrukcje',
+    c8Intro: 'Prompt to tekst, na podstawie którego model tworzy odpowiedź. Sprecyzowanie celu, odbiorcy, przykładów i ograniczeń może zmienić wynik bez zmiany wag modelu. Trzeba jednak sprawdzić, czy pomaga w danym zadaniu.',
+    c8ExampleTitle: 'Ta sama prośba z dokładniejszym opisem oczekiwań',
+    c8Example1Label: 'Wariant A', c8Example1: '„Wyjaśnij, czym jest token.”\n\nMożliwa odpowiedź: mały fragment tekstu, czasem słowo, czasem jego część.',
+    c8Example2Label: 'Wariant B', c8Example2: '„Uczysz ciekawego świata 10-latka. Wyjaśnij mu, czym jest token, w 2 krótkich zdaniach, posługując się analogią z codziennego życia.”\n\nPrzykładowa analogia: token to klocek Lego, z którego model układa tekst.',
+    c8ExampleNote: 'Odpowiedzi przygotowano wcześniej. Wariant B określa odbiorcę, długość odpowiedzi i prosi o analogię. Sam przykład nie dowodzi, że taka instrukcja zawsze pomoże.',
+    c8H1: 'Rola, odbiorca i ton',
+    c8P1: 'Zamiast „Streść ten artykuł”: „Jesteś redaktorem wiadomości. Streść artykuł w 3 punktach dla zapracowanego czytelnika”. Rola wpływa na styl odpowiedzi, ale nie nadaje modelowi kwalifikacji. Możesz określić odbiorcę, poprosić o analogię z codziennego życia, formalny ton lub humor, jeśli pasują do zadania.',
+    c8H2: 'Few-shot: pokaż, czego oczekujesz',
+    c8P2: '„Przykład 1: [artykuł] → [streszczenie w 3 punktach]. Przykład 2: [artykuł] → [streszczenie w 3 punktach]. Teraz zrób to samo”. Przykłady pokazują oczekiwany format, długość i sposób wyboru informacji. Model może je naśladować, ale wynik nadal trzeba sprawdzić.',
+    c8H3: 'Kroki pośrednie zamiast ogólnej prośby',
+    c8P3: '„Najpierw wypisz główne twierdzenia artykułu, potem na ich podstawie napisz streszczenie w 3 zdaniach”. Taka instrukcja dzieli zadanie na etapy, których wyniki można sprawdzić. Technikę tę często omawia się przy chain-of-thought. Wygenerowane wyjaśnienie nie dowodzi jednak, że dokładnie tak przebiegały wewnętrzne obliczenia modelu.',
+    c8H4: 'Precyzyjne ograniczenia',
+    c8P4: 'Instrukcja „Dokładnie 3 zdania, maksymalnie 60 słów łącznie, bez wypunktowań” jest bardziej precyzyjna niż „krótko”. Możesz określić długość, zakres, formę listy lub ton odpowiedzi. Model nie zawsze dotrzyma tych warunków, więc jeśli limit jest ważny, policz zdania i słowa.',
+    c8H5: 'JSON: odpowiedź do dalszego przetwarzania',
+    c8P5: '„Zwróć tylko JSON z polami headline i bullets, gdzie bullets zawiera 3 elementy”. Taki format ułatwia dalsze przetwarzanie odpowiedzi. Sam prompt nie gwarantuje jednak poprawnego JSON-u. Program powinien odczytać go parserem i sprawdzić zgodność ze schematem, zamiast wykonywać tekst odpowiedzi jako kod.',
+    c8Takeaway: 'Dobry prompt precyzuje zadanie. Nie jest magiczną formułą, która „odblokowuje” model. Porównuj różne wersje na rzeczywistych zadaniach i sprawdzaj poprawność, format oraz przydatność odpowiedzi.',
+    c8Caveat: 'Nie porównujemy tu wyników dwóch zapytań do AI. W źródłowej symulacji odpowiedzi powstawały według prostych reguł. Skuteczność opisanych technik zależy od modelu i zadania.',
+    c9Nav: 'RAG', c9Title: 'RAG: fragmenty dokumentów w kontekście',
+    c9Intro: 'Model nie dostaje automatycznie Twoich plików. W systemie RAG (generowanie wspomagane wyszukiwaniem) wyszukiwarka wybiera przydatne fragmenty dokumentów, a aplikacja dołącza je do promptu. Model może wtedy oprzeć odpowiedź na tych źródłach.',
+    c9ExampleTitle: 'Od pytania do właściwego fragmentu',
+    c9Example1Label: 'Pytanie i wyszukany fragment',
+    c9Example1: 'Pytanie: Jaki produkt uboczny powstaje podczas fotosyntezy?\n\nFragment C4: „Fotosynteza uwalnia tlen jako produkt uboczny, który jest niezbędny dla większości życia na Ziemi”.',
+    c9Example2Label: 'Odpowiedź oparta na tekście',
+    c9Example2: '„Tlen” [C4].\n\nInne fragmenty tego dokumentu opisują przemianę światła w energię (C1), chloroplasty i chlorofil (C2) oraz reakcje zależne od światła i cykl Calvina (C3).',
+    c9ExampleNote: 'Przykład przygotowano ręcznie. Oznaczenie [C4] odsyła do źródła, ale samo w sobie nie potwierdza poprawności całej odpowiedzi.',
+    c9H1: 'Najpierw wyszukiwanie, potem generowanie',
+    c9P1: 'Dokument zostaje podzielony na fragmenty. Wyszukiwarka wybiera te, które pasują do pytania, a aplikacja dołącza je do kontekstu. Pytanie „Co zielone liście wypuszczają do powietrza?” może nie znaleźć właściwego fragmentu przy prostym dopasowaniu słów, choć dotyczy tego samego procesu. Wyszukiwanie semantyczne korzysta z osadzeń. Można je łączyć z wyszukiwaniem po słowach kluczowych.',
+    c9H2: 'Zbyt małe lub zbyt duże fragmenty',
+    c9P2: 'Jeśli potrzebne wyjaśnienie znajduje się w dwóch sąsiadujących fragmentach, pobranie tylko jednego może pozbawić model części kontekstu. Większe lub częściowo nakładające się fragmenty pomagają go zachować. Wymagają jednak więcej tokenów i mogą zawierać powtórzenia oraz zbędne informacje. Nie ma jednego rozmiaru odpowiedniego dla wszystkich dokumentów.',
+    c9H3: 'Niejednoznaczne pytanie',
+    c9P3: 'Pytanie „Jak to się zaczyna?” nie wyjaśnia, czego dotyczy. Wyszukiwarka może wybrać akapit o chlorofilu zamiast o reakcjach zależnych od światła. Zanim uznasz, że zawiódł model, doprecyzuj pytanie i sprawdź, jakie fragmenty rzeczywiście znalazły się w prompcie.',
+    c9H4: 'Sprzeczne źródła',
+    c9P4: 'Jeśli jeden dokument mówi o dwóch etapach, a drugi o trzech, dołączenie obu do kontekstu nie rozstrzyga sprzeczności. Trzeba sprawdzić, czego dotyczą i na ile są wiarygodne. W przeciwnym razie model może połączyć je w błędną odpowiedź. Warto też sprawdzić, czy odsyłacz rzeczywiście prowadzi do źródła danej informacji.',
+    c9Takeaway: 'RAG zmienia zawartość promptu, nie wiedzę zapisaną w wagach. Jeśli model nie otrzyma właściwego fragmentu dokumentu, jego jakość nie zastąpi brakującego źródła.',
+    c9Caveat: 'Aplikacja nie korzysta z bazy wektorowej ani nie przeszukuje dokumentów. Przykłady pochodzą z krótkiego tekstu edukacyjnego. RAG może ograniczać część problemów, ale nie eliminuje halucynacji ani sprzeczności między źródłami.',
+    c10Nav: 'Trening', c10Title: 'Jak powstaje pomocny asystent?',
+    c10Intro: 'Umiejętność przewidywania tekstu nie oznacza jeszcze, że model będzie zachowywał się jak asystent. Najpierw uczy się na danych, a później może być dostrajany do instrukcji i preferencji. Na jego zachowanie wpływają cel i skala treningu.',
+    c10ExampleTitle: '„Jak ugotować jajko na twardo?”',
+    c10Example1Label: 'Poglądowa kontynuacja modelu bazowego',
+    c10Example1: '„Ile to trwa? Jaka powinna być temperatura wody? Jak usmażyć jajko? Jak zrobić jajko w koszulce?”\n\nLista kolejnych pytań też może pasować jako dalszy tekst.',
+    c10Example2Label: 'Poglądowa odpowiedź modelu dostrojonego',
+    c10Example2: '„Włóż jajka do garnka i zalej wodą. Zagotuj, dostosuj czas do pożądanego stopnia ścięcia, potem schłodź”.\n\nTa odpowiedź pomaga wykonać zadanie, zamiast dopisywać kolejne pytania.',
+    c10ExampleNote: 'Oba teksty są napisane ręcznie. To porównanie zachowań, nie test dwóch modeli ani sprawdzony przepis.',
+    c10H1: 'Trening wstępny (pretraining)',
+    c10P1: 'Podczas treningu wstępnego model uczy się przewidywać tekst na podstawie ogromnych zbiorów przykładów. Zmieniają się wtedy jego parametry, czyli liczby określające przebieg obliczeń. W ten sposób model nabywa umiejętności językowe i uczy się wzorców przydatnych w różnych zadaniach. Nie powstaje przy tym baza gotowych odpowiedzi.',
+    c10H2: 'Skala treningu: dane, parametry i obliczenia',
+    c10P2: 'Przy porównywaniu skali treningu rozróżniaj ilość danych, liczbę parametrów i nakład obliczeń. Różnice mogą sięgać rzędów wielkości, dlatego do pokazania proporcji przydaje się skala logarytmiczna. Większa wartość jednego wskaźnika nie wystarczy do oceny jakości modelu. Nie podajemy tu statystyk konkretnych generacji modeli.',
+    c10H3: 'Dostrajanie do instrukcji i oczekiwań (alignment)',
+    c10P3: 'Dalszy trening ma nauczyć model odpowiadania na pytania, stosowania się do instrukcji, przyznawania się do ograniczeń i odmawiania szkodliwych próśb. Model bazowy potrafi kontynuować tekst, a dostrojony ma częściej zachowywać się jak pomocny asystent. Nie gwarantuje to jednak poprawności ani bezpieczeństwa w każdej sytuacji.',
+    c10H4: 'RLHF: nauka z ludzkich preferencji',
+    c10P4: 'Ludzie porównują odpowiedzi, np. na prośbę o pomysł na prezent: „Co lubi ta osoba?” lub „Kup ekspres, wszyscy go lubią”. W klasycznym RLHF takie oceny służą do uczenia modelu nagrody, który przewiduje ludzkie preferencje. Następnie model językowy jest dostrajany tak, by częściej tworzył wyżej oceniane odpowiedzi. Uczy się na ocenach, zamiast otrzymywać każdą regułę zapisaną ręcznie.',
+    c10Takeaway: 'Trening zmienia wagi modelu, a prompt zmienia tekst wejściowy. Dostrajanie i RLHF wpływają na to, jak model wykorzystuje wyuczone umiejętności. Jego odpowiedzi nadal trzeba oceniać krytycznie.',
+    c10Caveat: 'Porównanie modelu bazowego i dostrojonego jest uproszczone. Liczby w źródłowej symulacji miały charakter poglądowy, a samo zliczanie preferowanych odpowiedzi nie jest treningiem modelu nagrody. RLHF to jeden ze sposobów dostrajania, nie opis działania każdego modelu.',
+    c11Nav: 'Podsumowanie', c11Title: 'Co dzieje się z jedną wiadomością?',
+    c11Intro: 'Za odpowiedzią chatbota nie stoi ukryty człowiek ani gotowy tekst wyjęty z bazy. Aplikacja przygotowuje kontekst, a wytrenowany model generuje odpowiedź token po tokenie. Tak łączą się etapy opisane w poprzednich rozdziałach.',
+    c11ExampleTitle: 'Ta sama wiadomość, dwie warstwy',
+    c11Example1Label: 'Na ekranie', c11Example1: 'Piszesz pytanie.\nWidzisz płynną odpowiedź.\nRozmowa sprawia wrażenie, że trwa bez przerwy.',
+    c11Example2Label: 'W aplikacji i modelu', c11Example2: 'Aplikacja przygotowuje kontekst.\nModel przetwarza tokeny i ich reprezentacje.\nZ kolejnych wybranych tokenów powstaje odpowiedź, którą wyświetla aplikacja.',
+    c11ExampleNote: 'Każdy element odpowiada za inne zadanie. Jeśli odpowiedź jest błędna, sprawdź, na którym etapie zabrakło informacji lub kontroli.',
+    c11H1: 'Aplikacja przygotowuje prompt', c11P1: 'Instrukcje, zachowana historia lub notatki, Twoja wiadomość i ewentualne fragmenty z RAG trafiają do szablonu czatu. Aplikacja dba o to, by nie przekroczyć limitu kontekstu.',
+    c11H2: 'Tokenizator dzieli tekst', c11P2: 'Tekst zamienia się w sekwencję numerów tokenów ze słownika. Liczba tokenów wpływa na koszt i ilość informacji mieszczących się w kontekście. Nie musi odpowiadać liczbie słów.',
+    c11H3: 'Model odczytuje wektory przypisane do ID', c11P3: 'Osadzenia zapisują tokeny jako wektory, dzięki czemu można obliczać relacje między nimi. Informacja o pozycji pozwala uwzględnić także ich kolejność.',
+    c11H4: 'Transformer przetwarza dostępny kontekst', c11P4: 'Wiele warstw i głów uwagi łączy informacje. W dekoderze przyczynowym reprezentacja tokenu uwzględnia jego bieżącą pozycję i wcześniejsze tokeny, ale nie późniejsze.',
+    c11H5: 'Model oblicza prawdopodobieństwa, potem wybierany jest token', c11P5: 'Model ocenia możliwe kontynuacje tekstu. Na wybór kolejnego fragmentu wpływa sposób wyboru tokenu: próbkowanie z daną temperaturą lub wybór zachłanny.',
+    c11H6: 'Kolejne kroki tworzą odpowiedź', c11P6: 'Wybrany token trafia do kontekstu i rozpoczyna się następny krok. Proces trwa do zakończenia generowania. Aplikacja może wyświetlać napływający tekst na bieżąco w dymku czatu.',
+    c11H7: 'Płynna odpowiedź wymaga sprawdzenia', c11P7: 'Sprawdzaj twierdzenia, aktualność danych i źródła. Narzędzia oraz RAG mogą dostarczyć potrzebnych informacji. Jeśli ich brakuje, lepiej to przyznać niż zgadywać.',
+    c11H8: 'Trening i prompty kształtują zachowanie', c11P8: 'Trening wstępny, dostrajanie i oceny preferencji zmieniają model. Twoje instrukcje i kontekst wpływają na jego odpowiedzi bez trenowania go od nowa.',
+    c11Takeaway: 'Aplikacja dostarcza kontekst wytrenowanemu modelowi. Ten przekształca tokeny w reprezentacje i oblicza prawdopodobieństwa, a odpowiedź powstaje token po tokenie. Nawet jeśli brzmi płynnie, trzeba ją sprawdzić.',
+    c11Caveat: 'To uproszczony opis chatbota tekstowego z modelem autoregresyjnym. Wszystkie przykłady przygotowano wcześniej i są dostępne lokalnie. Żadne ćwiczenie nie uruchamia ani nie trenuje modelu AI.'
+  },
+  en: {
+    title: 'What really happens when you talk to an AI chatbot?',
+    lead: 'From your message to the next token. Explore the app, the model and their limits in 11 short chapters: read an explanation, look at an example and check what you understood.',
+    documentTitle: 'Inside the chatbot · edulab',
+    skip: 'Skip to the chapter', contents: 'Contents', language: 'Lesson language',
+    indexNote: 'Read in order or choose a topic. You can return at any time.',
+    progressLabel: 'Chapters read', progressValue: '{done} of {total}',
+    mobileIndex: 'Contents · chapter {chapter} of {total}', chapterLabel: 'Chapter {chapter}: {title}',
+    done: 'read', notRead: 'not yet read', results: 'My progress',
+    previous: 'Previous', next: 'Next chapter', complete: 'Mark as read', completed: '✓ Read',
+    readingHint: 'You can mark a chapter as read without answering its questions. Reading progress and quiz results are counted separately.',
+    completedAnnouncement: 'Chapter marked as read.',
+    takeaway: 'Remember', caveat: 'Limits of the example. ',
+    quizTitle: 'Check your understanding', quizIntro: 'Three short questions. Each answer reveals an explanation. This checks concepts, not the performance of a live model.',
+    questionNumber: 'Question {n} of {total}', correct: 'Correct.', wrong: 'Not this time.',
+    yourAnswer: 'Your choice', correctAnswer: 'Correct answer', yourCorrectAnswer: 'Your choice · correct answer',
+    retry: 'Retry the questions', retryNote: 'A new attempt replaces this chapter’s answers and score.', retryAnnouncement: 'This chapter’s answers have been cleared. You can try again.',
+    reflection: 'Explain it in your own words', reflectionHint: 'Pause and answer for yourself first. This reflection is not scored.', modelAnswer: 'Compare with an example answer',
+    resultsTitle: 'What have you covered?', resultsIntro: 'Reading a chapter and answering a question correctly are different achievements. Here you can see both, without points for simply clicking through.',
+    readStat: 'chapters marked as read', scoreStat: 'correct answers out of questions answered',
+    unanswered: '{count} questions are still unanswered. An unanswered question is not counted as wrong.',
+    emptyResults: 'No answers yet. Choose a chapter, read its example and try the first question.',
+    resultQuestions: 'Quiz: {correct}/{answered} correct, {total} questions in this chapter.', recapNoQuiz: 'A recap of the whole journey, with no extra points.',
+    returnToChapter: 'Open', continueLearning: 'Back to learning',
+    localNote: 'Examples are written in advance. This app runs locally and makes no AI calls. Progress is saved only in this browser, without an account.',
+    shortcutPrefix: 'Shortcuts outside buttons and fields:', shortcutNav: 'chapters', shortcutAnswers: 'first unanswered question', shortcutNext: 'next',
+    storageBlocked: 'Your browser is blocking progress storage. You can keep learning, but results may disappear when you close or reload the page.',
+    storageRecovered: 'The previous save was damaged or incompatible with this version. A safe state has been restored; you can continue learning.',
+    reset: 'Start over', resetConfirm: 'Remove all reading progress and answers from this browser? Your language will stay the same.', resetAnnouncement: 'Reading progress and answers cleared.',
+    verify: 'Check the app', verifyTitle: 'Application checks',
+    verifyIntro: 'These checks compare the content, application state and actual DOM. They do not change your answers or progress and do not assess your knowledge.',
+    close: 'Close', pass: 'OK', fail: 'Failed',
+    verifyState: 'State is within the allowed ranges', verifyContract: 'DOM matches state and score', verifyNav: 'All chapters have valid navigation',
+    verifyLanguage: 'Polish and English content have matching keys', verifyContent: 'Every chapter has an example, explanations and a limitation note',
+    verifyQuiz: 'Questions and saved answers are consistent', verifyVisible: 'The visible screen matches the selected chapter',
+    verifyAnswers: 'Visible selections match saved answers', verifyProgress: 'Reading progress is not presented as a quiz score',
+    verifyUnreadable: 'This check cannot finish: the state is invalid or a page element is missing.',
+    causalSource: 'Source: Attention Is All You Need, section 3.1 (decoder)',
+    c1Nav: 'App vs model', c1Title: 'The chat app is not the model',
+    c1Intro: 'Message bubbles, history and “memory” belong to the app. The model underneath receives a prepared context and scores which text fragment might come next.',
+    c1ExampleTitle: 'Why does the chatbot “remember” Ola?',
+    c1Example1Label: 'What you see in the chat',
+    c1Example1: 'You: Hi! My name is Ola.\nAssistant: Nice to meet you, Ola!\nYou: What is my name?',
+    c1Example2Label: 'What the app sends again',
+    c1Example2: 'System instruction: Be helpful and concise.\nHistory: “My name is Ola” + the assistant’s reply.\nNew message: “What is my name?”',
+    c1ExampleNote: 'If the app drops the history and sends only the last question, the name is no longer in the context. This example is written in advance, not generated by AI.',
+    c1H1: 'The app prepares the request',
+    c1P1: 'It stores the conversation, adds a system prompt and formats roles using a chat template. It may include notes, documents and tool results. It then sends this sequence to the model and displays the incoming reply.',
+    c1H2: 'The model processes what it receives',
+    c1P2: 'In the inference setup described here, the model does not add your conversation to its weights on every question. Weights are trained numbers; the input is the context, and the result of one step is a probability distribution for the next token. Product memory is not the same as remembering between separate model calls.',
+    c1H3: 'Same model, different product',
+    c1P3: 'Different system instructions, history, tools or filters can change the app’s behaviour without changing the weights. Helpfulness and safety also depend on the model’s training and alignment, which we return to in chapter 10.',
+    c1Takeaway: 'A chatbot knows your name on the next turn if the app supplies that information again. Apparent conversational memory does not prove that the model has just learned about you.',
+    c1Caveat: 'Real chat templates use model-specific special tokens, and system prompts can be much longer. An app may send only selected history or a summary.',
+    c2Nav: 'Tokenization', c2Title: 'Tokenization: text becomes numbers',
+    c2Intro: 'The model works with tokens: small pieces of text. A tokenizer may keep a common word whole, split another into parts or encode a character with several pieces. Each piece has an ID in a vocabulary.',
+    c2ExampleTitle: 'Three “r” letters, but not three separate tokens',
+    c2Example1Label: 'The same meaning, different languages',
+    c2Example1: 'EN: I love programming in Kraków\nPL: Uwielbiam programować w Krakowie\nDE: Ich liebe es, in Krakau zu programmieren',
+    c2Example2Label: 'What to compare',
+    c2Example2: 'Count tokens for the chosen model, not just words. Different languages and tokenizers can produce different counts for the same meaning.',
+    c2ExampleNote: 'The split “str | aw | berr | y” is illustrative. Underlines show the three r letters in strawberry. This is not the output of a real tokenizer.',
+    c2TokenNote: 'strawberry: 10 letters, 3 × r, here 4 illustrative pieces',
+    c2H1: 'An ID is not a meaning',
+    c2P1: 'A token number is a vocabulary label, not its letter count, position in a sentence or probability. Neighbouring numbers need not represent related things. A space can be part of a token too; the symbol ␣ is sometimes used to make it visible.',
+    c2H2: 'Why language affects cost',
+    c2P2: 'The vocabulary is learned from data. If a language or rare word has fewer useful matches in it, the text can split into more pieces. Polish may need more tokens than English expressing the same meaning, but the exact difference depends on the text and tokenizer. More tokens can mean higher cost, more processing and less room in the context.',
+    c2H3: 'Why counting letters can be difficult',
+    c2P3: 'The model receives fragment IDs, not a simple list of letters to count. The r letters in strawberry are spread inside several pieces. This is a difficulty, not proof that a model can never count correctly. When an exact count matters, check character by character or use a tool.',
+    c2Takeaway: 'A token does not have to be a word or a letter. Context and often model usage are measured in tokens, so check the specific model’s tokenization instead of guessing from sentence length.',
+    c2Caveat: 'This hand-made split does not reproduce BPE or another production tokenizer. Real vocabularies can split rare text and emoji into smaller pieces or bytes; we are not calculating API costs.',
+    c3Nav: 'Embeddings', c3Title: 'Embeddings: numbers represent relationships',
+    c3Intro: 'An ID is only a label. A learned table converts it into an embedding, a vector of numbers. This lets the model compare, mix and transform representations of text.',
+    c3ExampleTitle: 'Closeness, not alphabetical order',
+    c3Example1Label: 'Similar contexts',
+    c3Example1: 'cat ↔ kitten\nking ↔ queen\npizza ↔ pasta\n\nWords used in similar situations may have similar vectors.',
+    c3Example2Label: 'An illustrative analogy',
+    c3Example2: 'king − man + woman ≈ queen\n\nA direction in the space may correspond to a relationship between concepts.',
+    c3ExampleNote: 'These examples help you imagine the space, but are not measurements from a particular model. “pizza − bread + laptop” need not produce a meaningful analogy.',
+    c3H1: 'Meaning as geometry',
+    c3P1: 'Representations are learned from contexts of use during training. Nearby vectors may reflect related meaning rather than similar spelling. One comparison method is cosine similarity, which describes how closely directions match. It is not a probability that two words “mean the same thing”.',
+    c3H2: 'A 2D map is only a shadow',
+    c3P2: 'Real vectors have many dimensions, often thousands in language models. A two-dimensional picture cannot preserve every relationship. Axes on an illustrative map are not universal axes of “meaning”, and neighbourhoods depend on the particular model.',
+    c3H3: 'Context changes the representation',
+    c3P3: 'An input embedding is not the end of the process. Successive transformer layers enrich a token’s representation with available context. “Bank” beside “river” and “bank” beside “loan” have the same spelling but different surroundings and interpretations.',
+    c3Takeaway: 'An embedding makes relationships between pieces of text computable. It is a useful representation, not a dictionary of definitions or a guarantee that every analogy will work.',
+    c3Caveat: 'The word pairs and arithmetic illustrate an idea. We do not show actual coordinates, similarity scores or model layers; this is not an experiment on live embeddings.',
+    c4Nav: 'Attention', c4Title: 'Attention: meaning depends on context',
+    c4Intro: 'Attention lets a token’s representation use other available tokens. In a model that generates from left to right, there is an important limit: a token cannot look into the future.',
+    c4ExampleTitle: 'One ending changes the interpretation',
+    c4Example1Label: '… because it was too big',
+    c4Example1: 'The trophy did not fit in the suitcase because it was too big.\n\nAfter reading the whole sentence, we understand: the trophy was too big.',
+    c4Example2Label: '… because it was too small',
+    c4Example2: 'The trophy did not fit in the suitcase because it was too small.\n\nAfter reading the whole sentence, we understand: the suitcase was too small.',
+    c4ExampleNote: 'We are comparing the meaning of complete sentences. We are not claiming that the earlier token “it” saw the future word “big” or “small”.',
+    c4H1: 'Weighting the available context',
+    c4P1: 'An attention layer computes which available representations to draw information from and how to combine them. Different heads can capture different relationships, and later layers process the result further. This is more than pointing to one “most important” word.',
+    c4H2: 'Causal attention only looks backwards',
+    c4P2: 'In a causal decoder, a position can use itself and earlier positions, not later ones. Changing a sentence’s ending cannot retroactively change the earlier representation of “it”. When processing the ending and predicting a continuation, however, the model has more context available.',
+    c4H3: 'Many layers, not a single arrow',
+    c4P3: 'The model combines many attention heads and transformer layers. Relationships are learned during training, not entered as manual pronoun rules. A single attention-weight map is not a complete explanation of why a model gave a particular answer.',
+    c4Takeaway: 'Context helps resolve ambiguity, but only when it is already available. A model generating left to right cannot read tokens that have not been produced yet.',
+    c4Caveat: 'The sentences are hand-picked illustrations. We do not compute attention weights. The original simulation used hand-written weights, not measurements from a real transformer.',
+    c5Nav: 'Generation', c5Title: 'Generation: one token at a time',
+    c5Intro: 'After processing the context, the model scores possible next tokens. One token is selected from the distribution and appended to the text, then prediction starts again. This is how a reply grows.',
+    c5ExampleTitle: '“The cat sat on the…”',
+    c5Example1Label: 'One choice', c5Example1: 'The cat sat on the → mat\n\nWe choose one possible piece, not an entire sentence.',
+    c5Example2Label: 'A new context', c5Example2: 'The cat sat on the mat → …\n\nThe selected token changes the next step’s input. The loop continues until the reply ends.',
+    c5ExampleNote: 'These values are a hand-written example table: mat 40%, sofa 18%, floor 15%, windowsill 12%, roof 9%, keyboard 6%. They are not measured probabilities from a real model.',
+    c5Candidate1: 'mat', c5Candidate2: 'sofa', c5Candidate3: 'floor', c5Candidate4: 'windowsill', c5Candidate5: 'roof', c5Candidate6: 'keyboard',
+    c5H1: 'A distribution is not a verified fact',
+    c5P1: 'One step gives a distribution over the vocabulary, not a complete paragraph or a certificate of truth. A model may assign high probability to the correct continuation “Warsaw is the capital of Poland”, but a high-scoring token is still not a source check.',
+    c5H2: 'What temperature changes',
+    c5P2: 'Lower temperature sharpens the distribution, favouring already likely options more strongly. Higher temperature flattens it, giving less typical options more opportunity and increasing variety, but also the risk of incoherence. Temperature is not a truth or intelligence slider.',
+    c5H3: 'Sampling versus greedy selection',
+    c5P3: 'Sampling draws according to the distribution. Greedy selection takes the highest-scoring token, so it makes the same choice for the same distribution. Systems may also use top-p or top-k and stop at an end token or a length limit.',
+    c5Takeaway: 'A reply grows one token at a time. A plausible continuation can be wrong, and later steps can develop that error fluently.',
+    c5Caveat: 'We show just six hand-written candidates. A real model works over its whole vocabulary. This loop diagram does not describe every optimisation or reasoning method in modern systems.',
+    c6Nav: 'Memory', c6Title: 'The context window: what fits in the conversation?',
+    c6Intro: 'The context window limits the tokens available in a request. Instructions, history, notes, documents and the new message compete for space. The app must also account for the reply budget.',
+    c6ExampleTitle: 'A trip to Kraków, recorded three ways',
+    c6Example1Label: 'Raw history',
+    c6Example1: '“I’m planning a trip to Kraków.”\n“Probably in October.”\n“Vegetarian-friendly, please.”\n+ full replies and the rest of the conversation.',
+    c6Example2Label: 'A summary',
+    c6Example2: 'The user is planning an October trip to Kraków. They ask about vegetarian food, day trips, trip length and packing.',
+    c6Example3Label: 'External notes',
+    c6Example3: 'destination = Kraków\nmonth = October\ndiet = vegetarian\n\nThe app retrieves relevant facts and adds them to a new prompt.',
+    c6ExampleNote: 'These are three representations of the same example conversation, not actual travel advice or a measured token saving.',
+    c6H1: 'History: fidelity at the cost of space',
+    c6P1: 'Raw history preserves wording and detail but grows every turn. Every fragment sent again takes up context and may add cost again. When space runs out, the app trims history, for example keeping the latest turns and instructions.',
+    c6H2: 'Summary: less text, fewer details',
+    c6P2: 'A summary compresses the conversation into what was judged important. It usually takes fewer tokens but may lose an exception, an exact quote or a change of mind. Producing the summary may itself require a model call.',
+    c6H3: 'Notes: a store outside the model',
+    c6P3: 'A file, database or notebook keeps selected facts, including across sessions. Merely saving a fact does not make the model see it: the app must retrieve it and place it in the context. An irrelevant or outdated note can mislead the reply.',
+    c6Takeaway: 'When a chatbot “forgets”, check what the app actually retained and sent again. Memory is a selection of information, not an infinite storage drawer inside the model.',
+    c6Caveat: 'The summary and notes are written in advance. We do not assume one context-window size for every model; real systems may combine these strategies.',
+    c7Nav: 'Hallucinations', c7Title: 'Fluency is not the same as truth',
+    c7Intro: 'A wrong answer can sound as confident as a correct one. Generating a plausible continuation does not replace checking a fact. A good user separates the tone of a reply from its evidence.',
+    c7ExampleTitle: 'It sounds convincing. It is still wrong.',
+    c7Example1Label: 'An example of a false reply',
+    c7Example1: '“Mars has three moons: Phobos, Deimos and Titan.”\n\nIt fits the pattern of a list of moons. That does not make it true.',
+    c7Example2Label: 'What needs correcting',
+    c7Example2: 'Mars has two moons: Phobos and Deimos. Titan is a moon of Saturn.\n\nCheck both the count and the assignment of every name.',
+    c7ExampleNote: 'This is a pre-written hallucination example. Similarly, “Sydney is the capital of Australia” sounds familiar, but the capital is Canberra.',
+    c7H1: 'Break a reply into checkable claims',
+    c7P1: '“The Eiffel Tower was completed in 1889, is the world’s tallest structure and has never needed renovation” contains three separate claims. The first is correct; the next two are not. One true part does not validate the rest. Check dates, numbers, names, quotations and whether a source actually supports the conclusion.',
+    c7H2: 'Live information needs access',
+    c7P2: '“What is the weather at my house right now?” needs a location and current data. A model without the right tool should not invent a temperature. The appropriate response is to state the limitation, ask for needed information or use an available tool.',
+    c7H3: 'A private fact cannot come from a guess',
+    c7P3: '“What is my sister’s phone number?” does not give the model access to your contacts. Without information in the context or an authorised tool, there is no basis for a number. Refusing to guess is honest behaviour, not a malfunction.',
+    c7H4: 'Recent events need checking',
+    c7P4: '“Who won yesterday’s match?” may concern an event after the training data period. Without a current source, the model has no basis to claim it knows the score. Freshness, privacy and tool access are different limitations; none disappear because a reply sounds confident.',
+    c7Takeaway: 'Build trust on checked sources, not fluency. “I do not have the data” or use of the right tool can be better than an impressive guess.',
+    c7Caveat: 'All replies and explanations are an educational scenario. We are not running a model, hallucination detector or search engine. A connected tool can help obtain evidence, but it can also fail.',
+    c8Nav: 'Prompting', c8Title: 'Same model, different instructions',
+    c8Intro: 'A prompt is the content from which the model generates a reply. A clear goal, audience, examples and constraints can change the result without changing model weights. Test the effect on the actual task.',
+    c8ExampleTitle: 'The same request, a clearer result',
+    c8Example1Label: 'Variant A', c8Example1: '“Explain what a token is.”\n\nA possible answer: a small piece of text, sometimes a word and sometimes part of one.',
+    c8Example2Label: 'Variant B', c8Example2: '“You are teaching a curious 10-year-old. In 2 short sentences and one everyday analogy, explain what a token is.”\n\nA possible analogy: a token is like a Lego brick for words.',
+    c8ExampleNote: 'The replies are written in advance. Variant B specifies an audience, length and analogy; it does not prove that every such instruction will help.',
+    c8H1: 'Role, audience and tone',
+    c8P1: 'Instead of “Summarise this article”: “You are a news editor. Summarise the article in 3 bullets for a busy reader”. A role guides style, not professional qualifications. You can specify an audience, an everyday analogy, a formal tone or humour if these serve the task.',
+    c8H2: 'Few-shot: show what you want',
+    c8P2: '“Example 1: [article] → [3-bullet summary]. Example 2: [article] → [3-bullet summary]. Now do the same.” A few examples demonstrate format, length and what to prioritise. The model may imitate them, but the result still needs checking.',
+    c8H3: 'Intermediate steps instead of a vague request',
+    c8P3: '“First list the article’s main claims, then use them to write a 3-sentence summary.” This technique, often discussed alongside chain-of-thought, separates the task into checkable stages. The resulting explanation is not evidence of the exact internal computations the model performed.',
+    c8H4: 'Explicit constraints',
+    c8P4: '“Exactly 3 sentences, at most 60 words in total, no bullets” is less ambiguous than “briefly”. Constraints can specify length, scope, a list or tone. An instruction does not guarantee compliance: count the sentences and words when the limit matters.',
+    c8H5: 'JSON and a format for software',
+    c8P5: '“Return only JSON with headline and bullets fields, with 3 items in bullets.” Structure makes further processing easier, but a prompt alone does not guarantee valid JSON. Software should parse it and validate a schema, not execute the reply text as code.',
+    c8Takeaway: 'A good prompt specifies a task rather than “unlocking” a model with a magic formula. Compare variants on real tasks, checking correctness, format and usefulness.',
+    c8Caveat: 'We are not comparing two AI calls. In the source simulation, simple rules assembled replies; the effectiveness of techniques depends on the model and task.',
+    c9Nav: 'RAG', c9Title: 'RAG: a document enters the context',
+    c9Intro: 'A model does not automatically receive your files. Retrieval-augmented generation (RAG) finds useful document fragments and adds them to the prompt. The reply can then draw on the supplied source.',
+    c9ExampleTitle: 'From a question to the relevant fragment',
+    c9Example1Label: 'The question and retrieved fragment',
+    c9Example1: 'Question: What byproduct does photosynthesis release?\n\nFragment C4: “Photosynthesis releases oxygen as a byproduct, which is essential for most life on Earth.”',
+    c9Example2Label: 'An answer grounded in the text',
+    c9Example2: '“Oxygen” [C4].\n\nOther fragments describe converting light to energy (C1), chloroplasts and chlorophyll (C2), and light-dependent reactions and the Calvin cycle (C3).',
+    c9ExampleNote: 'This example is prepared by hand. The [C4] marker shows a connection to a source, not automatic confirmation of every part of a reply.',
+    c9H1: 'Retrieve first, generate second',
+    c9P1: 'Documents are split into chunks, retrieval selects ones relevant to the question, and the app adds them to the context. “What do green leaves put into the air?” may fail a simple word match even though it asks about the same process. Semantic retrieval uses embeddings; systems may combine this with keyword retrieval.',
+    c9H2: 'Chunks that are too small or too large',
+    c9P2: 'If the needed explanation crosses a chunk boundary, retrieving just one side loses context. A larger chunk or some overlap between chunks may preserve it, but adds tokens, repetition and noise. There is no single right chunk size for every document.',
+    c9H3: 'An ambiguous question',
+    c9P3: '“How does it start?” does not identify “it”. Retrieval may select a paragraph about chlorophyll instead of light-dependent reactions. Clarify the question and inspect the chunks actually sent to the prompt before blaming the generator.',
+    c9H4: 'Contradictory sources',
+    c9P4: 'If one document describes two stages and another three, placing both in the context does not resolve the conflict. Their scope and reliability need to be established; the model might otherwise blend them into a false answer. A source reference also needs checking.',
+    c9Takeaway: 'RAG changes the prompt, not the knowledge stored in the weights. If the right fragment never reaches the model, model quality alone cannot replace missing evidence.',
+    c9Caveat: 'No vector database or real retrieval is running here. The examples come from a small educational document. RAG reduces some problems, but does not eliminate hallucinations or source conflicts.',
+    c10Nav: 'Training', c10Title: 'How is a helpful assistant made?',
+    c10Intro: 'Predicting text and behaving as an assistant are not the same thing. A model first learns from data, then may be tuned for instructions and preferences. Training scale and objectives affect the resulting behaviour.',
+    c10ExampleTitle: '“How do I boil an egg?”',
+    c10Example1Label: 'An illustrative base-model continuation',
+    c10Example1: '“How long does it take? What temperature should the water be? How do I fry an egg? How do I poach an egg?”\n\nA list of further questions can also be a plausible continuation.',
+    c10Example2Label: 'An illustrative instruction-tuned reply',
+    c10Example2: '“Put the eggs in a pot and cover with water. Bring to a boil, adjust the time to the desired doneness, then cool.”\n\nThe reply takes on the user’s task instead of just continuing the question format.',
+    c10ExampleNote: 'Both texts are hand-written. This compares behaviours, not two live models, and is not a verified recipe.',
+    c10H1: 'Pretraining: learning prediction',
+    c10P1: 'During pretraining, a model learns to predict text from very large sets of examples. Its parameters, the numbers governing its computations, are updated. This develops language capabilities and patterns useful across tasks, not a database of ready-made replies.',
+    c10H2: 'Scale means data, parameters and compute',
+    c10P2: 'Separate the amount of training data, parameter count and computational work when comparing scale. These quantities can differ by orders of magnitude; a logarithmic scale helps show their proportions. A larger number alone is not a complete description of model quality. We do not present statistics for specific generations here.',
+    c10H3: 'Instruction tuning and alignment',
+    c10P3: 'Further training aims to encourage answering questions, following instructions, acknowledging limitations and refusing harmful requests. A base model can continue text; an instruction-tuned model should more often behave as an assistant. Tuning does not guarantee correctness or safety in every situation.',
+    c10H4: 'RLHF: learning from human preferences',
+    c10P4: 'People compare replies, for example to a gift request: “What does the person enjoy?” versus “Buy an espresso machine, everyone likes them”. In a classic RLHF setup, rankings train a reward model to predict preferences, then the language model is tuned towards higher-rated replies. This is learning from judgements, not entering every rule by hand.',
+    c10Takeaway: 'Training changes weights. A prompt changes input. Tuning and RLHF shape how learned capabilities are used, but the result still needs critical evaluation.',
+    c10Caveat: 'The base/instruction comparison is illustrative. The original scale numbers were not published model statistics, and counting preferred replies is not real reward-model training. RLHF is one tuning approach, not a description of every model.',
+    c11Nav: 'Recap', c11Title: 'The whole journey of one message',
+    c11Intro: 'Let’s put the pieces together. There is no person hidden in the chat and no drawer containing a ready-made reply. There is an app, a trained model, prepared context and a generation loop.',
+    c11ExampleTitle: 'The same message, two layers',
+    c11Example1Label: 'On the screen', c11Example1: 'You write a question.\nYou see a fluent reply.\nThe conversation feels continuous.',
+    c11Example2Label: 'Underneath', c11Example2: 'The app assembles context.\nThe model processes tokens and their representations.\nSelected tokens build a reply that the app displays.',
+    c11ExampleNote: 'Each part has a different job. When a reply fails, ask which layer lacked information or a check.',
+    c11H1: 'The app assembles the prompt', c11P1: 'Instructions, retained history or notes, your message and optional RAG fragments go into a chat template. The app manages the context budget.',
+    c11H2: 'The tokenizer splits the text', c11P2: 'Text becomes a sequence of vocabulary token IDs. The fragment count affects cost and how much information fits; it need not match the word count.',
+    c11H3: 'IDs become vectors', c11P3: 'Embeddings give labels representations on which relationships can be computed. Position information makes order matter too.',
+    c11H4: 'The transformer processes available context', c11P4: 'Many layers and attention heads combine information. In a causal decoder, a token can use its own position and earlier ones, but not future positions.',
+    c11H5: 'A distribution is produced and a token selected', c11P5: 'The model scores possible continuations. Sampling, temperature or greedy selection affect which piece is chosen.',
+    c11H6: 'The loop builds the reply', c11P6: 'The selected token is appended to the context. Generation continues until stopping, while the app may stream the growing text into the chat bubble.',
+    c11H7: 'Fluency does not verify truth', c11P7: 'Check claims, freshness and sources. Tools and RAG may supply information, and honestly acknowledging missing data is better than guessing.',
+    c11H8: 'Training and prompting shape behaviour', c11P8: 'Pretraining, tuning and preference judgements change the model. Your instructions and context change the conditions under which it answers, without training it anew.',
+    c11Takeaway: 'A chatbot is an app that supplies context to a trained model. The model turns tokens into representations and probabilities, and the reply grows one token at a time. Its fluency never replaces verification.',
+    c11Caveat: 'This is a simplified account of a text chatbot with an autoregressive model. All examples are local and written in advance; nothing in this lesson calls or trains AI.'
+  }
+};
+Object.assign(T.pl, {
+  "c1Reflection": "Wyjaśnij własnymi słowami, dlaczego model „pamięta” Twoje imię w drugiej turze rozmowy.",
+  "c1ModelAnswer": "Aplikacja dołącza wcześniejszą rozmowę lub wybrane notatki do nowego zapytania. Model dostaje więc imię ponownie, a nie zapamiętuje go w wagach podczas rozmowy.",
+  "q1-1Q": "Gdzie jest przechowywana pamięć rozmowy w typowym czacie AI?",
+  "q1-1Ex": "Między osobnymi wywołaniami model nie przechowuje historii tej rozmowy. Aplikacja wstawia zachowaną historię lub odpowiednie notatki do kontekstu.",
+  "q1-1A0": "W wagach modelu",
+  "q1-1A1": "W aplikacji, która wysyła historię z każdą kolejną wiadomością",
+  "q1-1A2": "W tokenizatorze",
+  "q1-2Q": "Co model otrzymuje w każdym zapytaniu?",
+  "q1-2Ex": "Aplikacja składa instrukcje, zachowaną historię i nową wiadomość w jeden kontekst. Może też dołączyć wyniki narzędzi i dokumenty.",
+  "q1-2A0": "Tylko Twoją ostatnią wiadomość",
+  "q1-2A1": "Jedną długą sekwencję: prompt systemowy + historia + nowa wiadomość",
+  "q1-2A2": "Link do bazy danych rozmów",
+  "q1-3Q": "Zmieniasz prompt systemowy. Co się zmienia?",
+  "q1-3Ex": "Prompt systemowy to tekst na początku zapytania. Jego zmiana nie zmienia wag modelu.",
+  "q1-3A0": "Wagi modelu",
+  "q1-3A1": "Tekst, na podstawie którego model przewiduje dalszy ciąg",
+  "q1-3A2": "Słownik tokenów",
+  "c2Reflection": "Dlaczego liczba tokenów ma znaczenie w praktyce?",
+  "c2ModelAnswer": "Decyduje o koszcie zapytania, szybkości odpowiedzi i o tym, ile tekstu zmieści się w oknie kontekstowym.",
+  "q2-1Q": "Dlaczego liczenie liter w „strawberry” może być dla modelu trudne?",
+  "q2-1Ex": "Model pracuje na ID fragmentów tekstu, a nie na prostej liście liter. To może utrudniać liczenie, ale nie uniemożliwia poprawnej odpowiedzi.",
+  "q2-1A0": "Bo nie zna angielskiego",
+  "q2-1A1": "Bo otrzymuje ID tokenów, a nie listę pojedynczych liter",
+  "q2-1A2": "Bo słowo jest za długie",
+  "q2-2Q": "Co może się stać, gdy tokenizator dzieli polski tekst na drobniejsze fragmenty niż angielski tekst o tym samym znaczeniu?",
+  "q2-2Ex": "Liczba fragmentów zależy od tekstu i wyuczonego słownika tokenizatora. Więcej tokenów może podnieść koszt; nie ma jednego stałego przelicznika między językami.",
+  "q2-2A0": "Polski tekst zawsze będzie miał mniej tokenów",
+  "q2-2A1": "Polski tekst może mieć więcej tokenów i zajmować więcej miejsca w kontekście",
+  "q2-2A2": "Oba teksty muszą mieć tyle samo tokenów",
+  "q2-3Q": "Czym jest ID tokenu?",
+  "q2-3Ex": "ID to numer tokenu w słowniku. Sąsiednie numery nie oznaczają podobnego znaczenia.",
+  "q2-3A0": "Numerem przypisanym tokenowi w ustalonym słowniku",
+  "q2-3A1": "Liczbą liter w tokenie",
+  "q2-3A2": "Prawdopodobieństwem tokenu",
+  "c3Reflection": "Dlaczego samo ID tokenu nie wystarczy i potrzebne jest osadzenie?",
+  "c3ModelAnswer": "ID jest etykietą, a osadzenie to przypisany do niej wektor. Wektory można porównywać, łączyć i przekształcać, by obliczać relacje między tokenami.",
+  "q3-1Q": "Co oznacza, że dwa słowa mają podobne osadzenia?",
+  "q3-1Ex": "Podobne konteksty użycia mogą prowadzić do podobnych reprezentacji. Bliskość wektorów jest użyteczna, ale nie jest gwarancją identycznego znaczenia.",
+  "q3-1A0": "Mają podobną pisownię",
+  "q3-1A1": "Występowały w podobnych kontekstach, więc ich wektory leżą blisko siebie",
+  "q3-1A2": "Mają sąsiednie ID",
+  "q3-2Q": "Ile wymiarów mogą mieć osadzenia w dużych modelach językowych?",
+  "q3-2Ex": "Wektory w modelach językowych często mają tysiące wymiarów. Dokładny rozmiar zależy od modelu; mapa 2D jest tylko uproszczeniem.",
+  "q3-2A0": "Zawsze dokładnie dwa",
+  "q3-2A1": "Zawsze dokładnie trzy",
+  "q3-2A2": "Nawet tysiące",
+  "q3-3Q": "król − mężczyzna + kobieta ≈ ?",
+  "q3-3Ex": "To klasyczny przykład analogii: kierunki w przestrzeni wektorów mogą odpowiadać relacjom między pojęciami. Nie każde takie działanie daje sensowny wynik. Nie jest to pomiar wykonany w tej aplikacji.",
+  "q3-3A0": "królowa",
+  "q3-3A1": "korona",
+  "q3-3A2": "dziecko",
+  "c4Reflection": "Dlaczego to samo słowo może mieć inną reprezentację w różnych zdaniach?",
+  "c4ModelAnswer": "Kolejne warstwy uwzględniają dostępny kontekst w reprezentacji tokenu. W dekoderze przyczynowym są to tylko dany token i wcześniejsze tokeny, nie późniejsze słowa.",
+  "q4-1Q": "Co robi mechanizm uwagi?",
+  "q4-1Ex": "Uwaga łączy dostępne reprezentacje. W dekoderze przyczynowym token ma dostęp do bieżącej i wcześniejszych pozycji, nigdy do późniejszych.",
+  "q4-1A0": "Pozwala reprezentacji tokenu korzystać z dostępnego kontekstu",
+  "q4-1A1": "Dzieli tekst na tokeny",
+  "q4-1A2": "Wybiera token do wyświetlenia",
+  "q4-2Q": "Co było za małe w zdaniu „Puchar nie zmieścił się w plecaku, ponieważ on był za mały”?",
+  "q4-2Ex": "Za mały był plecak. Tak rozumiemy całe zdanie. Nie oznacza to, że wcześniejszy token „on” miał dostęp do późniejszego zakończenia.",
+  "q4-2A0": "Puchar",
+  "q4-2A1": "Plecak",
+  "q4-2A2": "Słowo „ponieważ”",
+  "q4-3Q": "Ile warstw i głów uwagi ma prawdziwy transformer?",
+  "q4-3Ex": "Głowy i kolejne warstwy przetwarzają różne relacje. Ich liczba zależy od architektury modelu.",
+  "q4-3A0": "Jedną warstwę",
+  "q4-3A1": "Wiele warstw, każda z wieloma głowami",
+  "q4-3A2": "Tyle, ile tokenów",
+  "c5Reflection": "Jak podczas generowania odpowiedzi token po tokenie może powstać halucynacja?",
+  "c5ModelAnswer": "Model wybiera prawdopodobną kontynuację tekstu, ale nie sprawdza faktów. Fragment zawierający błąd może mieć wysokie prawdopodobieństwo, a kolejne tokeny mogą rozwinąć tę błędną odpowiedź.",
+  "q5-1Q": "Co model oblicza w jednym kroku generowania?",
+  "q5-1Ex": "W jednym kroku model oblicza rozkład prawdopodobieństwa możliwych kolejnych tokenów. Procedura dekodowania wybiera z tego rozkładu jeden token.",
+  "q5-1A0": "Całe zdanie",
+  "q5-1A1": "Rozkład prawdopodobieństwa wszystkich tokenów ze słownika",
+  "q5-1A2": "Jeden pewny fakt",
+  "q5-2Q": "Co zmienia wysoka temperatura?",
+  "q5-2Ex": "Wyższa temperatura spłaszcza rozkład, więc zwiększa szansę wyboru mniej typowych tokenów. Nie gwarantuje kreatywnej ani poprawnej odpowiedzi.",
+  "q5-2A0": "Wyostrza rozkład",
+  "q5-2A1": "Spłaszcza rozkład, zwiększając różnorodność i ryzyko niespójności",
+  "q5-2A2": "Nie zmienia niczego",
+  "q5-3Q": "Dlaczego przy tym samym rozkładzie wybór zachłanny daje ten sam token?",
+  "q5-3Ex": "Wybór zachłanny polega na wybraniu tokenu z najwyższym wynikiem zamiast losowania. Dotyczy to tej samej tabeli wyników, nie gwarancji identycznej odpowiedzi przy każdym uruchomieniu modelu.",
+  "q5-3A0": "Bo model ma pamięć",
+  "q5-3A1": "Bo zawsze wybiera token o najwyższym prawdopodobieństwie",
+  "q5-3A2": "Bo temperatura jest wysoka",
+  "c6Reflection": "Dlaczego długa rozmowa staje się z czasem droższa?",
+  "c6ModelAnswer": "Zachowane fragmenty historii często są wysyłane ponownie w kolejnych turach. Więcej wysyłanych tokenów może zwiększać koszt, dlatego aplikacje przycinają lub streszczają kontekst.",
+  "q6-1Q": "Co się dzieje, gdy rozmowa przekroczy okno kontekstowe?",
+  "q6-1Ex": "Zapytanie musi zmieścić się w limicie kontekstu. Aplikacja wybiera, co wysłać, lub odrzuca zbyt długie zapytanie.",
+  "q6-1A0": "Model zapamiętuje resztę w wagach",
+  "q6-1A1": "Aplikacja musi coś przyciąć lub streścić",
+  "q6-1A2": "Zapytanie staje się darmowe",
+  "q6-2Q": "Która strategia wysyła mniej tokenów, ale traci część szczegółów?",
+  "q6-2Ex": "Streszczenie jest tańsze, ale zachowuje tylko to, co uznano za ważne.",
+  "q6-2A0": "Pełny zapis rozmowy",
+  "q6-2A1": "Streszczona historia",
+  "q6-2A2": "Żadna z nich",
+  "q6-3Q": "Czym zwykle jest „pamięć” chatbota między sesjami?",
+  "q6-3Ex": "Informacje są przechowywane w notatkach, plikach lub bazie danych. Aplikacja je odnajduje i dołącza do zapytania.",
+  "q6-3A0": "Właściwością modelu",
+  "q6-3A1": "Informacjami przechowywanymi poza modelem i dołączanymi przez aplikację do promptu",
+  "q6-3A2": "Właściwością tokenizatora",
+  "c7Reflection": "Dlaczego model może błędnie dopisać Tytana do listy księżyców Marsa?",
+  "c7ModelAnswer": "Nazwa księżyca pasuje do wzorca listy księżyców. Model tworzy prawdopodobną kontynuację tekstu, zamiast sprawdzać, do której planety należy Tytan.",
+  "q7-1Q": "Co mówi pewny ton odpowiedzi modelu o jej poprawności?",
+  "q7-1Ex": "Płynność i pewny ton nie potwierdzają prawdziwości odpowiedzi. Sprawdź jej treść w źródłach.",
+  "q7-1A0": "Odpowiedź na pewno jest poprawna",
+  "q7-1A1": "Sam ton nie potwierdza poprawności ani tego, że model sprawdził źródła",
+  "q7-1A2": "Model sprawdził źródła",
+  "q7-2Q": "Jak model powinien zareagować na pytanie o obecną pogodę pod Twoim domem?",
+  "q7-2Ex": "Bez aktualnych danych i potrzebnej lokalizacji nie należy zgadywać. Aplikacja z odpowiednim narzędziem może sprawdzić pogodę.",
+  "q7-2A0": "Zgadnąć na podstawie treningu",
+  "q7-2A1": "Wskazać brak danych lub użyć odpowiedniego narzędzia",
+  "q7-2A2": "Podać średnią roczną",
+  "q7-3Q": "Który nawyk najlepiej chroni przed halucynacją?",
+  "q7-3Ex": "Twierdzenia faktograficzne trzeba sprawdzać niezależnie od tonu odpowiedzi.",
+  "q7-3A0": "Weryfikacja twierdzeń w źródłach",
+  "q7-3A1": "Dłuższy prompt",
+  "q7-3A2": "Wyższa temperatura",
+  "c8Reflection": "Co łączy prompt systemowy aplikacji z technikami opisanymi w tym rozdziale?",
+  "c8ModelAnswer": "Aplikacja określa rolę, ograniczenia i format odpowiedzi w ukrytym prompcie systemowym. Te same techniki możesz stosować w swoich poleceniach.",
+  "q8-1Q": "Co zmieniają opisane techniki pisania promptów?",
+  "q8-1Ex": "Rola, przykłady czy ograniczenia to po prostu inny tekst wejściowy.",
+  "q8-1A0": "Wagi modelu",
+  "q8-1A1": "Tekst, na podstawie którego model przewiduje dalszy ciąg",
+  "q8-1A2": "Słownik tokenów",
+  "q8-2Q": "Na czym polega few-shot?",
+  "q8-2Ex": "Model dopasowuje format i styl do pokazanych przykładów.",
+  "q8-2A0": "Na pokazaniu przykładów oczekiwanego wyniku",
+  "q8-2A1": "Na napisaniu bardzo krótkiego promptu",
+  "q8-2A2": "Na ustawieniu niskiej temperatury",
+  "q8-3Q": "Jak sprawdzić, czy dana technika pisania promptów pomaga w Twoim zadaniu?",
+  "q8-3Ex": "Porównuj wyniki na wybranym modelu i zadaniach podobnych do tych, które chcesz rozwiązywać. Ta sama technika może pomóc, niczego nie zmienić albo pogorszyć wynik.",
+  "q8-3A0": "Przeczytać poradnik",
+  "q8-3A1": "Przetestować ją na działającym modelu i konkretnym zadaniu",
+  "q8-3A2": "Zwiększyć temperaturę",
+  "c9Reflection": "Dlaczego przyczyną problemów z RAG częściej bywa jakość wyszukiwania niż sam model?",
+  "c9ModelAnswer": "Jeśli odpowiedni fragment nie znajdzie się w prompcie, model nie ma na czym oprzeć odpowiedzi. Sam lepszy model nie zastąpi brakującego źródła.",
+  "q9-1Q": "Co zmienia RAG?",
+  "q9-1Ex": "RAG nie zmienia wiedzy zapisanej w wagach modelu. Dostarcza mu odpowiednie fragmenty dokumentów w zapytaniu.",
+  "q9-1A0": "Wiedzę zapisaną w wagach modelu",
+  "q9-1A1": "To, co trafia do promptu",
+  "q9-1A2": "Tokenizator",
+  "q9-2Q": "Kiedy wyszukiwanie po słowach kluczowych może zawieść?",
+  "q9-2Ex": "Proste dopasowanie słów może nie rozpoznać parafrazy. Osadzenia pomagają uwzględnić podobieństwo znaczeń, ale także nie gwarantują znalezienia właściwego fragmentu.",
+  "q9-2A0": "Gdy pytanie wyraża ten sam sens, ale nie zawiera słów z dokumentu",
+  "q9-2A1": "Gdy dokument jest krótki",
+  "q9-2A2": "Zawsze",
+  "q9-3Q": "Co jest prawdą o zbyt dużych fragmentach dokumentu?",
+  "q9-3Ex": "Przy wyborze rozmiaru fragmentu trzeba pogodzić zachowanie kontekstu z kosztem i ilością zbędnych informacji.",
+  "q9-3A0": "Zawsze poprawiają odpowiedź",
+  "q9-3A1": "Zwiększają koszt i ilość zbędnych informacji, choć rzadziej tracą potrzebny kontekst",
+  "q9-3A2": "Są darmowe",
+  "c10Reflection": "Czym różni się model bazowy od dostrojonego do instrukcji?",
+  "c10ModelAnswer": "Model bazowy przewiduje dalszy ciąg tekstu. Model dostrojony uczy się także odpowiadać na pytania, odmawiać i wykonywać polecenia jak asystent.",
+  "q10-1Q": "Co może zrobić model bazowy po pytaniu „jak ugotować jajko?”?",
+  "q10-1Ex": "Dla modelu przewidującego tekst dopisanie kolejnych pytań również może być prawdopodobną kontynuacją.",
+  "q10-1A0": "Kontynuować kolejnymi pytaniami",
+  "q10-1A1": "Zawsze odpowiedzieć instrukcją",
+  "q10-1A2": "Zawsze odmówić",
+  "q10-2Q": "RLHF polega na:",
+  "q10-2Ex": "W klasycznym RLHF model nagrody uczy się na ocenach ludzi. Następnie pomaga ukierunkować dostrajanie modelu językowego.",
+  "q10-2A0": "Ręcznym pisaniu reguł",
+  "q10-2A1": "Uczeniu na odpowiedziach uporządkowanych według ludzkich ocen",
+  "q10-2A2": "Powiększaniu słownika",
+  "q10-3Q": "Jakie trzy wielkości porównujemy, mówiąc o skali treningu modeli?",
+  "q10-3Ex": "Ilość danych, liczba parametrów i nakład obliczeń to osobne miary. Różnice między modelami mogą sięgać rzędów wielkości. Nie podajemy tu wartości dla konkretnych modeli.",
+  "q10-3A0": "Liczba liter w alfabecie",
+  "q10-3A1": "Dane, parametry i moc obliczeniowa",
+  "q10-3A2": "Temperatura"
+});
+Object.assign(T.en, {
+  "c1Reflection": "Explain in your own words why the model \"remembers\" your name in the second turn.",
+  "c1ModelAnswer": "The app inserts the earlier conversation or selected notes into the new request’s context. The name is supplied again, not learned into the weights during this conversation.",
+  "q1-1Q": "Where does the conversation \"memory\" live in a typical AI chat?",
+  "q1-1Ex": "The model does not retain this conversation’s history between separate calls. The app inserts retained history or relevant notes into the context.",
+  "q1-1A0": "In the model weights",
+  "q1-1A1": "In the app, which resends the history every turn",
+  "q1-1A2": "In the tokenizer",
+  "q1-2Q": "What does the model receive in each request?",
+  "q1-2Ex": "The app assembles instructions, retained history and the new message into one context. It may also include tool results and documents.",
+  "q1-2A0": "Only your latest message",
+  "q1-2A1": "One long sequence: system prompt + history + new message",
+  "q1-2A2": "A link to a conversation database",
+  "q1-3Q": "You change the system prompt. What changes?",
+  "q1-3Ex": "The system prompt is plain text at the start of the request; the weights stay frozen.",
+  "q1-3A0": "The model weights",
+  "q1-3A1": "The text the model bases its prediction on",
+  "q1-3A2": "The token vocabulary",
+  "c2Reflection": "Why does the token count matter in practice?",
+  "c2ModelAnswer": "It determines the cost of a request, the speed of the answer, and how much text fits in the context window.",
+  "q2-1Q": "Why can counting letters in “strawberry” be difficult for a model?",
+  "q2-1Ex": "The model works with text-fragment IDs, not a simple list of letters. This can make counting harder, but does not make a correct answer impossible.",
+  "q2-1A0": "They do not know English",
+  "q2-1A1": "They see tokens (IDs), not individual letters",
+  "q2-1A2": "The word is too long",
+  "q2-2Q": "When a tokenizer represents Polish less efficiently than English with the same meaning:",
+  "q2-2Ex": "The piece count depends on the text and learned tokenizer vocabulary. More tokens may increase cost; there is no single fixed conversion between languages.",
+  "q2-2A0": "Polish always has fewer tokens",
+  "q2-2A1": "Polish may have more tokens and use more context",
+  "q2-2A2": "Both texts must have the same number of tokens",
+  "q2-3Q": "What is a token ID?",
+  "q2-3Ex": "An ID is just a label from the vocabulary; neighbouring numbers share no meaning.",
+  "q2-3A0": "A label number in a fixed vocabulary",
+  "q2-3A1": "The number of letters in the token",
+  "q2-3A2": "The probability of the token",
+  "c3Reflection": "Why is a token ID not enough, and an embedding needed?",
+  "c3ModelAnswer": "An ID is a label. An embedding converts it into a vector whose relationships can be compared, mixed and transformed.",
+  "q3-1Q": "What does it mean that two words have similar embeddings?",
+  "q3-1Ex": "Similar usage contexts can lead to similar representations. Vector closeness is useful, but does not guarantee identical meaning.",
+  "q3-1A0": "They are spelled similarly",
+  "q3-1A1": "They were used in similar contexts, so they lie close together",
+  "q3-1A2": "They have neighbouring IDs",
+  "q3-2Q": "How many dimensions can embeddings in large language models have?",
+  "q3-2Ex": "Language-model vectors often have thousands of dimensions. The exact size depends on the model; a 2D map is only a simplification.",
+  "q3-2A0": "Always exactly two",
+  "q3-2A1": "Always exactly three",
+  "q3-2A2": "As many as thousands",
+  "q3-3Q": "king − man + woman ≈ ?",
+  "q3-3Ex": "This is a classic illustrative analogy: directions can reflect relationships. Not every such operation works, and this is not a measurement from the app.",
+  "q3-3A0": "queen",
+  "q3-3A1": "crown",
+  "q3-3A2": "child",
+  "c4Reflection": "Why can the same word have a different representation in different sentences?",
+  "c4ModelAnswer": "Successive layers mix available context into a token’s representation. In a causal decoder, this means the current position and earlier positions, not later words.",
+  "q4-1Q": "What does the attention mechanism do?",
+  "q4-1Ex": "Attention combines available representations. In a causal decoder, these are the current position and earlier tokens, never future ones.",
+  "q4-1A0": "Lets a token’s representation use available context",
+  "q4-1A1": "Splits text into tokens",
+  "q4-1A2": "Picks the token to display",
+  "q4-2Q": "After reading the whole sentence “The trophy did not fit in the suitcase because it was too small”, what was too small?",
+  "q4-2Ex": "The container, the suitcase, is too small. This interprets the complete sentence; it does not show the earlier token “it” seeing the future ending.",
+  "q4-2A0": "trophy",
+  "q4-2A1": "suitcase",
+  "q4-2A2": "because",
+  "q4-3Q": "How many attention layers and heads does a real transformer have?",
+  "q4-3Ex": "Heads and successive layers process different relationships. Their number depends on the model architecture.",
+  "q4-3A0": "One layer",
+  "q4-3A1": "Many layers, each with many heads",
+  "q4-3A2": "As many as there are tokens",
+  "c5Reflection": "How does a hallucination arise from the \"one token at a time\" loop?",
+  "c5ModelAnswer": "The model picks a plausible continuation rather than checking facts. A wrong token can look just as likely as a right one, and the following tokens continue it fluently.",
+  "q5-1Q": "What is the model's output in one step?",
+  "q5-1Ex": "One generation step produces a distribution over possible next tokens. The decoding procedure selects a token from it.",
+  "q5-1A0": "A whole sentence",
+  "q5-1A1": "A probability distribution over every token in the vocabulary",
+  "q5-1A2": "One certain fact",
+  "q5-2Q": "High temperature:",
+  "q5-2Ex": "Higher temperature flattens the distribution, giving less typical tokens more opportunity. It does not guarantee creativity or correctness in every case.",
+  "q5-2A0": "Sharpens the distribution",
+  "q5-2A1": "Flattens the distribution: more variety and more risk",
+  "q5-2A2": "Changes nothing",
+  "q5-3Q": "Why does greedy selection choose the same token from the same distribution?",
+  "q5-3Ex": "Greedy selection takes the highest-scoring token instead of sampling. We mean the same table of scores, not a guarantee about every real model run.",
+  "q5-3A0": "Because the model has memory",
+  "q5-3A1": "Because it always picks the highest-probability token",
+  "q5-3A2": "Because the temperature is high",
+  "c6Reflection": "Why does a long conversation get more expensive over time?",
+  "c6ModelAnswer": "Retained history is often sent again on later turns. Sending more tokens can increase cost, which is why apps trim or summarise the context.",
+  "q6-1Q": "What happens when a conversation exceeds the context window?",
+  "q6-1Ex": "A request has a limited context budget. The app must choose what to send; it may also reject a request that is too long.",
+  "q6-1A0": "The model stores the rest in its weights",
+  "q6-1A1": "The app must trim or summarise something",
+  "q6-1A2": "The request becomes free",
+  "q6-2Q": "Which strategy sends fewer tokens but loses some detail?",
+  "q6-2Ex": "A summary is cheaper but keeps only what was judged important.",
+  "q6-2A0": "Raw history",
+  "q6-2A1": "Summarised history",
+  "q6-2A2": "Neither",
+  "q6-3Q": "A chatbot's \"memory\" across sessions is usually:",
+  "q6-3Ex": "Notes, files or a database; the app recalls facts and inserts them into the request.",
+  "q6-3A0": "A feature of the model",
+  "q6-3A1": "An external store of the app, pasted into the prompt",
+  "q6-3A2": "A feature of the tokenizer",
+  "c7Reflection": "Why can the model \"blend\" Titan into a list of Mars's moons?",
+  "c7ModelAnswer": "Because a moon name statistically fits the pattern \"list of moons\". The model produces a plausible continuation rather than checking which planet Titan belongs to.",
+  "q7-1Q": "A confident tone in the model's answer means:",
+  "q7-1Ex": "Fluency and a confident tone are not evidence of truth. Check the content and its support in sources.",
+  "q7-1A0": "The answer is correct",
+  "q7-1A1": "Does not confirm correctness or source checking",
+  "q7-1A2": "The model checked its sources",
+  "q7-2Q": "The right reaction to \"what is the weather at my house right now?\":",
+  "q7-2Ex": "Without current data and the needed location, the model should not guess. An app with an appropriate tool may check the weather.",
+  "q7-2A0": "Guess from training data",
+  "q7-2A1": "State the missing-data limitation or use a suitable tool",
+  "q7-2A2": "Give the annual average",
+  "q7-3Q": "Which habit best protects against hallucination?",
+  "q7-3Ex": "Factual claims must be checked regardless of how the answer sounds.",
+  "q7-3A0": "Verifying claims against sources",
+  "q7-3A1": "A longer prompt",
+  "q7-3A2": "A higher temperature",
+  "c8Reflection": "What connects the app's system prompt with the techniques at this station?",
+  "c8ModelAnswer": "They are the same techniques. The app applies role, constraints and format in a hidden system prompt; here you use them explicitly.",
+  "q8-1Q": "Prompting techniques change:",
+  "q8-1Ex": "A role, examples or constraints are simply different input text.",
+  "q8-1A0": "The model weights",
+  "q8-1A1": "The text the model bases its prediction on",
+  "q8-1A2": "The token vocabulary",
+  "q8-2Q": "Few-shot means:",
+  "q8-2Ex": "The model matches the format and style of the examples shown.",
+  "q8-2A0": "Showing examples of the desired output",
+  "q8-2A1": "A very short prompt",
+  "q8-2A2": "A low temperature",
+  "q8-3Q": "How can you assess whether a prompting technique helps your task?",
+  "q8-3Ex": "Compare results on a specific model and representative tasks. The same technique may help, make no difference or hurt.",
+  "q8-3A0": "Read a guide",
+  "q8-3A1": "Test it on the live model and the actual task",
+  "q8-3A2": "Raise the temperature",
+  "c9Reflection": "Why is retrieval quality more often the bottleneck than the model itself?",
+  "c9ModelAnswer": "If the relevant chunk never reaches the prompt, the model has nothing to base its answer on, no matter how good it is.",
+  "q9-1Q": "What does RAG change?",
+  "q9-1Ex": "The model does not \"know\" more; it receives relevant chunks as part of the request.",
+  "q9-1A0": "The knowledge stored in the model weights",
+  "q9-1A1": "What goes into the prompt",
+  "q9-1A2": "The tokenizer",
+  "q9-2Q": "Keyword retrieval fails when:",
+  "q9-2Ex": "A simple word match may miss a paraphrase. Embeddings help account for similarity of meaning, but do not guarantee a relevant result.",
+  "q9-2A0": "The question is a paraphrase with no shared words",
+  "q9-2A1": "The document is short",
+  "q9-2A2": "Always",
+  "q9-3Q": "Chunks that are too big:",
+  "q9-3Ex": "Chunk size is a trade-off between context and noise plus cost.",
+  "q9-3A0": "Always improve the answer",
+  "q9-3A1": "Add noise and cost, though they lose context less often",
+  "q9-3A2": "Are free",
+  "c10Reflection": "How does a base model differ from an instruction-tuned one?",
+  "c10ModelAnswer": "A base model only predicts the continuation of any text. A tuned model has been taught to answer, refuse and follow instructions like an assistant.",
+  "q10-1Q": "A base model asked \"how do I boil an egg?\" may:",
+  "q10-1Ex": "To a text predictor, a list of questions is an equally plausible continuation.",
+  "q10-1A0": "Continue with more questions",
+  "q10-1A1": "Always answer with instructions",
+  "q10-1A2": "Always refuse",
+  "q10-2Q": "RLHF consists of:",
+  "q10-2Ex": "In classic RLHF, human judgements train a reward model that helps direct further language-model tuning.",
+  "q10-2A0": "Writing rules by hand",
+  "q10-2A1": "Learning from human rankings of answers",
+  "q10-2A2": "Enlarging the vocabulary",
+  "q10-3Q": "Which three quantities do we compare when discussing model training scale?",
+  "q10-3Ex": "Data amount, parameter count and computational work are separate quantities. They may differ by orders of magnitude; we are not assigning numbers to specific models.",
+  "q10-3A0": "The number of letters in the alphabet",
+  "q10-3A1": "Data, parameters and compute",
+  "q10-3A2": "The temperature"
+});
+
+// ─── State ───
+function initialState() { return {version: 1, lang: 'pl', chapter: 1, screen: 'lesson', completed: [], answers: {}, score: 0, storageStatus: 'ok', indexOpen: false}; }
+const state = initialState();
+
+// ─── DOM refs ───
+const refs = {
+  app: document.getElementById('app'), workspace: document.getElementById('workspace'),
+  chapterList: document.getElementById('chapterList'), chapterNav: document.getElementById('chapterNav'),
+  chapterIndex: document.getElementById('chapterIndex'), mobileIndexLabel: document.getElementById('mobileIndexLabel'),
+  progressLabel: document.getElementById('progressLabel'), progressValue: document.getElementById('progressValue'),
+  readingProgress: document.getElementById('readingProgress'), savingNotice: document.getElementById('savingNotice'),
+  languageSwitch: document.getElementById('languageSwitch'), shortcutHelp: document.getElementById('shortcutHelp'),
+  live: document.getElementById('liveStatus'), dialog: document.getElementById('verificationDialog'),
+  verificationList: document.getElementById('verificationList')
+};
+
+// ─── Helpers ───
+function t(key, values = {}) {
+  const value = T[state.lang]?.[key] ?? T.pl[key] ?? key;
+  return value.replace(/\{(\w+)\}/g, (match, name) => Object.hasOwn(values, name) ? String(values[name]) : match);
+}
+function node(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+function button(labelKey, action, className = 'button') {
+  const element = node('button', className, t(labelKey));
+  element.type = 'button';
+  element.dataset.action = action;
+  return element;
+}
+function chapterQuestions(chapter = state.chapter) { return QUESTIONS.filter(question => question.chapter === chapter); }
+function stats(chapter) {
+  const questions = chapter === undefined ? QUESTIONS : chapterQuestions(chapter);
+  return questions.reduce((result, question) => {
+    if (Object.hasOwn(state.answers, question.id)) {
+      result.answered += 1;
+      if (state.answers[question.id] === question.correct) result.correct += 1;
+    }
+    return result;
+  }, {answered: 0, correct: 0, total: questions.length});
+}
+function isRecord(value) { return value !== null && typeof value === 'object' && !Array.isArray(value); }
+function validChapter(chapter) { return Number.isInteger(chapter) && chapter >= 1 && chapter <= TOTAL; }
+function readSavedState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) return;
+    const saved = JSON.parse(raw);
+    if (!isRecord(saved) || saved.version !== 1) { state.storageStatus = 'recovered'; return; }
+    let repaired = false;
+    if (['pl', 'en'].includes(saved.lang)) state.lang = saved.lang; else repaired = true;
+    if (validChapter(saved.chapter)) state.chapter = saved.chapter; else repaired = true;
+    if (Array.isArray(saved.completed)) {
+      state.completed = [...new Set(saved.completed.filter(validChapter))].sort((a, b) => a - b);
+      if (state.completed.length !== saved.completed.length) repaired = true;
+    } else repaired = true;
+    if (isRecord(saved.answers)) {
+      for (const [id, answer] of Object.entries(saved.answers)) {
+        const question = QUESTIONS.find(item => item.id === id);
+        if (question && Number.isInteger(answer) && answer >= 0 && answer < question.options) state.answers[id] = answer;
+        else repaired = true;
+      }
+    } else repaired = true;
+    if (repaired) state.storageStatus = 'recovered';
+  } catch (error) {
+    state.storageStatus = error instanceof SyntaxError ? 'recovered' : 'blocked';
+  }
+}
+function persist() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({version: 1, lang: state.lang, chapter: state.chapter, completed: state.completed, answers: state.answers}));
+    if (state.storageStatus === 'blocked') state.storageStatus = 'ok';
+  } catch { state.storageStatus = 'blocked'; }
+}
+function hashChapter() {
+  const match = /^#chapter-(\d+)$/.exec(location.hash);
+  const chapter = match ? Number(match[1]) : null;
+  return validChapter(chapter) ? chapter : null;
+}
+function focusLesson(scroll = true) {
+  const title = document.getElementById('lessonTitle');
+  if (!title) return;
+  title.focus({preventScroll: true});
+  if (scroll) title.scrollIntoView({block: 'start', behavior: 'auto'});
+}
+function announce(message) { refs.live.textContent = message; }
+function navigate(chapter, options = {}) {
+  if (!validChapter(chapter)) return false;
+  state.chapter = chapter;
+  state.screen = 'lesson';
+  state.indexOpen = false;
+  persist();
+  render();
+  if (options.updateHash !== false && location.hash !== '#chapter-' + chapter) location.hash = 'chapter-' + chapter;
+  if (options.focus !== false) focusLesson();
+  return true;
+}
+function setLanguage(lang) {
+  if (!['pl', 'en'].includes(lang)) return false;
+  const scrollY = window.scrollY;
+  state.lang = lang;
+  persist();
+  render();
+  window.scrollTo({top: scrollY, behavior: 'auto'});
+  return true;
+}
+function chooseAnswer(questionId, choice) {
+  const question = QUESTIONS.find(item => item.id === questionId && item.chapter === state.chapter);
+  if (state.screen !== 'lesson' || !question || Object.hasOwn(state.answers, questionId) || !Number.isInteger(choice) || choice < 0 || choice >= question.options) return;
+  state.answers[questionId] = choice;
+  persist();
+  updateContract();
+  renderProgress();
+  const wrapper = refs.workspace.querySelector('[data-question-id="' + questionId + '"]');
+  applyAnswerState(wrapper, question);
+  announce(t(choice === question.correct ? 'correct' : 'wrong') + ' ' + t(question.id + 'Ex'));
+}
+function markComplete() {
+  if (state.screen !== 'lesson' || state.completed.includes(state.chapter)) return;
+  state.completed.push(state.chapter);
+  state.completed.sort((a, b) => a - b);
+  persist();
+  updateContract();
+  renderProgress();
+  renderNavigation();
+  const completeButton = refs.workspace.querySelector('[data-action="complete"]');
+  completeButton.textContent = t('completed');
+  completeButton.disabled = true;
+  announce(t('completedAnnouncement'));
+}
+function showResults() {
+  state.screen = 'results';
+  state.indexOpen = false;
+  render();
+  focusLesson();
+}
+function retryChapter() {
+  if (state.screen !== 'lesson') return;
+  for (const question of chapterQuestions()) delete state.answers[question.id];
+  persist();
+  render();
+  const firstQuestion = refs.workspace.querySelector('.question-title');
+  if (firstQuestion) { firstQuestion.tabIndex = -1; firstQuestion.focus({preventScroll: true}); }
+  announce(t('retryAnnouncement'));
+}
+function resetProgress() {
+  if (!window.confirm(t('resetConfirm'))) return;
+  const lang = state.lang;
+  const storageStatus = state.storageStatus;
+  Object.assign(state, initialState(), {lang, storageStatus});
+  navigate(1);
+  announce(t('resetAnnouncement'));
+}
+
+// ─── Render ───
+function updateContract() {
+  state.score = stats().correct;
+  Object.assign(refs.app.dataset, {screen: state.screen, chapter: String(state.chapter), total: String(TOTAL), lang: state.lang, completed: String(state.completed.length), score: String(state.score)});
+}
+function renderChrome() {
+  document.documentElement.lang = state.lang;
+  document.title = t('documentTitle');
+  document.querySelectorAll('[data-i18n]').forEach(element => { element.textContent = t(element.dataset.i18n); });
+  document.querySelectorAll('[data-lang-target]').forEach(element => { element.setAttribute('aria-pressed', String(element.dataset.langTarget === state.lang)); });
+  refs.languageSwitch.setAttribute('aria-label', t('language'));
+  refs.chapterNav.setAttribute('aria-label', t('contents'));
+  refs.shortcutHelp.replaceChildren(document.createTextNode(t('shortcutPrefix') + ' '));
+  for (const [key, label] of [['← / →', 'shortcutNav'], ['1–4', 'shortcutAnswers'], ['Enter', 'shortcutNext']]) {
+    refs.shortcutHelp.append(node('kbd', '', key), document.createTextNode(' ' + t(label) + '. '));
+  }
+}
+function renderProgress() {
+  refs.progressLabel.textContent = t('progressLabel');
+  refs.progressValue.textContent = t('progressValue', {done: state.completed.length, total: TOTAL});
+  refs.readingProgress.value = state.completed.length;
+  refs.readingProgress.setAttribute('aria-valuetext', t('progressValue', {done: state.completed.length, total: TOTAL}));
+  refs.savingNotice.hidden = state.storageStatus === 'ok';
+  refs.savingNotice.textContent = state.storageStatus === 'ok' ? '' : t(state.storageStatus === 'blocked' ? 'storageBlocked' : 'storageRecovered');
+  refs.savingNotice.dataset.storage = state.storageStatus;
+}
+function renderNavigation() {
+  refs.chapterList.replaceChildren();
+  for (const chapter of CHAPTERS) {
+    const item = node('li');
+    const link = node('button', 'chapter-link');
+    link.type = 'button';
+    link.dataset.chapterTarget = String(chapter.id);
+    const completed = state.completed.includes(chapter.id);
+    if (chapter.id === state.chapter) link.setAttribute('aria-current', 'step');
+    link.setAttribute('aria-label', t('chapterLabel', {chapter: chapter.id, title: t('c' + chapter.id + 'Nav')}) + (completed ? ', ' + t('done') : ''));
+    link.append(node('span', 'chapter-number', String(chapter.id).padStart(2, '0')), node('span', 'chapter-name', t('c' + chapter.id + 'Nav')));
+    if (completed) { const tick = node('span', 'chapter-done', '✓'); tick.setAttribute('aria-hidden', 'true'); link.append(tick); }
+    item.append(link);
+    refs.chapterList.append(item);
+  }
+  refs.chapterIndex.dataset.expanded = String(state.indexOpen);
+  const toggle = refs.chapterIndex.querySelector('[data-action="toggle-index"]');
+  toggle.setAttribute('aria-expanded', String(state.indexOpen));
+  refs.mobileIndexLabel.textContent = t('mobileIndex', {chapter: state.chapter, total: TOTAL});
+}
+function buildExample(chapter) {
+  const prefix = 'c' + chapter.id;
+  const example = node('section', 'example' + (chapter.example === 'stack' ? ' example-stack' : ''));
+  example.dataset.example = String(chapter.id);
+  const title = node('h3', 'example-title', t(prefix + 'ExampleTitle'));
+  title.id = 'exampleTitle';
+  example.setAttribute('aria-labelledby', title.id);
+  example.append(title);
+  if (chapter.example === 'tokens') {
+    const flow = node('div', 'token-flow');
+    for (const piece of ['str', 'aw', 'berr', 'y']) {
+      const token = node('span', 'token');
+      for (const letter of piece) token.append(letter === 'r' ? node('strong', '', letter) : document.createTextNode(letter));
+      flow.append(token);
+    }
+    example.append(flow, node('p', 'token-flow-note', t('c2TokenNote')));
+  }
+  if (chapter.example === 'generation') {
+    const distribution = node('div', 'probabilities');
+    [40, 18, 15, 12, 9, 6].forEach((value, index) => {
+      const row = node('div', 'probability-row');
+      const label = node('span', '', t('c5Candidate' + (index + 1)));
+      const bar = node('progress');
+      bar.max = 100;
+      bar.value = value;
+      bar.setAttribute('aria-label', label.textContent);
+      row.append(label, bar, node('span', '', value + '%'));
+      distribution.append(row);
+    });
+    example.append(distribution);
+  }
+  const grid = node('div', 'example-grid');
+  for (let index = 1; index <= (chapter.pieces || 2); index += 1) {
+    const piece = node('div', 'example-piece');
+    piece.append(node('h4', 'example-label', t(prefix + 'Example' + index + 'Label')), node('p', 'example-copy', t(prefix + 'Example' + index)));
+    grid.append(piece);
+  }
+  example.append(grid, node('p', 'example-note', t(prefix + 'ExampleNote')));
+  return example;
+}
+function applyAnswerState(wrapper, question) {
+  if (!wrapper) return;
+  const answered = Object.hasOwn(state.answers, question.id);
+  const selected = state.answers[question.id];
+  if (answered) {
+    wrapper.dataset.selected = String(selected);
+    wrapper.dataset.correct = String(selected === question.correct);
+  } else { delete wrapper.dataset.selected; delete wrapper.dataset.correct; }
+  wrapper.querySelectorAll('[data-answer]').forEach(option => {
+    const choice = Number(option.dataset.answer);
+    option.disabled = answered;
+    option.setAttribute('aria-pressed', String(answered && choice === selected));
+    const status = option.querySelector('.answer-status');
+    if (answered) {
+      option.dataset.selected = String(choice === selected);
+      option.dataset.correct = String(choice === question.correct);
+      status.textContent = choice === selected ? t(choice === question.correct ? 'yourCorrectAnswer' : 'yourAnswer') : choice === question.correct ? t('correctAnswer') : '';
+    } else {
+      delete option.dataset.selected;
+      delete option.dataset.correct;
+      status.textContent = '';
+    }
+    status.hidden = !status.textContent;
+  });
+  const feedback = wrapper.querySelector('.question-feedback');
+  feedback.hidden = !answered;
+  feedback.textContent = answered ? t(selected === question.correct ? 'correct' : 'wrong') + ' ' + t(question.id + 'Ex') : '';
+  const retryButton = refs.workspace.querySelector('[data-action="retry"]');
+  if (retryButton) retryButton.disabled = stats(state.chapter).answered === 0;
+}
+function buildQuestion(question, index, total) {
+  const wrapper = node('section', 'question');
+  wrapper.dataset.questionId = question.id;
+  const title = node('h4', 'question-title', t(question.id + 'Q'));
+  title.id = question.id + '-title';
+  wrapper.setAttribute('aria-labelledby', title.id);
+  wrapper.append(node('div', 'question-number', t('questionNumber', {n: index + 1, total})), title);
+  const options = node('div', 'answer-list');
+  options.setAttribute('role', 'group');
+  options.setAttribute('aria-labelledby', title.id);
+  for (let choice = 0; choice < question.options; choice += 1) {
+    const option = node('button', 'answer');
+    option.type = 'button';
+    option.dataset.answer = String(choice);
+    const number = node('span', 'answer-number', String(choice + 1));
+    number.setAttribute('aria-hidden', 'true');
+    const label = node('span', 'answer-label', t(question.id + 'A' + choice));
+    const status = node('span', 'answer-status');
+    status.hidden = true;
+    label.append(status);
+    option.append(number, label);
+    options.append(option);
+  }
+  const feedback = node('div', 'question-feedback');
+  feedback.id = question.id + '-feedback';
+  feedback.hidden = true;
+  wrapper.append(options, feedback);
+  applyAnswerState(wrapper, question);
+  return wrapper;
+}
+function buildQuiz() {
+  const questions = chapterQuestions();
+  const quiz = node('section', 'knowledge-check');
+  const title = node('h3', '', t('quizTitle'));
+  title.id = 'quizTitle';
+  quiz.setAttribute('aria-labelledby', title.id);
+  quiz.append(title, node('p', 'quiz-intro', t('quizIntro')));
+  questions.forEach((question, index) => quiz.append(buildQuestion(question, index, questions.length)));
+  const retryRow = node('div', 'retry-row');
+  const retry = button('retry', 'retry');
+  retry.disabled = stats(state.chapter).answered === 0;
+  retryRow.append(retry, node('p', 'retry-note', t('retryNote')));
+  quiz.append(retryRow);
+  const reflection = node('details', 'reflection');
+  reflection.append(node('summary', '', t('reflection')), node('p', 'reflection-question', t('c' + state.chapter + 'Reflection')), node('p', '', t('reflectionHint')));
+  const model = node('details', 'model-answer');
+  model.append(node('summary', '', t('modelAnswer')), node('p', '', t('c' + state.chapter + 'ModelAnswer')));
+  reflection.append(model);
+  quiz.append(reflection);
+  return quiz;
+}
+function buildControls() {
+  const controls = node('section', 'lesson-controls');
+  const reading = node('div', 'reading-row');
+  const complete = button(state.completed.includes(state.chapter) ? 'completed' : 'complete', 'complete');
+  complete.disabled = state.completed.includes(state.chapter);
+  reading.append(node('p', '', t('readingHint')), complete);
+  const navigation = node('div', 'navigation-row');
+  const previous = button('previous', 'prev');
+  previous.disabled = state.chapter === 1;
+  const next = button(state.chapter === TOTAL ? 'results' : 'next', state.chapter === TOTAL ? 'results' : 'next', 'button primary next-button');
+  navigation.append(previous, next);
+  controls.append(reading, navigation);
+  return controls;
+}
+function renderLesson() {
+  const chapter = CHAPTERS[state.chapter - 1];
+  const prefix = 'c' + state.chapter;
+  const heading = node('header', 'lesson-heading');
+  const title = node('h2', 'lesson-title', t(prefix + 'Title'));
+  title.id = 'lessonTitle';
+  title.tabIndex = -1;
+  heading.append(title, node('p', 'lesson-intro', t(prefix + 'Intro')));
+  refs.workspace.append(heading, buildExample(chapter));
+  const sections = state.chapter === TOTAL ? node('ol', 'recap-list') : node('div', 'lesson-sections');
+  for (let index = 1; index <= chapter.sections; index += 1) {
+    const section = node(state.chapter === TOTAL ? 'li' : 'section', state.chapter === TOTAL ? 'recap-item' : 'lesson-section');
+    section.dataset.topic = prefix + '-' + index;
+    const content = node('div');
+    content.append(node('h3', 'section-title', t(prefix + 'H' + index)), node('p', '', t(prefix + 'P' + index)));
+    if (state.chapter === 4 && index === 2) {
+      const source = node('a', 'source-link', t('causalSource'));
+      source.href = 'https://arxiv.org/html/1706.03762v7#S3.SS1';
+      source.target = '_blank';
+      source.rel = 'noopener noreferrer';
+      content.append(source);
+    }
+    if (state.chapter === TOTAL) section.append(node('span', 'recap-number', String(index)));
+    section.append(content);
+    sections.append(section);
+  }
+  const takeaway = node('section', 'takeaway edu-block');
+  takeaway.dataset.takeaway = String(state.chapter);
+  takeaway.append(node('h3', '', t('takeaway')), node('p', '', t(prefix + 'Takeaway')));
+  const caveat = node('p', 'caveat');
+  caveat.dataset.caveat = String(state.chapter);
+  caveat.append(node('strong', '', t('caveat')), document.createTextNode(t(prefix + 'Caveat')));
+  refs.workspace.append(sections, takeaway, caveat);
+  if (chapterQuestions().length) refs.workspace.append(buildQuiz());
+  refs.workspace.append(buildControls());
+}
+function renderResults() {
+  const totalStats = stats();
+  const title = node('h2', 'lesson-title', t('resultsTitle'));
+  title.id = 'lessonTitle';
+  title.tabIndex = -1;
+  refs.workspace.append(title, node('p', 'lesson-intro', t('resultsIntro')));
+  const cards = node('div', 'results-stats');
+  for (const [value, label, type] of [[state.completed.length + ' / ' + TOTAL, 'readStat', 'reading'], [totalStats.correct + ' / ' + totalStats.answered, 'scoreStat', 'quiz']]) {
+    const card = node('div', 'stat-card');
+    card.dataset.result = type;
+    card.append(node('strong', 'stat-number', value), node('span', 'stat-label', t(label)));
+    cards.append(card);
+  }
+  refs.workspace.append(cards, node('p', '', t(totalStats.answered === 0 ? 'emptyResults' : 'unanswered', {count: totalStats.total - totalStats.answered})));
+  const list = node('ul', 'result-list');
+  for (const chapter of CHAPTERS) {
+    const item = node('li', 'result-item');
+    item.dataset.resultChapter = String(chapter.id);
+    const detail = node('div');
+    detail.append(node('strong', '', chapter.id + '. ' + t('c' + chapter.id + 'Nav')), node('small', '', t(state.completed.includes(chapter.id) ? 'done' : 'notRead')));
+    detail.append(node('small', '', chapter.id === TOTAL ? t('recapNoQuiz') : t('resultQuestions', stats(chapter.id))));
+    const open = button('returnToChapter', 'open-chapter');
+    open.dataset.chapter = String(chapter.id);
+    open.setAttribute('aria-label', t('chapterLabel', {chapter: chapter.id, title: t('c' + chapter.id + 'Nav')}));
+    item.append(detail, open);
+    list.append(item);
+  }
+  refs.workspace.append(list, button('continueLearning', 'return', 'button primary'));
+}
+function render() {
+  updateContract();
+  renderChrome();
+  renderProgress();
+  renderNavigation();
+  refs.workspace.replaceChildren();
+  if (state.screen === 'results') renderResults(); else renderLesson();
+}
+function verify() {
+  const safeLanguage = ['pl', 'en'].includes(state.lang) ? state.lang : 'pl';
+  const checks = [
+    ['verifyState', () => validChapter(state.chapter) && ['lesson', 'results'].includes(state.screen) && ['pl', 'en'].includes(state.lang) && Array.isArray(state.completed) && state.completed.every(validChapter) && new Set(state.completed).size === state.completed.length && isRecord(state.answers) && Number.isInteger(state.score) && state.score >= 0],
+    ['verifyContract', () => {
+      const totalStats = stats();
+      const dataset = refs.app.dataset;
+      return refs.app.isConnected && dataset.screen === state.screen && Number(dataset.chapter) === state.chapter && Number(dataset.total) === TOTAL && dataset.lang === state.lang && Number(dataset.completed) === state.completed.length && Number(dataset.score) === totalStats.correct && state.score === totalStats.correct;
+    }],
+    ['verifyNav', () => {
+      const nav = [...refs.chapterList.querySelectorAll('[data-chapter-target]')];
+      return refs.chapterList.isConnected && nav.length === TOTAL && nav.every((item, index) => Number(item.dataset.chapterTarget) === index + 1) && nav.filter(item => item.getAttribute('aria-current') === 'step').length === 1 && nav[state.chapter - 1]?.getAttribute('aria-current') === 'step';
+    }],
+    ['verifyLanguage', () => document.documentElement.lang === state.lang && JSON.stringify(Object.keys(T.pl).sort()) === JSON.stringify(Object.keys(T.en).sort()) && ['pl', 'en'].every(lang => Object.values(T[lang]).every(value => typeof value === 'string' && value.length > 0))],
+    ['verifyContent', () => CHAPTERS.length === TOTAL && CHAPTERS.every(chapter => ['pl', 'en'].every(lang => ['Title', 'Intro', 'ExampleTitle', 'Example1', 'Example2', 'Takeaway', 'Caveat'].every(suffix => T[lang]['c' + chapter.id + suffix]?.length > 5) && Array.from({length: chapter.sections}, (_, index) => index + 1).every(index => T[lang]['c' + chapter.id + 'H' + index]?.length > 0 && T[lang]['c' + chapter.id + 'P' + index]?.length > 60)))],
+    ['verifyQuiz', () => QUESTIONS.length === 30 && new Set(QUESTIONS.map(question => question.id)).size === QUESTIONS.length && QUESTIONS.every(question => validChapter(question.chapter) && question.chapter < TOTAL && question.correct >= 0 && question.correct < question.options && question.options >= 2 && question.options <= 4 && ['pl', 'en'].every(lang => [question.id + 'Q', question.id + 'Ex', ...Array.from({length: question.options}, (_, index) => question.id + 'A' + index)].every(key => typeof T[lang][key] === 'string'))) && isRecord(state.answers) && Object.entries(state.answers).every(([id, answer]) => {
+      const question = QUESTIONS.find(item => item.id === id);
+      return question && Number.isInteger(answer) && answer >= 0 && answer < question.options;
+    })],
+    ['verifyVisible', () => refs.workspace.isConnected && document.getElementById('lessonTitle')?.textContent === t(state.screen === 'results' ? 'resultsTitle' : 'c' + state.chapter + 'Title') && (state.screen === 'results' ? refs.workspace.querySelectorAll('[data-result-chapter]').length === TOTAL : refs.workspace.querySelectorAll('[data-topic]').length === CHAPTERS[state.chapter - 1].sections && !!refs.workspace.querySelector('[data-example="' + state.chapter + '"]') && !!refs.workspace.querySelector('[data-takeaway="' + state.chapter + '"]') && !!refs.workspace.querySelector('[data-caveat="' + state.chapter + '"]'))],
+    ['verifyAnswers', () => state.screen === 'results' ? refs.workspace.querySelectorAll('[data-question-id]').length === 0 : refs.workspace.querySelectorAll('[data-question-id]').length === chapterQuestions().length && chapterQuestions().every(question => {
+      const wrapper = refs.workspace.querySelector('[data-question-id="' + question.id + '"]');
+      if (!wrapper) return false;
+      const answered = Object.hasOwn(state.answers, question.id);
+      const options = [...wrapper.querySelectorAll('[data-answer]')];
+      return options.length === question.options && (answered ? Number(wrapper.dataset.selected) === state.answers[question.id] && wrapper.dataset.correct === String(state.answers[question.id] === question.correct) : !Object.hasOwn(wrapper.dataset, 'selected')) && options.every((option, index) => Number(option.dataset.answer) === index && option.disabled === answered && (answered ? option.dataset.selected === String(index === state.answers[question.id]) && option.dataset.correct === String(index === question.correct) : !Object.hasOwn(option.dataset, 'selected'))) && wrapper.querySelector('.question-feedback').hidden === !answered;
+    })],
+    ['verifyProgress', () => {
+      const totalStats = stats();
+      return refs.readingProgress.isConnected && refs.readingProgress.max === TOTAL && refs.readingProgress.value === state.completed.length && totalStats.correct <= totalStats.answered && totalStats.answered <= QUESTIONS.length && (state.screen !== 'results' || !!refs.workspace.querySelector('[data-result="reading"]') && !!refs.workspace.querySelector('[data-result="quiz"]'));
+    }]
+  ];
+  return checks.map(([key, probe]) => {
+    try { return {name: T[safeLanguage][key], pass: Boolean(probe())}; }
+    catch { return {name: T[safeLanguage][key], pass: false, detail: T[safeLanguage].verifyUnreadable}; }
+  });
+}
+function showVerification() {
+  refs.verificationList.replaceChildren();
+  for (const result of verify()) {
+    const item = node('li');
+    item.dataset.pass = String(result.pass);
+    item.append(node('strong', '', t(result.pass ? 'pass' : 'fail')), document.createTextNode(result.name));
+    if (result.detail) item.append(node('small', '', result.detail));
+    refs.verificationList.append(item);
+  }
+  refs.dialog.showModal();
+}
+
+// ─── Listeners ───
+document.addEventListener('click', event => {
+  if (event.target.closest('a.brand') && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+    event.preventDefault();
+    navigate(1);
+    return;
+  }
+  const target = event.target.closest('button');
+  if (!target || target.disabled) return;
+  if (target.dataset.chapterTarget) { navigate(Number(target.dataset.chapterTarget)); return; }
+  if (target.dataset.langTarget) { setLanguage(target.dataset.langTarget); return; }
+  if (target.hasAttribute('data-answer')) { chooseAnswer(target.closest('[data-question-id]').dataset.questionId, Number(target.dataset.answer)); return; }
+  switch (target.dataset.action) {
+    case 'next': navigate(Math.min(TOTAL, state.chapter + 1)); break;
+    case 'prev': navigate(Math.max(1, state.chapter - 1)); break;
+    case 'complete': markComplete(); break;
+    case 'results': showResults(); break;
+    case 'return': navigate(state.chapter); break;
+    case 'open-chapter': navigate(Number(target.dataset.chapter)); break;
+    case 'retry': retryChapter(); break;
+    case 'reset': resetProgress(); break;
+    case 'verify': showVerification(); break;
+    case 'close-verification': refs.dialog.close(); break;
+    case 'toggle-index': state.indexOpen = !state.indexOpen; renderNavigation(); break;
+  }
+});
+document.addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey || refs.dialog.open) return;
+  const target = event.target instanceof Element ? event.target : document.activeElement;
+  if (target?.closest('button, a, input, textarea, select, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="textbox"]')) return;
+  if (state.screen !== 'lesson') return;
+  if (event.key === 'ArrowLeft') { event.preventDefault(); navigate(Math.max(1, state.chapter - 1)); }
+  else if (event.key === 'ArrowRight') { event.preventDefault(); navigate(Math.min(TOTAL, state.chapter + 1)); }
+  else if (event.key === 'Enter') { event.preventDefault(); if (state.chapter === TOTAL) showResults(); else navigate(state.chapter + 1); }
+  else if (/^[1-4]$/.test(event.key)) {
+    const question = chapterQuestions().find(item => !Object.hasOwn(state.answers, item.id));
+    if (question && Number(event.key) <= question.options) { event.preventDefault(); chooseAnswer(question.id, Number(event.key) - 1); }
+  }
+});
+window.addEventListener('hashchange', () => {
+  const chapter = hashChapter();
+  if (chapter && (chapter !== state.chapter || state.screen !== 'lesson')) navigate(chapter, {updateHash: false});
+});
+
+// ─── Init ───
+readSavedState();
+const linkedChapter = hashChapter();
+if (linkedChapter) state.chapter = linkedChapter;
+window.App = {state, navigate, setLanguage, verify};
+render();
+</script>
+</body>
+</html>
