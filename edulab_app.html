@@ -10,6 +10,9 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=202609281325">
 <meta name="theme-color" content="#FFD500">
 <title>Co dzieje się w chatbocie? · edulab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap">
 <style>
 /* ============================================================
    edulab – Colors & Type foundation
@@ -17,7 +20,6 @@
    Foundations" for substitution notes.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap');
 
 :root {
   /* ---- Brand fonts ---- */
@@ -195,7 +197,7 @@ body.edu { background: var(--paper); color: var(--ink); font-family: var(--font-
   --app-width: 1100px;
   --app-index-width: 230px;
   --app-header-height: 81px;
-  --app-page-title: clamp(2rem, 4.5vw, 2.85rem);
+  --app-page-title: clamp(2.3rem, 5vw, 3.3rem);
   --app-lesson-title: clamp(1.75rem, 3vw, 2.3rem);
   --app-section-title: 1.35rem;
   --app-example-title: 1.125rem;
@@ -213,10 +215,10 @@ body.edu { background: var(--paper); color: var(--ink); font-family: var(--font-
   --app-title-tracking: -.025em;
   --app-mono-tracking: .02em;
   --app-body-align: start;
-  --app-hero-align: center;
+  --app-hero-align: start;
   --app-functional-align: center;
   --app-end-align: end;
-  --app-header-bg: color-mix(in srgb, var(--paper) 90%, transparent);
+  --app-header-bg: var(--paper);
   --app-dialog-backdrop: color-mix(in srgb, var(--ink) 30%, transparent);
   --app-clear: transparent;
   --app-selected: var(--blue-600);
@@ -247,7 +249,7 @@ button, a, summary { -webkit-tap-highlight-color: var(--app-clear); }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 button, a { touch-action: manipulation; }
-button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-visible { outline: var(--app-focus-size) solid var(--app-focus); outline-offset: var(--sp-1); box-shadow: var(--focus-ring); }
+button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-visible { outline: 3px solid transparent; outline-offset: var(--sp-1); box-shadow: var(--focus-ring); }
 h1, h2, h3, h4, p { margin: 0; }
 a { color: inherit; text-underline-offset: var(--sp-1); }
 .edu p { line-height: var(--app-body-leading); }
@@ -256,7 +258,7 @@ a { color: inherit; text-underline-offset: var(--sp-1); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .skip-link { position: fixed; z-index: 100; top: var(--sp-3); left: var(--sp-4); transform: translateY(-200%); padding: var(--sp-3) var(--sp-5); background: var(--yellow); border-radius: var(--r-pill); color: var(--yellow-ink); font-size: var(--body); }
 .skip-link:focus { transform: translateY(0); }
-.edu-header { position: sticky; top: 0; z-index: 40; width: 100%; background: var(--app-header-bg); backdrop-filter: blur(var(--app-header-blur)); -webkit-backdrop-filter: blur(var(--app-header-blur)); border-bottom: var(--app-rule) solid var(--line); }
+.edu-header { position: sticky; top: 0; z-index: 40; width: 100%; background: var(--app-header-bg); border-bottom: var(--app-rule) solid var(--line-2); }
 .edu-header-inner { max-width: var(--app-width); margin: 0 auto; padding: var(--sp-2) var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); }
 .brand { display: inline-flex; align-items: center; gap: var(--sp-2); text-decoration: none; }
 .edu-logo { width: var(--app-logo-width); height: var(--app-logo-width); display: block; margin-right: var(--app-logo-gap); }
@@ -265,7 +267,7 @@ a { color: inherit; text-underline-offset: var(--sp-1); }
 .language-switch { display: inline-flex; gap: var(--sp-1); padding: var(--sp-1); background: var(--paper-2); border: 0; border-radius: var(--r-pill); }
 .language-switch button { min-height: var(--app-touch); padding: var(--sp-2) var(--sp-4); border: 0; border-radius: var(--r-pill); background: var(--app-clear); color: var(--ink-2); font-size: var(--body-sm); font-weight: var(--app-strong-weight); }
 .language-switch button[aria-pressed="true"] { background: var(--yellow); color: var(--yellow-ink); }
-.button { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); min-height: var(--app-touch); padding: var(--sp-3) var(--sp-5); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-pill); font-family: var(--font-display); font-size: var(--app-button-type); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); background: var(--surface); color: var(--ink); text-align: var(--app-functional-align); text-decoration: none; transition: background var(--app-duration), border-color var(--app-duration); }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); min-height: var(--app-touch); padding: var(--sp-3) var(--sp-5); border: var(--app-rule) solid var(--line-strong); border-radius: var(--r-pill); font-family: var(--font-display); font-size: var(--app-button-type); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); background: var(--surface); color: var(--ink); text-align: var(--app-functional-align); text-decoration: none; transition: background var(--app-duration), border-color var(--app-duration); }
 .button:hover:not(:disabled) { background: var(--paper-2); border-color: var(--ink-2); }
 .button.primary { background: var(--yellow); color: var(--yellow-ink); border-color: var(--yellow); box-shadow: var(--shadow-sm); }
 .button.primary:hover:not(:disabled) { background: var(--yellow-600); border-color: var(--yellow-600); }
@@ -275,10 +277,10 @@ a { color: inherit; text-underline-offset: var(--sp-1); }
 
 /* ─── Page and chapter index ─── */
 .app-shell { max-width: var(--app-width); margin: 0 auto; padding: var(--sp-12) var(--sp-6) var(--sp-16); }
-.page-header { text-align: var(--app-hero-align); }
-.edu h1.app-title { font-family: var(--font-display); font-size: var(--app-page-title); font-weight: 800; letter-spacing: var(--app-title-tracking); line-height: var(--app-title-leading); color: var(--ink); }
-.edu p.edu-lead { width: 100%; max-width: none; font-size: var(--body-lg); color: var(--ink-2); margin-top: var(--sp-5); }
-.course-progress { margin: var(--sp-10) 0 var(--sp-10); }
+.page-header { text-align: var(--app-hero-align); padding-bottom: var(--sp-8); border-bottom: var(--app-rule) solid var(--line-2); }
+.edu h1.app-title { font-family: var(--font-display); font-size: var(--app-page-title); font-weight: 800; letter-spacing: var(--app-title-tracking); line-height: 1.05; color: var(--ink); }
+.edu p.edu-lead { width: 100%; max-width: none; font-size: 1.15rem; line-height: 1.6; color: var(--ink-2); margin-top: 14px; }
+.course-progress { margin: var(--sp-8) 0 var(--sp-10); }
 .progress-copy { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-3); margin-bottom: var(--sp-3); }
 .progress-copy span { font-size: var(--body-sm); color: var(--ink-2); }
 .progress-copy strong { font-family: var(--font-mono); font-size: var(--caption); font-weight: 500; color: var(--ink); }
@@ -301,27 +303,30 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 .index-footnote { margin: var(--sp-5) var(--sp-3) 0; font-size: var(--caption); color: var(--ink-2); line-height: var(--app-tight-leading); }
 .lesson-workspace { min-width: 0; }
 .lesson-heading { margin-bottom: var(--sp-8); }
-.edu h2.lesson-title { font-size: var(--app-lesson-title); line-height: var(--app-title-leading); letter-spacing: var(--app-title-tracking); outline: none; }
+.edu h2.lesson-title { font-size: var(--app-lesson-title); line-height: var(--app-title-leading); letter-spacing: var(--app-title-tracking); outline: 3px solid transparent; }
 .lesson-intro { margin-top: var(--sp-4); font-size: var(--body-lg) !important; }
 
 /* ─── Lesson content ─── */
-.example { padding: var(--sp-6); border-radius: var(--r-xl); background: var(--paper-2); margin-bottom: var(--sp-8); border: var(--app-rule) solid var(--line); }
-.edu h3.example-title { font-size: var(--app-section-title); margin-bottom: var(--sp-5); }
+.example { border-radius: var(--r-xl); background: var(--surface); margin-bottom: var(--sp-8); border: var(--app-rule) solid var(--line-2); box-shadow: var(--shadow-sm); overflow: hidden; }
+.example-head { padding: var(--sp-4) var(--sp-6); background: var(--paper-2); border-bottom: var(--app-rule) solid var(--line); }
+.example-body { padding: var(--sp-6); }
+.edu h3.example-title { font-size: var(--app-section-title); }
 .example-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-4); }
-.example-piece { min-width: 0; background: var(--surface); padding: var(--sp-5); border: var(--app-rule) solid var(--line); border-radius: var(--r-lg); }
-.edu h4.example-label { font-family: var(--font-display); font-size: var(--app-example-title); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); margin-bottom: var(--sp-3); }
+.example-piece { min-width: 0; background: var(--surface); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-lg); overflow: hidden; }
+.example-piece-body { padding: var(--sp-4) var(--sp-5) var(--sp-5); }
+.edu h4.example-label { font-family: var(--font-display); font-size: var(--app-example-title); font-weight: var(--app-strong-weight); line-height: var(--app-tight-leading); padding: var(--sp-3) var(--sp-5); background: var(--paper-2); border-bottom: var(--app-rule) solid var(--line); }
 .edu p.example-copy { color: var(--ink); font-size: var(--app-example-type); white-space: pre-line; overflow-wrap: anywhere; }
-.example-note { margin-top: var(--sp-4); font-size: var(--body-sm) !important; }
+.example-note { padding: var(--sp-4) var(--sp-6); border-top: var(--app-rule) dashed var(--line-2); font-size: var(--body-sm) !important; }
 .example-stack .example-grid { grid-template-columns: minmax(0,1fr); }
-.token-flow { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-5) 0; }
+.token-flow { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: 0 0 var(--sp-5); }
 .token { padding: var(--sp-3) var(--sp-4); border-radius: var(--r-md); font-family: var(--font-mono); font-size: var(--app-example-title); background: var(--surface); color: var(--ink); border: var(--app-rule) solid var(--line-2); }
 .token:nth-child(2n) { background: var(--yellow); border-color: var(--yellow); color: var(--yellow-ink); }
 .token strong { text-decoration: underline; text-underline-offset: var(--sp-1); }
 .token-flow-note { font-family: var(--font-mono) !important; font-size: var(--body-sm) !important; color: var(--ink) !important; margin-bottom: var(--sp-5); }
-.probabilities { margin: var(--sp-5) 0; display: grid; gap: var(--sp-3); }
+.probabilities { margin: 0 0 var(--sp-5); display: grid; gap: var(--sp-3); }
 .probability-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto; gap: var(--sp-3); align-items: center; font-family: var(--font-mono); font-size: var(--caption); color: var(--ink); }
 .probability-row progress { height: var(--sp-2); }
-.lesson-section { margin: var(--sp-8) 0; display: grid; grid-template-columns: var(--app-badge) minmax(0, 1fr); gap: var(--sp-4); align-items: start; }
+.lesson-section { margin: var(--sp-8) 0; }
 .section-number, .recap-number { display: flex; align-items: center; justify-content: center; width: var(--app-badge); height: var(--app-badge); background: var(--blue-soft); color: var(--blue-ink); border-radius: var(--r-pill); font-family: var(--font-mono); font-size: var(--caption); font-weight: 500; }
 .edu h3.section-title { font-size: var(--app-section-title); line-height: var(--app-tight-leading); margin-bottom: var(--sp-3); }
 .lesson-section p + p { margin-top: var(--sp-3); }
@@ -340,11 +345,13 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 .quiz-head { padding: var(--sp-6) var(--sp-8); border-radius: var(--r-xl); background: var(--blue-soft); color: var(--blue-ink); }
 .edu .knowledge-check h3 { font-size: var(--h3); }
 .quiz-intro { margin-top: var(--sp-3); }
-.question { margin-top: var(--sp-6); padding: var(--sp-6); border: var(--app-rule) solid var(--line); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-sm); }
-.question-number { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); margin-bottom: var(--sp-3); border-radius: var(--r-pill); background: var(--blue-soft); color: var(--blue-ink); font-family: var(--font-mono); font-size: var(--app-chip-type); font-weight: 500; letter-spacing: var(--app-chip-tracking); text-transform: uppercase; }
+.question { margin-top: var(--sp-6); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-sm); overflow: hidden; }
+.question-head { padding: var(--sp-3) var(--sp-6); background: var(--paper-2); border-bottom: var(--app-rule) solid var(--line); }
+.question-body { padding: var(--sp-5) var(--sp-6) var(--sp-6); }
+.question-number { display: inline-flex; align-items: center; padding: var(--sp-1) var(--sp-3); border-radius: var(--r-pill); background: var(--blue-soft); color: var(--blue-ink); font-family: var(--font-mono); font-size: var(--app-chip-type); font-weight: 500; letter-spacing: var(--app-chip-tracking); text-transform: uppercase; }
 .edu h4.question-title { font-family: var(--font-sans); font-size: var(--body-lg); line-height: var(--app-tight-leading); margin-bottom: var(--sp-5); }
 .answer-list { display: grid; gap: var(--sp-2); }
-.answer { width: 100%; min-height: var(--app-touch); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-md); color: var(--ink); background: var(--surface); text-align: var(--app-body-align); font-size: var(--body); line-height: var(--app-tight-leading); transition: background var(--app-duration); }
+.answer { width: 100%; min-height: var(--app-touch); display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4); border: var(--app-rule) solid var(--line-strong); border-radius: var(--r-md); color: var(--ink); background: var(--surface); text-align: var(--app-body-align); font-size: var(--body); line-height: var(--app-tight-leading); transition: background var(--app-duration); }
 .answer:hover:not(:disabled) { background: var(--paper-2); border-color: var(--ink-2); }
 .answer-number { display: flex; flex: 0 0 var(--app-answer-number); width: var(--app-answer-number); min-height: var(--app-answer-number); justify-content: center; align-items: center; font-family: var(--font-mono); font-size: var(--caption); border-radius: var(--r-xs); background: var(--paper-2); color: var(--ink); }
 .answer-label { flex: 1; min-width: 0; }
@@ -375,7 +382,7 @@ progress::-moz-progress-bar { background: var(--yellow); border-radius: var(--r-
 .stat-number { display: block; font-family: var(--font-display); font-size: var(--app-stat-type); font-weight: var(--app-title-weight); line-height: var(--app-title-leading); margin-bottom: var(--sp-3); }
 .stat-label { font-size: var(--body); line-height: var(--app-tight-leading); }
 .result-list { list-style: none; margin: var(--sp-8) 0; padding: 0; display: grid; gap: var(--sp-3); }
-.result-item { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); border: var(--app-rule) solid var(--line); border-radius: var(--r-lg); }
+.result-item { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5); border: var(--app-rule) solid var(--line-2); border-radius: var(--r-lg); }
 .result-item strong { display: block; font-size: var(--body); margin-bottom: var(--sp-2); }
 .result-item small { display: block; color: var(--ink-2); font-size: var(--body-sm); line-height: var(--app-tight-leading); }
 .result-item .button { flex: 0 0 auto; }
@@ -418,10 +425,12 @@ dialog::backdrop { background: var(--app-dialog-backdrop); }
   .index-footnote { display: none; }
   .lesson-heading { margin-bottom: var(--sp-6); }
   .lesson-intro { font-size: var(--body) !important; }
-  .example { padding: var(--sp-5); }
+  .example-head, .example-body { padding-inline: var(--sp-4); }
+  .example-note { padding-inline: var(--sp-4); }
   .example-grid { grid-template-columns: minmax(0, 1fr); }
-  .example-piece { padding: var(--sp-4); }
-  .question { padding: var(--sp-5) var(--sp-4); }
+  .example-piece-body, .edu h4.example-label { padding-inline: var(--sp-4); }
+  .page-header { padding-bottom: var(--sp-6); }
+  .question-head, .question-body { padding-inline: var(--sp-4); }
   .answer { padding: var(--sp-3); gap: var(--sp-2); }
   .takeaway { padding: var(--sp-5); }
   .quiz-head { padding: var(--sp-5); }
@@ -1521,7 +1530,10 @@ function buildExample(chapter) {
   const title = node('h3', 'example-title', t(prefix + 'ExampleTitle'));
   title.id = 'exampleTitle';
   example.setAttribute('aria-labelledby', title.id);
-  example.append(title);
+  const head = node('div', 'example-head');
+  head.append(title);
+  const body = node('div', 'example-body');
+  example.append(head, body);
   if (chapter.example === 'tokens') {
     const flow = node('div', 'token-flow');
     for (const piece of ['str', 'aw', 'berr', 'y']) {
@@ -1529,7 +1541,7 @@ function buildExample(chapter) {
       for (const letter of piece) token.append(letter === 'r' ? node('strong', '', letter) : document.createTextNode(letter));
       flow.append(token);
     }
-    example.append(flow, node('p', 'token-flow-note', t('c2TokenNote')));
+    body.append(flow, node('p', 'token-flow-note', t('c2TokenNote')));
   }
   if (chapter.example === 'generation') {
     const distribution = node('div', 'probabilities');
@@ -1543,15 +1555,18 @@ function buildExample(chapter) {
       row.append(label, bar, node('span', '', value + '%'));
       distribution.append(row);
     });
-    example.append(distribution);
+    body.append(distribution);
   }
   const grid = node('div', 'example-grid');
   for (let index = 1; index <= (chapter.pieces || 2); index += 1) {
     const piece = node('div', 'example-piece');
-    piece.append(node('h4', 'example-label', t(prefix + 'Example' + index + 'Label')), node('p', 'example-copy', t(prefix + 'Example' + index)));
+    const pieceBody = node('div', 'example-piece-body');
+    pieceBody.append(node('p', 'example-copy', t(prefix + 'Example' + index)));
+    piece.append(node('h4', 'example-label', t(prefix + 'Example' + index + 'Label')), pieceBody);
     grid.append(piece);
   }
-  example.append(grid, node('p', 'example-note', t(prefix + 'ExampleNote')));
+  body.append(grid);
+  example.append(node('p', 'example-note', t(prefix + 'ExampleNote')));
   return example;
 }
 function applyAnswerState(wrapper, question) {
@@ -1590,7 +1605,11 @@ function buildQuestion(question, index, total) {
   const title = node('h4', 'question-title', t(question.id + 'Q'));
   title.id = question.id + '-title';
   wrapper.setAttribute('aria-labelledby', title.id);
-  wrapper.append(node('div', 'question-number', t('questionNumber', {n: index + 1, total})), title);
+  const head = node('div', 'question-head');
+  head.append(node('div', 'question-number', t('questionNumber', {n: index + 1, total})));
+  const body = node('div', 'question-body');
+  body.append(title);
+  wrapper.append(head, body);
   const options = node('div', 'answer-list');
   options.setAttribute('role', 'group');
   options.setAttribute('aria-labelledby', title.id);
@@ -1610,7 +1629,7 @@ function buildQuestion(question, index, total) {
   const feedback = node('div', 'question-feedback');
   feedback.id = question.id + '-feedback';
   feedback.hidden = true;
-  wrapper.append(options, feedback);
+  body.append(options, feedback);
   applyAnswerState(wrapper, question);
   return wrapper;
 }
@@ -1673,9 +1692,11 @@ function renderLesson() {
       source.rel = 'noopener noreferrer';
       content.append(source);
     }
-    const badge = node('span', state.chapter === TOTAL ? 'recap-number' : 'section-number', String(index));
-    badge.setAttribute('aria-hidden', 'true');
-    section.append(badge);
+    if (state.chapter === TOTAL) {
+      const badge = node('span', 'recap-number', String(index));
+      badge.setAttribute('aria-hidden', 'true');
+      section.append(badge);
+    }
     section.append(content);
     sections.append(section);
   }
