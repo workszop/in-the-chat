@@ -264,8 +264,12 @@ a { color: inherit; text-underline-offset: var(--sp-1); }
 .edu-logo { width: var(--app-logo-width); height: var(--app-logo-width); display: block; margin-right: var(--app-logo-gap); }
 .edu-wordmark { font-family: var(--font-display); font-weight: var(--app-title-weight); font-size: var(--app-wordmark-type); letter-spacing: var(--app-title-tracking); color: var(--ink); }
 .edu h1.edu-app-title { margin: 0 0 0 14px; padding-left: 14px; border-left: 1px solid var(--line-2, #d9d3c7);
-  font-family: var(--font-display); font-weight: 600; font-size: 19px; letter-spacing: -.01em; line-height: 1.2;
+  font-family: var(--font-display); font-weight: 600; font-size: 38px; letter-spacing: -.02em; line-height: 1.1;
   color: var(--ink-2, #4a4540); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; }
+/* 38px only where the bar has room; step down so the title never truncates or wraps the bar */
+@media (max-width: 911px) { .edu h1.edu-app-title { font-size: 30px; } }
+@media (min-width: 769px) and (max-width: 821px) { .edu h1.edu-app-title { font-size: 24px; } }
+@media (min-width: 725px) and (max-width: 768px) { .edu h1.edu-app-title { font-size: 38px; } }
 @media (max-width: 640px) { .edu h1.edu-app-title { font-size: 15px; margin-left: 10px; padding-left: 10px; } }
 .header-tools { margin-inline-start: auto; display: flex; align-items: center; gap: var(--sp-3); }
 .language-switch { display: inline-flex; gap: var(--sp-1); padding: var(--sp-1); background: var(--paper-2); border: 0; border-radius: var(--r-pill); }
